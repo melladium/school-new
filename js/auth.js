@@ -248,10 +248,12 @@
     });
   }
 
-  /* ШАПКА */
+  /* ШАПКА — не трогает, если колокольчик есть */
   async function initHeaderAuth() {
     const navActions = document.querySelector('.nav__actions');
     if (!navActions) return;
+
+    if (navActions.querySelector('[data-notif-bell]')) return;
 
     const current = await getCurrentUser();
     if (!current) return;
