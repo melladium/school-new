@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вход — Школа Кузнечевского</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <div class="cursor-glow" data-cursor-glow></div>
+
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+      <nav class="nav__links">
+        <a href="index.html#podbor">Автоподбор</a>
+        <a href="index.html#how">Как это работает</a>
+        <a href="index.html#repetitoram">Репетиторам</a>
+      </nav>
+      <div class="nav__actions">
+        <a href="register.html" class="btn btn--primary">Регистрация</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-page__grid"></div>
+    <div class="auth-page__orb"></div>
+
+    <div class="auth-card">
+      <div class="auth-card__eyebrow">Вход</div>
+      <h1 class="auth-card__title">С возвращением</h1>
+      <p class="auth-card__lead">Войдите, чтобы попасть в свой кабинет</p>
+
+      <form class="auth-form" data-login-form novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+        </div>
+
+        <div class="field">
+          <label for="password">Пароль</label>
+          <div style="position:relative;">
+            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password" style="padding-right:44px;">
+            <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Показать пароль" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:4px;">👁</button>
+          </div>
+        </div>
+
+        <div class="auth-form__error" data-error></div>
+
+        <button type="submit" class="btn btn--primary btn--lg auth-form__submit">Войти</button>
+      </form>
+
+      <div class="auth-card__footer">
+        Нет аккаунта? <a href="register.html">Зарегистрироваться</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

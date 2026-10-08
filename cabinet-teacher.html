@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кабинет репетитора — Школа Кузнечевского</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/cabinet.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="page-teacher">
+
+  <div class="cursor-glow" data-cursor-glow></div>
+
+  <header class="nav is-scrolled">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+      <nav class="nav__links">
+        <a href="index.html">Главная</a>
+        <a href="cabinet-teacher.html" class="is-current">Расписание</a>
+      </nav>
+      <div class="nav__actions">
+        <div style="position:relative;">
+          <button class="notif-bell" data-notif-bell aria-label="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.7 21a2 2 0 01-3.4 0"/>
+            </svg>
+            <span class="notif-bell__count" data-notif-count hidden>0</span>
+          </button>
+          <div class="notif-panel" data-notif-panel hidden></div>
+        </div>
+        <span class="nav__user" data-user-name>…</span>
+        <button class="btn btn--ghost" data-logout>Выйти</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="cabinet">
+    <div class="cabinet__grid"></div>
+
+    <div class="container cabinet__inner">
+      <div class="cabinet__head">
+        <div class="cabinet__eyebrow">Кабинет репетитора</div>
+        <h1 class="cabinet__title">Расписание и заявки</h1>
+        <p class="cabinet__lead">Управляйте слотами, видьте брони, редактируйте профиль</p>
+      </div>
+
+      <div class="cabinet__stats">
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="slots">0</div>
+          <div class="cabinet-stat__label">Свободных слотов</div>
+        </div>
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="bookings">0</div>
+          <div class="cabinet-stat__label">Активных броней</div>
+        </div>
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="rating">—</div>
+          <div class="cabinet-stat__label">Рейтинг</div>
+        </div>
+      </div>
+
+      <div class="cabinet__section">
+        <div class="cabinet__section-head">
+          <h2 class="cabinet__section-title">Мой профиль</h2>
+          <button class="btn btn--ghost" data-toggle-profile>Редактировать</button>
+        </div>
+
+        <div data-profile-view class="profile-grid">
+          <div class="profile-item profile-item--full" style="flex-direction:row;align-items:center;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+            <div data-profile-avatar style="width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--accent);overflow:hidden;flex-shrink:0;">—</div>
+            <div>
+              <div data-profile-name style="font-family:var(--font-display);font-size:20px;font-weight:500;margin-bottom:4px;">—</div>
+              <div data-profile-email style="color:var(--text-dim);font-size:14px;">—</div>
+            </div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Предмет</div>
+            <div class="profile-item__value" data-profile-subject>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Цена за урок</div>
+            <div class="profile-item__value" data-profile-price>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Телефон</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-phone>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Telegram</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-telegram>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">WhatsApp</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-whatsapp>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Ссылка на урок</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-link>—</div>
+          </div>
+          <div class="profile-item profile-item--full" style="padding-top:14px;border-top:1px solid var(--border);">
+            <div class="profile-item__label">О себе</div>
+            <div class="profile-item__value" data-profile-bio>—</div>
+          </div>
+        </div>
+
+        <div data-profile-edit hidden style="background:var(--surface-1);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;margin-top:16px;">
+          <div class="field" style="margin-bottom:14px;">
+            <label>Фото профиля</label>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div data-avatar-preview style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent);overflow:hidden;flex-shrink:0;">👤</div>
+              <div>
+                <input type="file" accept="image/*" data-avatar-input style="display:none;">
+                <button type="button" class="btn btn--ghost" data-avatar-button>Загрузить фото</button>
+                <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 2 МБ.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Предмет</label>
+            <select data-edit-subject>
+              <option value="math">Математика</option>
+              <option value="english">Английский</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский</option>
+              <option value="chemistry">Химия</option>
+              <option value="it">Информатика</option>
+            </select>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Цена за урок (₽)</label>
+            <input type="number" min="0" step="100" data-edit-price placeholder="1000">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Телефон</label>
+            <input type="tel" data-edit-phone placeholder="+7 999 123-45-67">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Telegram</label>
+            <input type="text" data-edit-telegram placeholder="@username">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>WhatsApp</label>
+            <input type="tel" data-edit-whatsapp placeholder="+7 999 123-45-67">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Ссылка на урок (Телемост / Zoom / Meet)</label>
+            <input type="url" data-edit-link placeholder="https://telemost.yandex.ru/j/...">
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>О себе</label>
+            <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат. 8 лет готовлю к ОГЭ и ЕГЭ..."></textarea>
+          </div>
+
+          <div class="auth-form__error" data-profile-error></div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--primary" data-profile-save>Сохранить</button>
+            <button class="btn btn--ghost" data-profile-cancel>Отмена</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cabinet__section">
+        <div class="cabinet__section-head">
+          <h2 class="cabinet__section-title">Мои слоты</h2>
+          <button class="btn btn--primary" data-add-slot>+ Добавить слот</button>
+        </div>
+        <div class="cabinet__list" data-slots-list>
+          <div class="cabinet__empty">
+            <div class="cabinet__empty-icon">🕒</div>
+            <div class="cabinet__empty-title">Слотов пока нет</div>
+            <div class="cabinet__empty-desc">Добавьте свободное время — ученики смогут бронировать</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Заявки от учеников</h2>
+        <div class="cabinet__list" data-bookings-list>
+          <div class="cabinet__empty">
+            <div class="cabinet__empty-icon">📩</div>
+            <div class="cabinet__empty-title">Заявок пока нет</div>
+            <div class="cabinet__empty-desc">Когда ученик забронирует слот — заявка появится здесь</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Опасная зона</h2>
+        <div class="danger-zone">
+          <p class="danger-zone__text">
+            Скрытие анкеты убирает вас из автоподбора. Ученики перестанут вас видеть, но история броней сохранится.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--ghost" data-toggle-visibility>Скрыть анкету</button>
+            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal" data-modal="add-slot" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__title">Новый слот</div>
+
+        <div class="field" style="margin-bottom:16px;">
+          <label for="slot-date">Дата</label>
+          <input type="date" id="slot-date" data-slot-date>
+        </div>
+
+        <div class="field" style="margin-bottom:16px;">
+          <label for="slot-time">Время</label>
+          <input type="time" id="slot-time" data-slot-time>
+        </div>
+
+        <div class="auth-form__error" data-slot-error></div>
+
+        <button class="btn btn--primary btn--lg" style="width:100%;" data-slot-save>Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cabinet-teacher.js"></script>
+</body>
+</html>

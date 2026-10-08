@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Школа Кузнечевского — репетиторы без курсов</title>
+  <meta name="description" content="Онлайн-школа репетиторов. Живое расписание, реальные слоты, бесплатно для всех.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <div class="page-loader" data-loader>
+    <div class="page-loader__logo">Школа Кузнечевского<span>.</span></div>
+    <div class="page-loader__bar"><div class="page-loader__fill"></div></div>
+  </div>
+
+  <div class="cursor-glow" data-cursor-glow></div>
+
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo" data-logo>
+        <span>Ш</span><span>к</span><span>о</span><span>л</span><span>а</span>
+        <span class="nav__logo-space"> </span>
+        <span>К</span><span>у</span><span>з</span><span>н</span><span>е</span><span>ч</span><span>е</span><span>в</span><span>с</span><span>к</span><span>о</span><span>г</span><span>о</span>
+        <span class="nav__logo-dot">.</span>
+      </a>
+      <nav class="nav__links">
+        <a href="#podbor">Автоподбор</a>
+        <a href="#how">Как это работает</a>
+        <a href="#repetitoram">Репетиторам</a>
+      </nav>
+      <div class="nav__actions">
+        <a href="login.html" class="btn btn--ghost">Войти</a>
+        <a href="register.html" class="btn btn--primary">Регистрация</a>
+      </div>
+      <button class="nav__burger" aria-label="Меню">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div class="hero__parallax" data-parallax>
+        <div class="hero__orb hero__orb--1"></div>
+        <div class="hero__grid"></div>
+      </div>
+
+      <div class="hero__inner">
+        <div class="hero__eyebrow" data-hero-el>
+          <span class="dot"></span>
+          Бесплатно для всех · без курсов · без комиссий
+        </div>
+        <h1 class="hero__title" data-hero-el>
+          Школа, где репетитор <em>главное</em>
+        </h1>
+        <p class="hero__lead" data-hero-el>
+          Никаких курсов и методологий. Только площадка: реальные слоты,
+          настоящие отзывы, прямая связь. На старте — полностью бесплатно.
+        </p>
+
+        <div class="hero__roles" data-hero-el>
+          <a href="#podbor" class="role-card" data-magnetic>
+            <div class="role-card__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 3L2 8l10 5 10-5-10-5z"/>
+                <path d="M6 10v6c0 1.5 3 3 6 3s6-1.5 6-3v-6"/>
+              </svg>
+            </div>
+            <div class="role-card__body">
+              <div class="role-card__title">Я ученик</div>
+              <div class="role-card__desc">Найти репетитора за 30 секунд</div>
+            </div>
+            <div class="role-card__arrow">→</div>
+          </a>
+
+          <a href="#repetitoram" class="role-card role-card--teacher" data-magnetic>
+            <div class="role-card__icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21v-2a6 6 0 0112 0v2"/>
+                <path d="M17 11l2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="role-card__body">
+              <div class="role-card__title">Я репетитор</div>
+              <div class="role-card__desc">Получить учеников бесплатно</div>
+            </div>
+            <div class="role-card__arrow">→</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="podbor" id="podbor">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-head__eyebrow">Автоподбор</div>
+          <h2 class="section-head__title">Три шага — и вы на уроке</h2>
+          <p class="section-head__lead">Ответьте на три вопроса. Покажем репетиторов под ваш запрос.</p>
+        </div>
+
+        <div class="podbor__card reveal">
+          <div class="podbor__progress">
+            <div class="podbor__bar" data-step="1"></div>
+          </div>
+
+          <div class="podbor__viewport">
+            <div class="podbor__step is-active" data-step="1">
+              <div class="podbor__step-label">Шаг 1 из 3</div>
+              <h3 class="podbor__question">Какой предмет?</h3>
+              <div class="chips" data-field="subject" data-chips>
+                <button class="chip" data-value="math">Математика</button>
+                <button class="chip" data-value="english">Английский</button>
+                <button class="chip" data-value="physics">Физика</button>
+                <button class="chip" data-value="russian">Русский</button>
+                <button class="chip" data-value="chemistry">Химия</button>
+                <button class="chip" data-value="it">Информатика</button>
+              </div>
+              <div class="podbor__hint" data-hint="subject" hidden>Выберите предмет</div>
+            </div>
+
+            <div class="podbor__step" data-step="2">
+              <div class="podbor__step-label">Шаг 2 из 3</div>
+              <h3 class="podbor__question">Какая задача?</h3>
+              <div class="chips" data-field="goal" data-goal-chips data-chips></div>
+              <div class="podbor__hint" data-hint="goal" hidden>Выберите задачу</div>
+            </div>
+
+            <div class="podbor__step" data-step="3">
+              <div class="podbor__step-label">Шаг 3 из 3</div>
+              <h3 class="podbor__question">Когда удобно и какой бюджет?</h3>
+              <div class="podbor__row">
+                <div class="field">
+                  <label>Время</label>
+                  <div class="chips" data-field="time" data-chips>
+                    <button class="chip" data-value="morning">Утро</button>
+                    <button class="chip" data-value="day">День</button>
+                    <button class="chip" data-value="evening">Вечер</button>
+                    <button class="chip" data-value="weekend">Выходные</button>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>Бюджет за урок</label>
+                  <div class="chips" data-field="budget" data-chips>
+                    <button class="chip" data-value="1000">до 1000 ₽</button>
+                    <button class="chip" data-value="1500">до 1500 ₽</button>
+                    <button class="chip" data-value="2500">до 2500 ₽</button>
+                    <button class="chip" data-value="any">Не важно</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="podbor__nav">
+            <button class="btn btn--ghost" data-podbor-back>Назад</button>
+            <button class="btn btn--primary" data-podbor-next>Далее</button>
+          </div>
+        </div>
+
+        <div class="podbor__results" data-podbor-results hidden>
+          <div class="section-head section-head--left">
+            <div class="section-head__eyebrow">Результат</div>
+            <h3 class="section-head__title">Репетиторы под ваш запрос</h3>
+          </div>
+          <div class="grid grid--3" data-podbor-grid></div>
+          <div class="podbor__reset">
+            <button class="btn btn--ghost" data-podbor-reset>Пройти заново</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how" id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-head__eyebrow">Как это работает</div>
+          <h2 class="section-head__title">Без курсов, без методологий</h2>
+        </div>
+        <div class="grid grid--3">
+          <div class="how__card reveal">
+            <div class="how__num">01</div>
+            <h3>Отвечаете</h3>
+            <p>Три вопроса: предмет, задача, удобное время. Без регистрации.</p>
+          </div>
+          <div class="how__card reveal">
+            <div class="how__num">02</div>
+            <h3>Бронируете</h3>
+            <p>Выбираете слот, подтверждаете урок. На старте — бесплатно, без комиссий.</p>
+          </div>
+          <div class="how__card reveal">
+            <div class="how__num">03</div>
+            <h3>Занимаетесь</h3>
+            <p>Ссылка на урок приходит автоматически. Напоминания за 24ч и за 1ч.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="for-teachers" id="repetitoram">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-head__eyebrow">Репетиторам</div>
+          <h2 class="section-head__title">Ваш урок. Ваши правила.</h2>
+          <p class="section-head__lead">Мы не диктуем, как вести занятие. Даём календарь, учеников и напоминания.</p>
+        </div>
+
+        <div class="for-teachers__grid">
+          <div class="for-teachers__feature reveal">
+            <div class="for-teachers__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="5" width="18" height="16" rx="2"/>
+                <path d="M3 9h18M8 3v4M16 3v4"/>
+              </svg>
+            </div>
+            <h3>Живое расписание</h3>
+            <p>Слоты на две недели вперёд. Перенос — в один клик.</p>
+          </div>
+
+          <div class="for-teachers__feature reveal">
+            <div class="for-teachers__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 2"/>
+              </svg>
+            </div>
+            <h3>Свободный график</h3>
+            <p>Вы сами решаете, когда работать. Никаких обязательных слотов.</p>
+          </div>
+
+          <div class="for-teachers__feature reveal">
+            <div class="for-teachers__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>
+              </svg>
+            </div>
+            <h3>Отзывы</h3>
+            <p>Только от учеников, которые реально провели урок.</p>
+          </div>
+        </div>
+
+        <div class="for-teachers__cta reveal">
+          <a href="register.html" class="btn btn--primary btn--lg" data-magnetic>Стать репетитором</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__col">
+          <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+          <p class="footer__desc">Площадка репетиторов без курсов и методологий. Бесплатно для всех.</p>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Ученикам</div>
+          <a href="#podbor">Автоподбор</a>
+          <a href="#how">Как это работает</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Репетиторам</div>
+          <a href="register.html">Стать репетитором</a>
+          <a href="login.html">Войти</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Контакты</div>
+          <a href="mailto:hi@kuznechevsky.ru">hi@kuznechevsky.ru</a>
+          <a href="#">Telegram</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Школа Кузнечевского</span>
+        <span>Бесплатно для всех · без комиссий</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal" data-modal="teacher" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel modal__panel--wide" data-teacher-content></div>
+  </div>
+
+  <div class="modal" data-modal="pay" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel" data-pay-content></div>
+  </div>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

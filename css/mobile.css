@@ -1,0 +1,46 @@
+@media (max-width: 1024px) {
+  .nav__links { display: none; }
+  .nav__actions .btn--ghost { display: none; }
+  .for-teachers__grid { grid-template-columns: repeat(2, 1fr); }
+  .footer__inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
+@media (max-width: 768px) {
+  .nav__burger { display: flex; }
+
+  .hero { padding: 140px 0 80px; }
+  .hero__roles { grid-template-columns: 1fr; margin-bottom: 48px; }
+  .hero__title { font-size: clamp(32px, 8vw, 48px); }
+
+  .podbor { padding: 64px 0; }
+  .podbor__card { padding: 24px; }
+  .podbor__question { font-size: 22px; }
+  .podbor__row { grid-template-columns: 1fr; gap: 20px; }
+  .podbor__nav { flex-direction: column-reverse; gap: 10px; }
+  .podbor__nav .btn { width: 100%; }
+
+  .how, .for-teachers, .cta { padding: 64px 0; }
+  .for-teachers__grid { grid-template-columns: 1fr; }
+  .section-head { margin-bottom: 40px; }
+
+  .tp { padding: 24px; }
+  .tp__grid { grid-template-columns: 1fr; gap: 24px; }
+  .tp__foot { flex-direction: column; gap: 16px; align-items: stretch; }
+  .tp__foot .btn { width: 100%; }
+
+  .pay { padding: 24px; }
+
+  .footer__inner { grid-template-columns: 1fr; gap: 28px; }
+  .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+  .modal { padding: 12px; }
+  .cursor-glow { display: none; }
+  .nav__logo { font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  .hero__title { font-size: 32px; }
+  .nav__logo { font-size: 12px; }
+  .btn { font-size: 13px; padding: 10px 16px; }
+  .btn--lg { padding: 12px 20px; font-size: 14px; }
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация — Школа Кузнечевского</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+
+  <div class="cursor-glow" data-cursor-glow></div>
+
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+      <nav class="nav__links">
+        <a href="index.html#podbor">Автоподбор</a>
+        <a href="index.html#how">Как это работает</a>
+        <a href="index.html#repetitoram">Репетиторам</a>
+      </nav>
+      <div class="nav__actions">
+        <a href="login.html" class="btn btn--ghost">Войти</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <div class="auth-page__grid"></div>
+    <div class="auth-page__orb"></div>
+
+    <div class="auth-card auth-card--wide">
+      <div class="auth-card__eyebrow">Регистрация</div>
+
+      <div class="role-screen" data-role-screen>
+        <h1 class="auth-card__title">Кто вы?</h1>
+        <p class="auth-card__lead">Выберите, как хотите использовать платформу</p>
+
+        <div class="role-picker role-picker--big">
+          <button type="button" class="role-card-big" data-pick-role="student">
+            <div class="role-card-big__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 3L2 8l10 5 10-5-10-5z"/>
+                <path d="M6 10v6c0 1.5 3 3 6 3s6-1.5 6-3v-6"/>
+              </svg>
+            </div>
+            <div class="role-card-big__body">
+              <div class="role-card-big__title">Я ученик</div>
+              <div class="role-card-big__desc">Найти репетитора и записаться на урок</div>
+            </div>
+            <div class="role-card-big__arrow">→</div>
+          </button>
+
+          <button type="button" class="role-card-big role-card-big--teacher" data-pick-role="teacher">
+            <div class="role-card-big__icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 21v-2a6 6 0 0112 0v2"/>
+                <path d="M17 11l2 2 4-4"/>
+              </svg>
+            </div>
+            <div class="role-card-big__body">
+              <div class="role-card-big__title">Я репетитор</div>
+              <div class="role-card-big__desc">Получать учеников и вести расписание</div>
+            </div>
+            <div class="role-card-big__arrow">→</div>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-screen" data-form-screen hidden>
+        <button type="button" class="form-screen__back" data-back-to-roles>
+          <span>←</span> Выбрать другую роль
+        </button>
+
+        <h1 class="auth-card__title">Создать аккаунт</h1>
+        <p class="auth-card__lead">
+          Регистрация как <span class="form-screen__role" data-role-label>ученик</span>
+        </p>
+
+        <form class="auth-form" data-register-form novalidate>
+          <div class="field">
+            <label for="name">Имя</label>
+            <input type="text" id="name" name="name" placeholder="Анна" required autocomplete="name">
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required autocomplete="email">
+          </div>
+
+          <div class="field">
+            <label for="password">Пароль</label>
+            <div style="position:relative;">
+              <input type="password" id="password" name="password" placeholder="Минимум 6 символов" required autocomplete="new-password" style="padding-right:44px;">
+              <button type="button" class="password-toggle" data-toggle-password="password" aria-label="Показать пароль" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:4px;">👁</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password2">Повторите пароль</label>
+            <div style="position:relative;">
+              <input type="password" id="password2" name="password2" placeholder="Ещё раз" required autocomplete="new-password" style="padding-right:44px;">
+              <button type="button" class="password-toggle" data-toggle-password="password2" aria-label="Показать пароль" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:4px;">👁</button>
+            </div>
+          </div>
+
+          <div class="auth-form__error" data-error></div>
+
+          <button type="submit" class="btn btn--primary btn--lg auth-form__submit">
+            Зарегистрироваться
+          </button>
+        </form>
+      </div>
+
+      <div class="auth-card__footer">
+        Уже есть аккаунт? <a href="login.html">Войти</a>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
