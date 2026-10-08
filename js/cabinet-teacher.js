@@ -14,11 +14,13 @@
     const logoutBtn = document.querySelector('[data-logout]');
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
-    initAddSlotModal();
     initProfileSection();
     initNotifications();
 
-    await Promise.all([loadProfile(), loadSlots(), loadBookings(), loadRating()]);
+    const genBtn = document.querySelector('[data-generate-slots]');
+    if (genBtn) genBtn.addEventListener('click', generateSlots);
+
+    await Promise.all([loadProfile(), loadSchedule(), loadBookings(), loadRating()]);
   }
 
   /* УВЕДОМЛЕНИЯ */
@@ -135,13 +137,23 @@
     setText('[data-profile-link]', data.meeting_link);
     setText('[data-profile-bio]', data.bio || 'Информация пока не заполнена');
 
+    const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
     const avatarEl = document.querySelector('[data-profile-avatar]');
     if (avatarEl) {
       if (data.avatar_url) {
         avatarEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       } else {
-        const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
         avatarEl.textContent = initials;
+      }
+    }
+
+    const navAvatar = document.querySelector('[data-user-avatar]');
+    if (navAvatar) {
+      if (data.avatar_url) {
+        navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
+      } else {
+        navAvatar.textContent = initials;
       }
     }
 
@@ -325,125 +337,143 @@
     }
   }
 
-  /* СЛОТЫ */
-  async function loadSlots() {
-    const listEl = document.querySelector('[data-slots-list]');
-    if (!listEl) return;
+  /* РАСПИСАНИЕ — СЕТКА */
+  const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
 
-    listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
+  let scheduleState = {};
+
+  async function loadSchedule() {
+    const grid = document.querySelector('[data-schedule-grid]');
+    if (!grid) return;
 
     const { data, error } = await window.supabaseClient
-      .from('slots')
-      .select('id, date, time, is_booked')
-      .eq('teacher_id', currentUser.user.id)
-      .order('date', { ascending: true })
-      .order('time', { ascending: true });
+      .from('schedule_template')
+      .select('weekday, time')
+      .eq('teacher_id', currentUser.user.id);
 
     if (error) {
-      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>';
+      grid.innerHTML = '<div class="schedule-grid__loading">Ошибка: ' + error.message + '</div>';
       return;
     }
 
-    if (!data.length) {
-      listEl.innerHTML = `
-        <div class="cabinet__empty">
-          <div class="cabinet__empty-icon">🕒</div>
-          <div class="cabinet__empty-title">Слотов пока нет</div>
-          <div class="cabinet__empty-desc">Добавьте свободное время — ученики смогут бронировать</div>
-        </div>
-      `;
-      updateSlotsStat(0);
+    scheduleState = {};
+    (data || []).forEach(item => {
+      scheduleState[item.weekday + '|' + item.time] = true;
+    });
+
+    renderScheduleGrid();
+  }
+
+  function renderScheduleGrid() {
+    const grid = document.querySelector('[data-schedule-grid]');
+    if (!grid) return;
+
+    let html = '<div class="schedule-table">';
+    html += '<div class="schedule-table__head"></div>';
+    DAY_ORDER.forEach(d => {
+      html += `<div class="schedule-table__head">${DAYS[d]}</div>`;
+    });
+
+    HOURS.forEach(hour => {
+      html += `<div class="schedule-table__time">${hour}</div>`;
+      DAY_ORDER.forEach(d => {
+        const key = d + '|' + hour;
+        const active = scheduleState[key] ? 'is-active' : '';
+        html += `<div class="schedule-cell ${active}" data-day="${d}" data-time="${hour}"></div>`;
+      });
+    });
+
+    html += '</div>';
+    grid.innerHTML = html;
+
+    grid.querySelectorAll('.schedule-cell').forEach(cell => {
+      cell.addEventListener('click', () => toggleScheduleCell(cell));
+    });
+  }
+
+  async function toggleScheduleCell(cell) {
+    const day = parseInt(cell.dataset.day, 10);
+    const time = cell.dataset.time;
+    const key = day + '|' + time;
+    const isActive = scheduleState[key];
+
+    if (isActive) {
+      delete scheduleState[key];
+      cell.classList.remove('is-active');
+      await window.supabaseClient
+        .from('schedule_template')
+        .delete()
+        .eq('teacher_id', currentUser.user.id)
+        .eq('weekday', day)
+        .eq('time', time);
+    } else {
+      scheduleState[key] = true;
+      cell.classList.add('is-active');
+      await window.supabaseClient
+        .from('schedule_template')
+        .insert({ teacher_id: currentUser.user.id, weekday: day, time: time });
+    }
+  }
+
+  async function generateSlots() {
+    if (!confirm('Сгенерировать слоты на 2 недели по текущему расписанию? Существующие слоты не удаляются.')) return;
+
+    const today = new Date();
+    const slots = [];
+
+    const { data: template } = await window.supabaseClient
+      .from('schedule_template')
+      .select('weekday, time')
+      .eq('teacher_id', currentUser.user.id);
+
+    if (!template || !template.length) {
+      alert('Сначала отметьте время в расписании.');
       return;
     }
 
-    listEl.innerHTML = data.map(s => `
-      <div class="slot-row">
-        <div class="slot-row__date">${formatDate(s.date)} · ${(s.time || '').slice(0, 5)}</div>
-        <div class="slot-row__status ${s.is_booked ? '' : 'slot-row__status--free'}">
-          ${s.is_booked ? 'Занят' : 'Свободен'}
-        </div>
-        ${!s.is_booked ? `<button class="slot-row__del" data-del-slot="${s.id}" title="Удалить">×</button>` : ''}
-      </div>
-    `).join('');
+    const { data: existing } = await window.supabaseClient
+      .from('slots')
+      .select('date, time')
+      .eq('teacher_id', currentUser.user.id);
 
-    listEl.querySelectorAll('[data-del-slot]').forEach(btn => {
-      btn.addEventListener('click', () => deleteSlot(btn.dataset.delSlot));
-    });
+    const existingSet = new Set((existing || []).map(s => s.date + '|' + (s.time || '').slice(0, 5)));
 
-    updateSlotsStat(data.filter(s => !s.is_booked).length);
-  }
+    for (let i = 0; i < 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      const weekday = date.getDay();
+      const dateStr = date.toISOString().slice(0, 10);
 
-  async function deleteSlot(id) {
-    if (!confirm('Удалить слот?')) return;
-    const { error } = await window.supabaseClient.from('slots').delete().eq('id', id);
-    if (error) { alert('Ошибка: ' + error.message); return; }
-    await loadSlots();
-  }
-
-  function updateSlotsStat(n) {
-    const el = document.querySelector('[data-stat="slots"]');
-    if (el) el.textContent = n;
-  }
-
-  /* МОДАЛКА СЛОТА */
-  function initAddSlotModal() {
-    const modal = document.querySelector('[data-modal="add-slot"]');
-    const openBtn = document.querySelector('[data-add-slot]');
-    const saveBtn = document.querySelector('[data-slot-save]');
-    const dateInput = document.querySelector('[data-slot-date]');
-    const timeInput = document.querySelector('[data-slot-time]');
-    const errorEl = document.querySelector('[data-slot-error]');
-
-    if (!modal || !openBtn) return;
-
-    openBtn.addEventListener('click', () => {
-      const today = new Date().toISOString().slice(0, 10);
-      if (dateInput) dateInput.value = today;
-      if (timeInput) timeInput.value = '18:00';
-      if (errorEl) errorEl.textContent = '';
-      modal.hidden = false;
-      document.body.style.overflow = 'hidden';
-    });
-
-    modal.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', () => {
-        modal.hidden = true;
-        document.body.style.overflow = '';
-      });
-    });
-
-    if (saveBtn) {
-      saveBtn.addEventListener('click', async () => {
-        const date = dateInput.value;
-        const time = timeInput.value;
-        if (!date || !time) {
-          errorEl.textContent = 'Заполните дату и время';
-          return;
+      template.forEach(t => {
+        if (t.weekday === weekday) {
+          const time = t.time.length === 5 ? t.time + ':00' : t.time;
+          if (!existingSet.has(dateStr + '|' + t.time)) {
+            slots.push({
+              teacher_id: currentUser.user.id,
+              date: dateStr,
+              time: time,
+              is_booked: false
+            });
+          }
         }
-
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Сохраняем…';
-
-        const { error } = await window.supabaseClient.from('slots').insert({
-          teacher_id: currentUser.user.id,
-          date: date,
-          time: time,
-          is_booked: false
-        });
-
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Сохранить';
-
-        if (error) {
-          errorEl.textContent = 'Ошибка: ' + error.message;
-          return;
-        }
-
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        await loadSlots();
       });
     }
+
+    if (!slots.length) {
+      alert('Новых слотов нет — всё уже создано.');
+      return;
+    }
+
+    const { error } = await window.supabaseClient.from('slots').insert(slots);
+    if (error) {
+      alert('Ошибка: ' + error.message);
+      return;
+    }
+
+    alert(`Создано ${slots.length} слотов на 2 недели.`);
+    await loadRating();
   }
 
   /* БРОНИ */
@@ -511,9 +541,9 @@
             <div class="booking-row__subject">Заявка на урок</div>
           </div>
           <div class="booking-row__status booking-row__status--${b.status}">${statusLabel}</div>
-          <div style="display:flex;gap:6px;align-items:center;">
+          <div class="booking-row__actions">
             ${canConfirm ? `<button class="btn btn--primary btn--sm" data-confirm-booking="${b.id}">Подтвердить</button>` : ''}
-            ${canCancel ? `<button class="slot-row__del" data-cancel-booking="${b.id}" title="Отменить">×</button>` : ''}
+            ${canCancel ? `<button class="btn btn--ghost btn--sm" data-cancel-booking="${b.id}">Отменить</button>` : ''}
           </div>
         </div>
       `;
@@ -557,7 +587,7 @@
         .eq('id', booking.slot_id);
     }
 
-    await Promise.all([loadBookings(), loadSlots()]);
+    await Promise.all([loadBookings(), loadSchedule()]);
   }
 
   function updateBookingsStat(n) {
@@ -575,6 +605,18 @@
 
     const el = document.querySelector('[data-stat="rating"]');
     if (el) el.textContent = data && data.rating ? data.rating : '—';
+  }
+
+  /* СТАТИСТИКА СЛОТОВ */
+  async function loadSlotsStat() {
+    const { count } = await window.supabaseClient
+      .from('slots')
+      .select('*', { count: 'exact', head: true })
+      .eq('teacher_id', currentUser.user.id)
+      .eq('is_booked', false);
+
+    const el = document.querySelector('[data-stat="slots"]');
+    if (el) el.textContent = count || 0;
   }
 
   /* УТИЛИТЫ */
