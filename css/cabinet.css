@@ -381,82 +381,79 @@
   max-width: 60ch;
 }
 
-/* NOTIFICATIONS */
-.nav__actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.nav__actions > div {
-  margin-right: 4px;
-}
-
+/* NOTIFICATIONS — ЦЕНТР ЭКРАНА (для проверки) */
 .notif-bell {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
+  position: fixed;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
   background: var(--surface-1);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.25s var(--ease);
-  color: var(--text-dim);
-  flex-shrink: 0;
+  color: var(--accent);
+  z-index: 9999;
+  box-shadow: 0 0 32px var(--accent-glow);
 }
 
 .notif-bell:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--accent);
+  color: #08080A;
+  transform: translateX(-50%) scale(1.05);
 }
 
 .notif-bell svg {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
 }
 
 .notif-bell__count {
   position: absolute;
-  top: -6px;
-  right: -6px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  top: -4px;
+  right: -4px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
   border-radius: 999px;
   background: var(--red);
   color: #fff;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-mono);
+  border: 2px solid var(--surface-1);
 }
 
 .notif-bell__count[hidden] { display: none; }
 
 .notif-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 320px;
+  position: fixed;
+  top: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 380px;
   max-height: 400px;
   overflow-y: auto;
   background: var(--surface-1);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--accent);
   border-radius: var(--radius-lg);
-  z-index: 50;
+  z-index: 9998;
   padding: 8px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.9);
 }
 
 .notif-panel[hidden] { display: none; }
 
 .notif-item {
-  padding: 12px 14px;
+  padding: 14px 16px;
   border-radius: var(--radius);
   font-size: 14px;
   color: var(--text-dim);
@@ -502,6 +499,6 @@
   .booking-row__date, .slot-row__date { min-width: auto; width: 100%; }
   .booking-row__price { margin-left: auto; }
   .nav__user { display: none; }
-  .notif-panel { width: 280px; right: -8px; }
+  .notif-panel { width: 300px; }
   .profile-grid { grid-template-columns: 1fr; }
 }
