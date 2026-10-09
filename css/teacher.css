@@ -1,207 +1,394 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Репетитор — Школа Кузнечевского</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/cabinet.css">
-  <link rel="stylesheet" href="css/teacher.css">
-  <link rel="stylesheet" href="css/mobile.css">
-</head>
-<body class="page-teacher-profile">
+/* TEACHER PAGE */
+.tp-page {
+  position: relative;
+  padding: 140px 0 80px;
+  overflow: hidden;
+}
 
-  <div class="cursor-glow" data-cursor-glow></div>
+.tp-page__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  opacity: 0.25;
+  pointer-events: none;
+}
 
-  <header class="nav is-scrolled">
-    <div class="nav__inner">
-      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
-      <nav class="nav__links">
-        <a href="index.html">Главная</a>
-        <a href="index.html#catalog">Репетиторы</a>
-        <a href="index.html#podbor">Автоподбор</a>
-      </nav>
-      <div class="nav__actions">
-        <a href="login.html" class="btn btn--ghost">Войти</a>
-        <a href="register.html" class="btn btn--primary">Регистрация</a>
-      </div>
-    </div>
-  </header>
+.tp-page__orb {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+  filter: blur(120px);
+  opacity: 0.25;
+  pointer-events: none;
+}
 
-  <main class="tp-page" data-teacher-page>
+.tp-page__inner {
+  position: relative;
+  z-index: 2;
+}
 
-    <div class="tp-page__grid"></div>
-    <div class="tp-page__orb"></div>
+/* HERO */
+.tp-hero {
+  display: flex;
+  gap: 40px;
+  align-items: center;
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 56px;
+}
 
-    <div class="container tp-page__inner">
+.tp-hero__avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 32px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 48px;
+  color: var(--accent);
+  flex-shrink: 0;
+  overflow: hidden;
+}
 
-      <!-- ПРОФИЛЬ -->
-      <section class="tp-hero">
-        <div class="tp-hero__avatar" data-hero-avatar>—</div>
-        <div class="tp-hero__info">
-          <h1 class="tp-hero__name" data-hero-name>Загрузка…</h1>
-          <div class="tp-hero__meta">
-            <span data-hero-subject>—</span>
-            <span class="tp-hero__dot">·</span>
-            <span data-hero-price>—</span>
-          </div>
-          <div class="tp-hero__rating">
-            <span class="tp-hero__star">★</span>
-            <span data-hero-rating>—</span>
-            <span class="tp-hero__reviews-count" data-hero-reviews>—</span>
-          </div>
-          <div class="tp-hero__actions">
-            <button class="btn btn--primary btn--lg" data-scroll-to-schedule>
-              Оставить заявку
-            </button>
-            <a href="#" class="btn btn--ghost btn--lg" data-hero-telegram hidden target="_blank" rel="noopener">
-              Написать в Telegram
-            </a>
-          </div>
-        </div>
-      </section>
+.tp-hero__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
-      <!-- О СЕБЕ -->
-      <section class="tp-section" data-section-bio hidden>
-        <h2 class="tp-section__title">О себе</h2>
-        <p class="tp-section__text" data-bio-text></p>
-      </section>
+.tp-hero__info {
+  flex: 1;
+  min-width: 0;
+}
 
-      <!-- ПОРТФОЛИО -->
-      <section class="tp-section" data-section-portfolio hidden>
-        <h2 class="tp-section__title">Достижения</h2>
-        <div class="tp-portfolio">
-          <img data-portfolio-image src="" alt="Портфолио" loading="lazy">
-        </div>
-      </section>
+.tp-hero__name {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
 
-      <!-- РАСПИСАНИЕ -->
-      <section class="tp-section" id="schedule" data-section-schedule>
-        <div class="tp-section__head">
-          <h2 class="tp-section__title">Расписание</h2>
-          <div class="tp-legend">
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--free"></span>Свободно</span>
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--busy"></span>Занято</span>
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--off"></span>Не работает</span>
-          </div>
-        </div>
-        <div class="tp-schedule" data-schedule>
-          <div class="tp-schedule__loading">Загружаем расписание…</div>
-        </div>
-      </section>
+.tp-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
 
-      <!-- КОНТАКТЫ -->
-      <section class="tp-section" data-section-contacts hidden>
-        <h2 class="tp-section__title">Контакты</h2>
-        <div class="tp-contacts">
-          <a class="tp-contact" data-contact-phone hidden>
-            <span class="tp-contact__icon">📞</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-telegram hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">✈️</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-whatsapp hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">💬</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-link hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">🔗</span>
-            <span class="tp-contact__value"></span>
-          </a>
-        </div>
-      </section>
+.tp-hero__dot { opacity: 0.5; }
 
-      <!-- ОТЗЫВЫ -->
-      <section class="tp-section" data-section-reviews hidden>
-        <h2 class="tp-section__title">Отзывы · <span data-reviews-count>0</span></h2>
-        <div class="tp-reviews" data-reviews-list></div>
-      </section>
+.tp-hero__rating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--text);
+  margin-bottom: 24px;
+}
 
-    </div>
-  </main>
+.tp-hero__star { color: var(--accent); }
 
-  <!-- МОДАЛКА ЗАЯВКИ -->
-  <div class="modal" data-modal="request" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel">
-      <div class="pay">
-        <div class="pay__title">Заявка на место</div>
+.tp-hero__reviews-count { color: var(--text-mute); }
 
-        <div class="pay__lesson">
-          <div class="pay__row"><span class="pay__row-label">Репетитор</span><span class="pay__row-value" data-request-teacher>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Предмет</span><span class="pay__row-value" data-request-subject>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-time>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Цена</span><span class="pay__row-value" data-request-price>—</span></div>
-        </div>
+.tp-hero__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-        <div class="pay__free-note">
-          Репетитор подтвердит заявку. Уведомление придёт в колокольчик.
-        </div>
+/* SECTIONS */
+.tp-section {
+  margin-bottom: 56px;
+}
 
-        <div class="auth-form__error" data-request-error></div>
+.tp-section__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
 
-        <button class="btn btn--primary btn--lg" style="width:100%;" data-request-send>
-          Отправить заявку
-        </button>
-      </div>
-    </div>
-  </div>
+.tp-section__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+}
 
-  <!-- МОДАЛКА УСПЕХА -->
-  <div class="modal" data-modal="success" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel">
-      <div class="pay">
-        <div class="pay__success">
-          <div class="pay__success-icon">✓</div>
-          <h3>Заявка отправлена</h3>
-          <p>Репетитор подтвердит её в кабинете.<br>Уведомление придёт в колокольчик.</p>
-          <button class="btn btn--ghost btn--lg" data-modal-close>Понятно</button>
-        </div>
-      </div>
-    </div>
-  </div>
+.tp-section__head .tp-section__title { margin-bottom: 0; }
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer__inner">
-        <div class="footer__col">
-          <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
-          <p class="footer__desc">Площадка репетиторов без курсов и методологий. Бесплатно для всех.</p>
-        </div>
-        <div class="footer__col">
-          <div class="footer__title">Ученикам</div>
-          <a href="index.html#podbor">Автоподбор</a>
-          <a href="index.html#how">Как это работает</a>
-        </div>
-        <div class="footer__col">
-          <div class="footer__title">Репетиторам</div>
-          <a href="register.html">Стать репетитором</a>
-          <a href="login.html">Войти</a>
-        </div>
-        <div class="footer__col">
-          <div class="footer__title">Контакты</div>
-          <a href="mailto:hi@kuznechevsky.ru">hi@kuznechevsky.ru</a>
-          <a href="#">Telegram</a>
-        </div>
-      </div>
-      <div class="footer__bottom">
-        <span>© 2026 Школа Кузнечевского</span>
-        <span>Бесплатно для всех · без комиссий</span>
-      </div>
-    </div>
-  </footer>
+.tp-section__text {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 70ch;
+}
 
-  <script src="js/libs/supabase.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/teacher-page.js"></script>
-</body>
-</html>
+/* PORTFOLIO */
+.tp-portfolio {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  max-width: 900px;
+}
+
+.tp-portfolio img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* SCHEDULE */
+.tp-legend {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.tp-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tp-legend__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  border: 1px solid var(--border-strong);
+}
+
+.tp-legend__dot--free {
+  background: rgba(74, 222, 128, 0.25);
+  border-color: rgba(74, 222, 128, 0.6);
+}
+
+.tp-legend__dot--busy {
+  background: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.6);
+}
+
+.tp-legend__dot--off {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.tp-schedule {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.tp-schedule__loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.tp-schedule__grid {
+  display: grid;
+  grid-template-columns: 70px repeat(7, 1fr);
+  gap: 4px;
+  min-width: 680px;
+}
+
+.tp-schedule__head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.tp-schedule__time {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  padding: 8px 8px 8px 0;
+  text-align: right;
+}
+
+.tp-schedule__cell {
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  transition: all 0.2s var(--ease);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--text-mute);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 4px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tp-schedule__cell--free {
+  background: rgba(74, 222, 128, 0.10);
+  border-color: rgba(74, 222, 128, 0.4);
+  cursor: pointer;
+}
+
+.tp-schedule__cell--free:hover {
+  background: rgba(74, 222, 128, 0.25);
+  border-color: #4ADE80;
+  transform: scale(1.05);
+  color: #4ADE80;
+}
+
+.tp-schedule__cell--busy {
+  background: rgba(248, 113, 113, 0.12);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: rgba(248, 113, 113, 0.9);
+}
+
+/* CONTACTS */
+.tp-contacts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 700px;
+}
+
+.tp-contact {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: all 0.25s var(--ease);
+  color: var(--text);
+}
+
+.tp-contact:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.tp-contact__icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.tp-contact__value {
+  font-size: 14px;
+  word-break: break-word;
+  color: var(--text-dim);
+}
+
+/* REVIEWS */
+.tp-reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 800px;
+}
+
+.tp-reviews .review {
+  padding: 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.tp-reviews .review__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.tp-reviews .review__name {
+  font-weight: 600;
+}
+
+.tp-reviews .review__rating {
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+
+.tp-reviews .review__text {
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .tp-page { padding: 120px 0 60px; }
+
+  .tp-hero {
+    flex-direction: column;
+    text-align: center;
+    gap: 24px;
+  }
+
+  .tp-hero__avatar {
+    width: 120px;
+    height: 120px;
+    font-size: 36px;
+  }
+
+  .tp-hero__meta {
+    justify-content: center;
+  }
+
+  .tp-hero__rating {
+    justify-content: center;
+  }
+
+  .tp-hero__actions {
+    justify-content: center;
+  }
+
+  .tp-hero__actions .btn {
+    width: 100%;
+  }
+
+  .tp-section { margin-bottom: 40px; }
+
+  .tp-section__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tp-contacts {
+    grid-template-columns: 1fr;
+  }
+
+  .tp-legend {
+    flex-wrap: wrap;
+  }
+}
