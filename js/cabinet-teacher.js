@@ -3,6 +3,19 @@
 
   let currentUser = null;
   let avatarFile = null;
+  let portfolioFile = null;
+
+  const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+  const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+
+  const SUBJECT_LABELS = {
+    math: 'Математика', english: 'Английский', physics: 'Физика',
+    russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
+  };
+
+  let scheduleMap = {};
+  let editingCell = null;
 
   async function init() {
     currentUser = await window.authAPI.requireAuth('teacher');
@@ -16,11 +29,15 @@
 
     initProfileSection();
     initNotifications();
+    initSlotModal();
 
-    const genBtn = document.querySelector('[data-generate-slots]');
-    if (genBtn) genBtn.addEventListener('click', generateSlots);
-
-    await Promise.all([loadProfile(), loadSchedule(), loadBookings(), loadRating()]);
+    await Promise.all([
+      loadProfile(),
+      loadSchedule(),
+      loadRequests(),
+      loadRating(),
+      loadSlotsStat()
+    ]);
   }
 
   /* УВЕДОМЛЕНИЯ */
@@ -111,16 +128,11 @@
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, is_active, avatar_url')
+      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, is_active, avatar_url, portfolio_url')
       .eq('id', currentUser.user.id)
       .single();
 
     if (error || !data) return;
-
-    const subjectLabels = {
-      math: 'Математика', english: 'Английский', physics: 'Физика',
-      russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
-    };
 
     const setText = (sel, val) => {
       const el = document.querySelector(sel);
@@ -129,7 +141,7 @@
 
     setText('[data-profile-name]', currentUser.profile.name || currentUser.profile.email);
     setText('[data-profile-email]', currentUser.profile.email);
-    setText('[data-profile-subject]', subjectLabels[data.subject] || data.subject);
+    setText('[data-profile-subject]', SUBJECT_LABELS[data.subject] || data.subject);
     setText('[data-profile-price]', data.price ? data.price + ' ₽' : '—');
     setText('[data-profile-phone]', data.phone);
     setText('[data-profile-telegram]', data.telegram);
@@ -163,6 +175,15 @@
         previewEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       } else {
         previewEl.textContent = '👤';
+      }
+    }
+
+    const portfolioPreview = document.querySelector('[data-portfolio-preview]');
+    if (portfolioPreview) {
+      if (data.portfolio_url) {
+        portfolioPreview.innerHTML = `<img src="${data.portfolio_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      } else {
+        portfolioPreview.textContent = '🖼';
       }
     }
 
@@ -200,6 +221,10 @@
     const avatarButton = document.querySelector('[data-avatar-button]');
     const avatarPreview = document.querySelector('[data-avatar-preview]');
 
+    const portfolioInput = document.querySelector('[data-portfolio-input]');
+    const portfolioButton = document.querySelector('[data-portfolio-button]');
+    const portfolioPreview = document.querySelector('[data-portfolio-preview]');
+
     if (avatarButton && avatarInput) {
       avatarButton.addEventListener('click', () => avatarInput.click());
       avatarInput.addEventListener('change', () => {
@@ -218,11 +243,30 @@
       });
     }
 
+    if (portfolioButton && portfolioInput) {
+      portfolioButton.addEventListener('click', () => portfolioInput.click());
+      portfolioInput.addEventListener('change', () => {
+        const file = portfolioInput.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Фото слишком большое. Максимум 5 МБ.');
+          return;
+        }
+        portfolioFile = file;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          if (portfolioPreview) portfolioPreview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
         viewEl.hidden = true;
         editEl.hidden = false;
         toggleBtn.hidden = true;
+        editEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
 
@@ -233,6 +277,7 @@
         toggleBtn.hidden = false;
         errorEl.textContent = '';
         avatarFile = null;
+        portfolioFile = null;
       });
     }
 
@@ -243,27 +288,42 @@
         saveBtn.textContent = 'Сохраняем…';
 
         let avatar_url = undefined;
+        let portfolio_url = undefined;
 
         if (avatarFile) {
           const ext = avatarFile.name.split('.').pop();
           const path = `${currentUser.user.id}/avatar.${ext}`;
-
           const { error: uploadError } = await window.supabaseClient.storage
             .from('avatars')
             .upload(path, avatarFile, { upsert: true });
 
           if (uploadError) {
-            errorEl.textContent = 'Ошибка загрузки фото: ' + uploadError.message;
+            errorEl.textContent = 'Ошибка загрузки аватара: ' + uploadError.message;
             saveBtn.disabled = false;
             saveBtn.textContent = 'Сохранить';
             return;
           }
 
-          const { data: urlData } = window.supabaseClient.storage
-            .from('avatars')
-            .getPublicUrl(path);
-
+          const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
           avatar_url = urlData.publicUrl + '?t=' + Date.now();
+        }
+
+        if (portfolioFile) {
+          const ext = portfolioFile.name.split('.').pop();
+          const path = `${currentUser.user.id}/portfolio.${ext}`;
+          const { error: uploadError } = await window.supabaseClient.storage
+            .from('avatars')
+            .upload(path, portfolioFile, { upsert: true });
+
+          if (uploadError) {
+            errorEl.textContent = 'Ошибка загрузки портфолио: ' + uploadError.message;
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Сохранить';
+            return;
+          }
+
+          const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
+          portfolio_url = urlData.publicUrl + '?t=' + Date.now();
         }
 
         const payload = {
@@ -277,6 +337,7 @@
         };
 
         if (avatar_url !== undefined) payload.avatar_url = avatar_url;
+        if (portfolio_url !== undefined) payload.portfolio_url = portfolio_url;
 
         const { error } = await window.supabaseClient
           .from('teachers')
@@ -292,6 +353,7 @@
         }
 
         avatarFile = null;
+        portfolioFile = null;
         await loadProfile();
         viewEl.hidden = false;
         editEl.hidden = true;
@@ -316,7 +378,7 @@
 
     if (deleteBtn) {
       deleteBtn.addEventListener('click', async () => {
-        if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные, слоты и брони будут удалены. Это нельзя отменить.')) return;
+        if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные будут удалены. Это нельзя отменить.')) return;
         if (!confirm('Точно? Это последнее предупреждение.')) return;
 
         deleteBtn.disabled = true;
@@ -331,26 +393,20 @@
           return;
         }
 
-        alert('Аккаунт удалён полностью. Сейчас вы выйдете.');
+        alert('Аккаунт удалён. Сейчас вы выйдете.');
         await window.authAPI.signOut();
       });
     }
   }
 
-  /* РАСПИСАНИЕ — СЕТКА */
-  const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-  const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
-
-  let scheduleState = {};
-
+  /* РАСПИСАНИЕ */
   async function loadSchedule() {
     const grid = document.querySelector('[data-schedule-grid]');
     if (!grid) return;
 
     const { data, error } = await window.supabaseClient
       .from('schedule_template')
-      .select('weekday, time')
+      .select('weekday, time, text_content')
       .eq('teacher_id', currentUser.user.id);
 
     if (error) {
@@ -358,9 +414,9 @@
       return;
     }
 
-    scheduleState = {};
+    scheduleMap = {};
     (data || []).forEach(item => {
-      scheduleState[item.weekday + '|' + item.time] = true;
+      scheduleMap[item.weekday + '|' + item.time] = item.text_content || '';
     });
 
     renderScheduleGrid();
@@ -380,8 +436,11 @@
       html += `<div class="schedule-table__time">${hour}</div>`;
       DAY_ORDER.forEach(d => {
         const key = d + '|' + hour;
-        const active = scheduleState[key] ? 'is-active' : '';
-        html += `<div class="schedule-cell ${active}" data-day="${d}" data-time="${hour}"></div>`;
+        const text = scheduleMap[key];
+        const isActive = text !== undefined && text !== '';
+        const cls = isActive ? 'is-active' : '';
+        const displayText = text || '';
+        html += `<div class="schedule-cell ${cls}" data-day="${d}" data-time="${hour}" title="${displayText}">${displayText}</div>`;
       });
     });
 
@@ -389,103 +448,116 @@
     grid.innerHTML = html;
 
     grid.querySelectorAll('.schedule-cell').forEach(cell => {
-      cell.addEventListener('click', () => toggleScheduleCell(cell));
+      cell.addEventListener('click', () => openSlotModal(cell));
     });
   }
 
-  async function toggleScheduleCell(cell) {
-    const day = parseInt(cell.dataset.day, 10);
-    const time = cell.dataset.time;
-    const key = day + '|' + time;
-    const isActive = scheduleState[key];
+  /* МОДАЛКА ЯЧЕЙКИ */
+  function initSlotModal() {
+    const modal = document.querySelector('[data-modal="slot-edit"]');
+    if (!modal) return;
 
-    if (isActive) {
-      delete scheduleState[key];
-      cell.classList.remove('is-active');
-      await window.supabaseClient
-        .from('schedule_template')
-        .delete()
-        .eq('teacher_id', currentUser.user.id)
-        .eq('weekday', day)
-        .eq('time', time);
-    } else {
-      scheduleState[key] = true;
-      cell.classList.add('is-active');
-      await window.supabaseClient
-        .from('schedule_template')
-        .insert({ teacher_id: currentUser.user.id, weekday: day, time: time });
-    }
-  }
+    modal.querySelectorAll('[data-modal-close]').forEach(el => {
+      el.addEventListener('click', () => {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      });
+    });
 
-  async function generateSlots() {
-    if (!confirm('Сгенерировать слоты на 2 недели по текущему расписанию? Существующие слоты не удаляются.')) return;
+    const saveBtn = modal.querySelector('[data-slot-save]');
+    const deleteBtn = modal.querySelector('[data-slot-delete]');
+    const textInput = modal.querySelector('[data-slot-text]');
 
-    const today = new Date();
-    const slots = [];
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        if (!editingCell) return;
+        const errorEl = modal.querySelector('[data-slot-error]');
+        const text = textInput.value.trim();
 
-    const { data: template } = await window.supabaseClient
-      .from('schedule_template')
-      .select('weekday, time')
-      .eq('teacher_id', currentUser.user.id);
+        errorEl.textContent = '';
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
 
-    if (!template || !template.length) {
-      alert('Сначала отметьте время в расписании.');
-      return;
-    }
-
-    const { data: existing } = await window.supabaseClient
-      .from('slots')
-      .select('date, time')
-      .eq('teacher_id', currentUser.user.id);
-
-    const existingSet = new Set((existing || []).map(s => s.date + '|' + (s.time || '').slice(0, 5)));
-
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const weekday = date.getDay();
-      const dateStr = date.toISOString().slice(0, 10);
-
-      template.forEach(t => {
-        if (t.weekday === weekday) {
-          const time = t.time.length === 5 ? t.time + ':00' : t.time;
-          if (!existingSet.has(dateStr + '|' + t.time)) {
-            slots.push({
+        if (text === '') {
+          await window.supabaseClient
+            .from('schedule_template')
+            .delete()
+            .eq('teacher_id', currentUser.user.id)
+            .eq('weekday', editingCell.day)
+            .eq('time', editingCell.time);
+        } else {
+          await window.supabaseClient
+            .from('schedule_template')
+            .upsert({
               teacher_id: currentUser.user.id,
-              date: dateStr,
-              time: time,
-              is_booked: false
-            });
-          }
+              weekday: editingCell.day,
+              time: editingCell.time,
+              text_content: text
+            }, { onConflict: 'teacher_id,weekday,time' });
         }
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        await loadSchedule();
+        await loadSlotsStat();
       });
     }
 
-    if (!slots.length) {
-      alert('Новых слотов нет — всё уже создано.');
-      return;
-    }
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!editingCell) return;
+        await window.supabaseClient
+          .from('schedule_template')
+          .delete()
+          .eq('teacher_id', currentUser.user.id)
+          .eq('weekday', editingCell.day)
+          .eq('time', editingCell.time);
 
-    const { error } = await window.supabaseClient.from('slots').insert(slots);
-    if (error) {
-      alert('Ошибка: ' + error.message);
-      return;
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        await loadSchedule();
+        await loadSlotsStat();
+      });
     }
-
-    alert(`Создано ${slots.length} слотов на 2 недели.`);
-    await loadRating();
   }
 
-  /* БРОНИ */
-  async function loadBookings() {
+  function openSlotModal(cell) {
+    const modal = document.querySelector('[data-modal="slot-edit"]');
+    if (!modal) return;
+
+    const day = parseInt(cell.dataset.day, 10);
+    const time = cell.dataset.time;
+    editingCell = { day, time };
+
+    const key = day + '|' + time;
+    const currentText = scheduleMap[key] || '';
+
+    const label = modal.querySelector('[data-slot-time-label]');
+    if (label) label.textContent = DAYS[day] + ' · ' + time;
+
+    const textInput = modal.querySelector('[data-slot-text]');
+    if (textInput) textInput.value = currentText;
+
+    const errorEl = modal.querySelector('[data-slot-error]');
+    if (errorEl) errorEl.textContent = '';
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => textInput && textInput.focus(), 150);
+  }
+
+  /* ЗАЯВКИ */
+  async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
 
     listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
 
     const { data, error } = await window.supabaseClient
-      .from('bookings')
-      .select('id, status, slot_id, student_id, created_at')
+      .from('booking_requests')
+      .select('id, status, weekday, time, student_id, created_at')
       .eq('teacher_id', currentUser.user.id)
       .order('created_at', { ascending: false });
 
@@ -499,79 +571,122 @@
         <div class="cabinet__empty">
           <div class="cabinet__empty-icon">📩</div>
           <div class="cabinet__empty-title">Заявок пока нет</div>
-          <div class="cabinet__empty-desc">Когда ученик забронирует слот — заявка появится здесь</div>
+          <div class="cabinet__empty-desc">Когда ученик попросит место в расписании — заявка появится здесь</div>
         </div>
       `;
       updateBookingsStat(0);
       return;
     }
 
-    const slotIds = data.map(b => b.slot_id).filter(Boolean);
     const studentIds = [...new Set(data.map(b => b.student_id).filter(Boolean))];
 
-    const [slotsRes, profilesRes] = await Promise.all([
-      slotIds.length ? window.supabaseClient.from('slots').select('id, date, time').in('id', slotIds) : { data: [] },
-      studentIds.length ? window.supabaseClient.from('profiles').select('id, name, email').in('id', studentIds) : { data: [] }
-    ]);
-
-    const slotsMap = {};
-    (slotsRes.data || []).forEach(s => slotsMap[s.id] = s);
+    const { data: profiles } = studentIds.length
+      ? await window.supabaseClient.from('profiles').select('id, name, email').in('id', studentIds)
+      : { data: [] };
 
     const studentsMap = {};
-    (profilesRes.data || []).forEach(p => studentsMap[p.id] = p);
+    (profiles || []).forEach(p => studentsMap[p.id] = p);
 
     listEl.innerHTML = data.map(b => {
-      const slot = slotsMap[b.slot_id] || {};
       const student = studentsMap[b.student_id] || {};
-      const dateStr = slot.date ? formatDate(slot.date) + ' · ' + (slot.time || '').slice(0, 5) : '—';
       const statusLabel = {
         pending: 'Ожидает',
-        confirmed: 'Подтверждён',
-        cancelled: 'Отменён'
+        approved: 'Одобрена',
+        rejected: 'Отклонена',
+        cancelled: 'Отменена'
       }[b.status] || b.status;
 
-      const canConfirm = b.status === 'pending';
-      const canCancel = b.status === 'pending' || b.status === 'confirmed';
+      const canApprove = b.status === 'pending';
+      const canReject = b.status === 'pending';
 
       return `
         <div class="booking-row">
-          <div class="booking-row__date">${dateStr}</div>
+          <div class="booking-row__date">${DAYS[b.weekday]} · ${b.time}</div>
           <div class="booking-row__info">
             <div class="booking-row__name">${student.name || student.email || '—'}</div>
-            <div class="booking-row__subject">Заявка на урок</div>
+            <div class="booking-row__subject">Заявка на место</div>
           </div>
           <div class="booking-row__status booking-row__status--${b.status}">${statusLabel}</div>
           <div class="booking-row__actions">
-            ${canConfirm ? `<button class="btn btn--primary btn--sm" data-confirm-booking="${b.id}">Подтвердить</button>` : ''}
-            ${canCancel ? `<button class="btn btn--ghost btn--sm" data-cancel-booking="${b.id}">Отменить</button>` : ''}
+            ${canApprove ? `<button class="btn btn--primary btn--sm" data-approve-request="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-student="${b.student_id}">Одобрить</button>` : ''}
+            ${canReject ? `<button class="btn btn--ghost btn--sm" data-reject-request="${b.id}">Отклонить</button>` : ''}
           </div>
         </div>
       `;
     }).join('');
 
-    listEl.querySelectorAll('[data-confirm-booking]').forEach(btn => {
-      btn.addEventListener('click', () => updateBookingStatus(btn.dataset.confirmBooking, 'confirmed'));
+    listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
+      btn.addEventListener('click', () => approveRequest(
+        btn.dataset.approveRequest,
+        parseInt(btn.dataset.weekday, 10),
+        btn.dataset.time,
+        btn.dataset.student
+      ));
     });
 
-    listEl.querySelectorAll('[data-cancel-booking]').forEach(btn => {
-      btn.addEventListener('click', () => updateBookingStatus(btn.dataset.cancelBooking, 'cancelled'));
+    listEl.querySelectorAll('[data-reject-request]').forEach(btn => {
+      btn.addEventListener('click', () => rejectRequest(btn.dataset.rejectRequest));
     });
 
-    updateBookingsStat(data.filter(b => b.status !== 'cancelled').length);
+    updateBookingsStat(data.filter(b => b.status === 'pending' || b.status === 'approved').length);
   }
 
-  async function updateBookingStatus(id, status) {
-    if (status === 'cancelled' && !confirm('Отменить заявку?')) return;
+  async function approveRequest(id, weekday, time, studentId) {
+    if (!confirm('Одобрить заявку? Место станет занятым.')) return;
 
-    const { data: booking } = await window.supabaseClient
-      .from('bookings')
-      .select('slot_id')
+    // 1. Меняем статус заявки
+    const { error: reqError } = await window.supabaseClient
+      .from('booking_requests')
+      .update({ status: 'approved' })
+      .eq('id', id);
+
+    if (reqError) {
+      alert('Ошибка: ' + reqError.message);
+      return;
+    }
+
+    // 2. Получаем имя ученика
+    const { data: profile } = await window.supabaseClient
+      .from('profiles')
+      .select('name')
+      .eq('id', studentId)
+      .single();
+
+    const studentName = (profile && profile.name) || 'Ученик';
+
+    // 3. Записываем текст в расписание
+    await window.supabaseClient
+      .from('schedule_template')
+      .upsert({
+        teacher_id: currentUser.user.id,
+        weekday: weekday,
+        time: time,
+        text_content: studentName
+      }, { onConflict: 'teacher_id,weekday,time' });
+
+    // 4. Уведомление ученику
+    await window.supabaseClient.from('notifications').insert({
+      user_id: studentId,
+      type: 'booking',
+      text: 'Репетитор одобрил вашу заявку на ' + DAYS[weekday] + ' ' + time,
+      link: 'cabinet-student.html'
+    });
+
+    await Promise.all([loadRequests(), loadSchedule(), loadSlotsStat()]);
+  }
+
+  async function rejectRequest(id) {
+    if (!confirm('Отклонить заявку?')) return;
+
+    const { data: req } = await window.supabaseClient
+      .from('booking_requests')
+      .select('student_id, weekday, time')
       .eq('id', id)
       .single();
 
     const { error } = await window.supabaseClient
-      .from('bookings')
-      .update({ status })
+      .from('booking_requests')
+      .update({ status: 'rejected' })
       .eq('id', id);
 
     if (error) {
@@ -579,15 +694,16 @@
       return;
     }
 
-    if (booking && booking.slot_id) {
-      const isBooked = status === 'confirmed';
-      await window.supabaseClient
-        .from('slots')
-        .update({ is_booked: isBooked })
-        .eq('id', booking.slot_id);
+    if (req && req.student_id) {
+      await window.supabaseClient.from('notifications').insert({
+        user_id: req.student_id,
+        type: 'booking',
+        text: 'Репетитор отклонил заявку на ' + DAYS[req.weekday] + ' ' + req.time,
+        link: 'cabinet-student.html'
+      });
     }
 
-    await Promise.all([loadBookings(), loadSchedule()]);
+    await loadRequests();
   }
 
   function updateBookingsStat(n) {
@@ -595,7 +711,17 @@
     if (el) el.textContent = n;
   }
 
-  /* РЕЙТИНГ */
+  /* СТАТИСТИКА */
+  async function loadSlotsStat() {
+    const { count } = await window.supabaseClient
+      .from('schedule_template')
+      .select('*', { count: 'exact', head: true })
+      .eq('teacher_id', currentUser.user.id);
+
+    const el = document.querySelector('[data-stat="slots"]');
+    if (el) el.textContent = count || 0;
+  }
+
   async function loadRating() {
     const { data } = await window.supabaseClient
       .from('teachers')
@@ -605,25 +731,6 @@
 
     const el = document.querySelector('[data-stat="rating"]');
     if (el) el.textContent = data && data.rating ? data.rating : '—';
-  }
-
-  /* СТАТИСТИКА СЛОТОВ */
-  async function loadSlotsStat() {
-    const { count } = await window.supabaseClient
-      .from('slots')
-      .select('*', { count: 'exact', head: true })
-      .eq('teacher_id', currentUser.user.id)
-      .eq('is_booked', false);
-
-    const el = document.querySelector('[data-stat="slots"]');
-    if (el) el.textContent = count || 0;
-  }
-
-  /* УТИЛИТЫ */
-  function formatDate(iso) {
-    const d = new Date(iso);
-    const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-    return d.getDate() + ' ' + months[d.getMonth()];
   }
 
   document.addEventListener('DOMContentLoaded', init);
