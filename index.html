@@ -30,6 +30,7 @@
         <span class="nav__logo-dot">.</span>
       </a>
       <nav class="nav__links">
+        <a href="#catalog">Репетиторы</a>
         <a href="#podbor">Автоподбор</a>
         <a href="#how">Как это работает</a>
         <a href="#repetitoram">Репетиторам</a>
@@ -61,8 +62,8 @@
           Школа, где репетитор <em>главное</em>
         </h1>
         <p class="hero__lead" data-hero-el>
-          Никаких курсов и методологий. Только площадка: реальные слоты,
-          настоящие отзывы, прямая связь. На старте — полностью бесплатно.
+          Реальные репетиторы. Живые анкеты. Прямая связь без посредников.
+          Никаких курсов, никаких комиссий — просто найдите своего.
         </p>
 
         <div class="hero__roles" data-hero-el>
@@ -178,6 +179,46 @@
       </div>
     </section>
 
+    <section class="catalog" id="catalog">
+      <div class="container">
+        <div class="section-head reveal">
+          <div class="section-head__eyebrow">Каталог</div>
+          <h2 class="section-head__title">Все репетиторы</h2>
+          <p class="section-head__lead">Поиск, фильтры по предмету и цене. Слоты обновляются в реальном времени.</p>
+        </div>
+
+        <div class="catalog__search reveal">
+          <input type="text" class="search-input" placeholder="Поиск: имя, предмет, задача…" data-search>
+          <span class="search-input__icon">⌕</span>
+        </div>
+
+        <div class="catalog__filters reveal">
+          <div class="filters__group" data-filter="subject">
+            <button class="filter is-active" data-value="all">Все</button>
+            <button class="filter" data-value="math">Математика</button>
+            <button class="filter" data-value="english">Английский</button>
+            <button class="filter" data-value="physics">Физика</button>
+            <button class="filter" data-value="russian">Русский</button>
+            <button class="filter" data-value="chemistry">Химия</button>
+            <button class="filter" data-value="it">Информатика</button>
+          </div>
+          <div class="filters__group" data-filter="price">
+            <button class="filter is-active" data-value="all">Любая цена</button>
+            <button class="filter" data-value="low">до 1200 ₽</button>
+            <button class="filter" data-value="mid">1200–2000 ₽</button>
+            <button class="filter" data-value="high">от 2000 ₽</button>
+          </div>
+          <div class="filters__group" data-filter="sort">
+            <button class="filter is-active" data-value="rating">По рейтингу</button>
+            <button class="filter" data-value="price-asc">Сначала дешевле</button>
+            <button class="filter" data-value="price-desc">Сначала дороже</button>
+          </div>
+        </div>
+
+        <div class="grid grid--3" data-catalog-grid></div>
+      </div>
+    </section>
+
     <section class="how" id="how">
       <div class="container">
         <div class="section-head reveal">
@@ -264,6 +305,7 @@
         <div class="footer__col">
           <div class="footer__title">Ученикам</div>
           <a href="#podbor">Автоподбор</a>
+          <a href="#catalog">Каталог</a>
           <a href="#how">Как это работает</a>
         </div>
         <div class="footer__col">
