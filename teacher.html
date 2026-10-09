@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Репетитор — Школа Кузнечевского</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/cabinet.css">
+  <link rel="stylesheet" href="css/teacher.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="page-teacher-profile">
+
+  <div class="cursor-glow" data-cursor-glow></div>
+
+  <header class="nav is-scrolled">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+      <nav class="nav__links">
+        <a href="index.html">Главная</a>
+        <a href="index.html#catalog">Репетиторы</a>
+        <a href="index.html#podbor">Автоподбор</a>
+      </nav>
+      <div class="nav__actions">
+        <a href="login.html" class="btn btn--ghost">Войти</a>
+        <a href="register.html" class="btn btn--primary">Регистрация</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="tp-page" data-teacher-page>
+
+    <div class="tp-page__grid"></div>
+    <div class="tp-page__orb"></div>
+
+    <div class="container tp-page__inner">
+
+      <!-- ПРОФИЛЬ -->
+      <section class="tp-hero">
+        <div class="tp-hero__avatar" data-hero-avatar>—</div>
+        <div class="tp-hero__info">
+          <h1 class="tp-hero__name" data-hero-name>Загрузка…</h1>
+          <div class="tp-hero__meta">
+            <span data-hero-subject>—</span>
+            <span class="tp-hero__dot">·</span>
+            <span data-hero-price>—</span>
+          </div>
+          <div class="tp-hero__rating">
+            <span class="tp-hero__star">★</span>
+            <span data-hero-rating>—</span>
+            <span class="tp-hero__reviews-count" data-hero-reviews>—</span>
+          </div>
+          <div class="tp-hero__actions">
+            <button class="btn btn--primary btn--lg" data-scroll-to-schedule>
+              Оставить заявку
+            </button>
+            <a href="#" class="btn btn--ghost btn--lg" data-hero-telegram hidden target="_blank" rel="noopener">
+              Написать в Telegram
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- О СЕБЕ -->
+      <section class="tp-section" data-section-bio hidden>
+        <h2 class="tp-section__title">О себе</h2>
+        <p class="tp-section__text" data-bio-text></p>
+      </section>
+
+      <!-- ПОРТФОЛИО -->
+      <section class="tp-section" data-section-portfolio hidden>
+        <h2 class="tp-section__title">Достижения</h2>
+        <div class="tp-portfolio">
+          <img data-portfolio-image src="" alt="Портфолио" loading="lazy">
+        </div>
+      </section>
+
+      <!-- РАСПИСАНИЕ -->
+      <section class="tp-section" id="schedule" data-section-schedule>
+        <div class="tp-section__head">
+          <h2 class="tp-section__title">Расписание</h2>
+          <div class="tp-legend">
+            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--free"></span>Свободно</span>
+            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--busy"></span>Занято</span>
+            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--off"></span>Не работает</span>
+          </div>
+        </div>
+        <div class="tp-schedule" data-schedule>
+          <div class="tp-schedule__loading">Загружаем расписание…</div>
+        </div>
+      </section>
+
+      <!-- КОНТАКТЫ -->
+      <section class="tp-section" data-section-contacts hidden>
+        <h2 class="tp-section__title">Контакты</h2>
+        <div class="tp-contacts">
+          <a class="tp-contact" data-contact-phone hidden>
+            <span class="tp-contact__icon">📞</span>
+            <span class="tp-contact__value"></span>
+          </a>
+          <a class="tp-contact" data-contact-telegram hidden target="_blank" rel="noopener">
+            <span class="tp-contact__icon">✈️</span>
+            <span class="tp-contact__value"></span>
+          </a>
+          <a class="tp-contact" data-contact-whatsapp hidden target="_blank" rel="noopener">
+            <span class="tp-contact__icon">💬</span>
+            <span class="tp-contact__value"></span>
+          </a>
+          <a class="tp-contact" data-contact-link hidden target="_blank" rel="noopener">
+            <span class="tp-contact__icon">🔗</span>
+            <span class="tp-contact__value"></span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ОТЗЫВЫ -->
+      <section class="tp-section" data-section-reviews hidden>
+        <h2 class="tp-section__title">Отзывы · <span data-reviews-count>0</span></h2>
+        <div class="tp-reviews" data-reviews-list></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- МОДАЛКА ЗАЯВКИ -->
+  <div class="modal" data-modal="request" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__title">Заявка на место</div>
+
+        <div class="pay__lesson">
+          <div class="pay__row"><span class="pay__row-label">Репетитор</span><span class="pay__row-value" data-request-teacher>—</span></div>
+          <div class="pay__row"><span class="pay__row-label">Предмет</span><span class="pay__row-value" data-request-subject>—</span></div>
+          <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-time>—</span></div>
+          <div class="pay__row"><span class="pay__row-label">Цена</span><span class="pay__row-value" data-request-price>—</span></div>
+        </div>
+
+        <div class="pay__free-note">
+          Репетитор подтвердит заявку. Уведомление придёт в колокольчик.
+        </div>
+
+        <div class="auth-form__error" data-request-error></div>
+
+        <button class="btn btn--primary btn--lg" style="width:100%;" data-request-send>
+          Отправить заявку
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛКА УСПЕХА -->
+  <div class="modal" data-modal="success" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__success">
+          <div class="pay__success-icon">✓</div>
+          <h3>Заявка отправлена</h3>
+          <p>Репетитор подтвердит её в кабинете.<br>Уведомление придёт в колокольчик.</p>
+          <button class="btn btn--ghost btn--lg" data-modal-close>Понятно</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__col">
+          <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+          <p class="footer__desc">Площадка репетиторов без курсов и методологий. Бесплатно для всех.</p>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Ученикам</div>
+          <a href="index.html#podbor">Автоподбор</a>
+          <a href="index.html#how">Как это работает</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Репетиторам</div>
+          <a href="register.html">Стать репетитором</a>
+          <a href="login.html">Войти</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Контакты</div>
+          <a href="mailto:hi@kuznechevsky.ru">hi@kuznechevsky.ru</a>
+          <a href="#">Telegram</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Школа Кузнечевского</span>
+        <span>Бесплатно для всех · без комиссий</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/teacher-page.js"></script>
+</body>
+</html>
