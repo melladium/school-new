@@ -21,10 +21,15 @@
     <div class="nav__inner">
       <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
       <nav class="nav__links">
-        <a href="index.html#podbor">Автоподбор</a>
-        <a href="cabinet-student.html" class="is-current">Мои уроки</a>
+        <a href="index.html">Главная</a>
+        <a href="index.html#catalog">Репетиторы</a>
+        <a href="cabinet-student.html" class="is-current">Кабинет</a>
       </nav>
       <div class="nav__actions">
+        <div class="nav__user-badge">
+          <span class="nav__user-avatar" data-user-avatar>?</span>
+          <span class="nav__user-name" data-user-name>…</span>
+        </div>
         <div style="position:relative;">
           <button class="notif-bell" data-notif-bell aria-label="Уведомления">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -35,8 +40,6 @@
           </button>
           <div class="notif-panel" data-notif-panel hidden></div>
         </div>
-        <span class="nav__user" data-user-name>…</span>
-        <button class="btn btn--ghost" data-logout>Выйти</button>
       </div>
     </div>
   </header>
@@ -47,33 +50,29 @@
     <div class="container cabinet__inner">
       <div class="cabinet__head">
         <div class="cabinet__eyebrow">Кабинет ученика</div>
-        <h1 class="cabinet__title">Мои уроки</h1>
-        <p class="cabinet__lead">Здесь появятся ваши брони, история занятий и отзывы</p>
+        <h1 class="cabinet__title">Мои заявки</h1>
+        <p class="cabinet__lead">Здесь ваши заявки на место в расписании репетиторов</p>
       </div>
 
       <div class="cabinet__stats">
         <div class="cabinet-stat">
           <div class="cabinet-stat__num" data-stat="upcoming">0</div>
-          <div class="cabinet-stat__label">Предстоящих уроков</div>
+          <div class="cabinet-stat__label">Предстоящих</div>
         </div>
         <div class="cabinet-stat">
           <div class="cabinet-stat__num" data-stat="done">0</div>
           <div class="cabinet-stat__label">Проведено</div>
         </div>
-        <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="spent">0 ₽</div>
-          <div class="cabinet-stat__label">Потрачено</div>
-        </div>
       </div>
 
       <div class="cabinet__section">
-        <h2 class="cabinet__section-title">Мои брони</h2>
+        <h2 class="cabinet__section-title">Мои заявки</h2>
         <div class="cabinet__list" data-bookings-list>
           <div class="cabinet__empty">
             <div class="cabinet__empty-icon">📅</div>
             <div class="cabinet__empty-title">Пока пусто</div>
-            <div class="cabinet__empty-desc">Найдите репетитора в каталоге и забронируйте первый урок</div>
-            <a href="index.html#podbor" class="btn btn--primary">К репетиторам</a>
+            <div class="cabinet__empty-desc">Найдите репетитора в каталоге и оставьте первую заявку</div>
+            <a href="index.html#catalog" class="btn btn--primary">К репетиторам</a>
           </div>
         </div>
       </div>
@@ -82,11 +81,12 @@
         <h2 class="cabinet__section-title">Опасная зона</h2>
         <div class="danger-zone">
           <p class="danger-zone__text">
-            Удаление аккаунта необратимо. Все ваши брони, история уроков и профиль будут удалены навсегда.
+            Удаление аккаунта необратимо. Все заявки и профиль будут удалены навсегда.
           </p>
-          <button class="btn btn--danger" data-delete-account>
-            Удалить аккаунт навсегда
-          </button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
+            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
+          </div>
         </div>
       </div>
     </div>
