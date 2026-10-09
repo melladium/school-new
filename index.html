@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Школа Кузнечевского — репетиторы без курсов</title>
-  <meta name="description" content="Онлайн-школа репетиторов. Живое расписание, реальные слоты, бесплатно для всех.">
+  <meta name="description" content="Онлайн-школа репетиторов. Живое расписание, реальные анкеты, бесплатно для всех.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -30,7 +30,6 @@
         <span class="nav__logo-dot">.</span>
       </a>
       <nav class="nav__links">
-        <a href="#catalog">Репетиторы</a>
         <a href="#podbor">Автоподбор</a>
         <a href="#how">Как это работает</a>
         <a href="#repetitoram">Репетиторам</a>
@@ -179,46 +178,6 @@
       </div>
     </section>
 
-    <section class="catalog" id="catalog">
-      <div class="container">
-        <div class="section-head reveal">
-          <div class="section-head__eyebrow">Каталог</div>
-          <h2 class="section-head__title">Все репетиторы</h2>
-          <p class="section-head__lead">Поиск, фильтры по предмету и цене. Слоты обновляются в реальном времени.</p>
-        </div>
-
-        <div class="catalog__search reveal">
-          <input type="text" class="search-input" placeholder="Поиск: имя, предмет, задача…" data-search>
-          <span class="search-input__icon">⌕</span>
-        </div>
-
-        <div class="catalog__filters reveal">
-          <div class="filters__group" data-filter="subject">
-            <button class="filter is-active" data-value="all">Все</button>
-            <button class="filter" data-value="math">Математика</button>
-            <button class="filter" data-value="english">Английский</button>
-            <button class="filter" data-value="physics">Физика</button>
-            <button class="filter" data-value="russian">Русский</button>
-            <button class="filter" data-value="chemistry">Химия</button>
-            <button class="filter" data-value="it">Информатика</button>
-          </div>
-          <div class="filters__group" data-filter="price">
-            <button class="filter is-active" data-value="all">Любая цена</button>
-            <button class="filter" data-value="low">до 1200 ₽</button>
-            <button class="filter" data-value="mid">1200–2000 ₽</button>
-            <button class="filter" data-value="high">от 2000 ₽</button>
-          </div>
-          <div class="filters__group" data-filter="sort">
-            <button class="filter is-active" data-value="rating">По рейтингу</button>
-            <button class="filter" data-value="price-asc">Сначала дешевле</button>
-            <button class="filter" data-value="price-desc">Сначала дороже</button>
-          </div>
-        </div>
-
-        <div class="grid grid--3" data-catalog-grid></div>
-      </div>
-    </section>
-
     <section class="how" id="how">
       <div class="container">
         <div class="section-head reveal">
@@ -233,13 +192,13 @@
           </div>
           <div class="how__card reveal">
             <div class="how__num">02</div>
-            <h3>Бронируете</h3>
-            <p>Выбираете слот, подтверждаете урок. На старте — бесплатно, без комиссий.</p>
+            <h3>Оставляете заявку</h3>
+            <p>На странице репетитора выбираете свободное время — он подтверждает.</p>
           </div>
           <div class="how__card reveal">
             <div class="how__num">03</div>
             <h3>Занимаетесь</h3>
-            <p>Ссылка на урок приходит автоматически. Напоминания за 24ч и за 1ч.</p>
+            <p>Связываетесь напрямую. Никаких посредников и комиссий.</p>
           </div>
         </div>
       </div>
@@ -250,7 +209,7 @@
         <div class="section-head reveal">
           <div class="section-head__eyebrow">Репетиторам</div>
           <h2 class="section-head__title">Ваш урок. Ваши правила.</h2>
-          <p class="section-head__lead">Мы не диктуем, как вести занятие. Даём календарь, учеников и напоминания.</p>
+          <p class="section-head__lead">Мы не диктуем, как вести занятие. Даём анкету, расписание и учеников.</p>
         </div>
 
         <div class="for-teachers__grid">
@@ -261,8 +220,8 @@
                 <path d="M3 9h18M8 3v4M16 3v4"/>
               </svg>
             </div>
-            <h3>Живое расписание</h3>
-            <p>Слоты на две недели вперёд. Перенос — в один клик.</p>
+            <h3>Своё расписание</h3>
+            <p>Отмечаете ячейки, пишете текст — ученики видят, когда вы заняты.</p>
           </div>
 
           <div class="for-teachers__feature reveal">
@@ -305,7 +264,6 @@
         <div class="footer__col">
           <div class="footer__title">Ученикам</div>
           <a href="#podbor">Автоподбор</a>
-          <a href="#catalog">Каталог</a>
           <a href="#how">Как это работает</a>
         </div>
         <div class="footer__col">
@@ -325,16 +283,6 @@
       </div>
     </div>
   </footer>
-
-  <div class="modal" data-modal="teacher" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel modal__panel--wide" data-teacher-content></div>
-  </div>
-
-  <div class="modal" data-modal="pay" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" data-pay-content></div>
-  </div>
 
   <script src="js/libs/supabase.js"></script>
   <script src="js/supabase-client.js"></script>
