@@ -127,21 +127,12 @@
     document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
   }
 
-  /* CARD CURSOR */
-  document.addEventListener('mousemove', (e) => {
-    const card = e.target.closest('.teacher-card');
-    if (!card) return;
-    const r = card.getBoundingClientRect();
-    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-  });
-
   /* TEACHER CARD */
   function teacherCard(t) {
     const initials = (t.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const freeSlots = (t.slots || []).filter(s => s.free).slice(0, 4);
     const slotsHtml = freeSlots.map(s =>
-      `<span class="slot slot--free" data-slot data-slot-id="${s.id}" data-day="${s.day}" data-time="${s.time}">${s.day} ${s.time}</span>`
+      `<span class="slot slot--free">${s.day} ${s.time}</span>`
     ).join('');
     const tagsHtml = (t.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
@@ -150,7 +141,7 @@
       : `<div class="teacher-card__avatar">${initials}</div>`;
 
     return `
-      <article class="teacher-card reveal" data-teacher-id="${t.id}">
+      <a class="teacher-card reveal" href="teacher.html?id=${t.id}" data-teacher-id="${t.id}">
         <div class="teacher-card__head">
           ${avatarHtml}
           <div>
@@ -165,7 +156,7 @@
           <div class="teacher-card__price">${t.price} ₽<span> / урок</span></div>
           <div class="teacher-card__cta">Подробнее →</div>
         </div>
-      </article>
+      </a>
     `;
   }
 
@@ -186,10 +177,9 @@
 
       const ids = teacherRows.map(t => t.id);
 
-      const [profilesRes, slotsRes, reviewsRes] = await Promise.all([
+      const [profilesRes, slotsRes] = await Promise.all([
         window.supabaseClient.from('profiles').select('id, name').in('id', ids),
-        window.supabaseClient.from('slots').select('id, teacher_id, date, time, is_booked').in('teacher_id', ids).eq('is_booked', false),
-        window.supabaseClient.from('reviews').select('teacher_id, rating, text').in('teacher_id', ids)
+        window.supabaseClient.from('slots').select('teacher_id, date, time, is_booked').in('teacher_id', ids).eq('is_booked', false)
       ]);
 
       const profilesMap = {};
@@ -199,12 +189,6 @@
       (slotsRes.data || []).forEach(s => {
         if (!slotsMap[s.teacher_id]) slotsMap[s.teacher_id] = [];
         slotsMap[s.teacher_id].push(s);
-      });
-
-      const reviewsMap = {};
-      (reviewsRes.data || []).forEach(r => {
-        if (!reviewsMap[r.teacher_id]) reviewsMap[r.teacher_id] = [];
-        reviewsMap[r.teacher_id].push(r);
       });
 
       const subjectLabels = {
@@ -219,7 +203,6 @@
         const slots = (slotsMap[t.id] || []).slice(0, 8).map(s => {
           const d = new Date(s.date);
           return {
-            id: s.id,
             day: days[d.getDay()],
             time: (s.time || '').slice(0, 5),
             free: !s.is_booked
@@ -231,19 +214,13 @@
           name: profile.name || 'Репетитор',
           subject: t.subject,
           subjectLabel: subjectLabels[t.subject] || t.subject,
-          goals: [],
           tags: [subjectLabels[t.subject] || t.subject],
           price: t.price,
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
           bio: t.bio || '',
           avatar_url: t.avatar_url || '',
-          slots: slots,
-          reviews: (reviewsMap[t.id] || []).slice(0, 5).map(r => ({
-            name: 'Ученик',
-            rating: r.rating,
-            text: r.text || ''
-          }))
+          slots: slots
         };
       });
 
@@ -434,224 +411,77 @@
   observeReveals();
   initMagnetic();
 
-  /* TEACHER MODAL */
-  const teacherModal = document.querySelector('[data-modal="teacher"]');
-  const teacherContent = document.querySelector('[data-teacher-content]');
+  /* КАТАЛОГ */
+  const catalogGrid = document.querySelector('[data-catalog-grid]');
+  const searchInput = document.querySelector('[data-search]');
+  const catalogState = { subject: 'all', price: 'all', sort: 'rating', query: '' };
 
-  function openTeacherModal(id) {
-    const t = (window.TEACHERS || []).find(x => String(x.id) === String(id));
-    if (!t || !teacherModal) return;
+  function renderCatalog() {
+    if (!catalogGrid) return;
+    let list = [...(window.TEACHERS || [])];
 
-    const initials = (t.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    if (catalogState.subject !== 'all') list = list.filter(t => t.subject === catalogState.subject);
+    if (catalogState.price === 'low') list = list.filter(t => t.price < 1200);
+    if (catalogState.price === 'mid') list = list.filter(t => t.price >= 1200 && t.price <= 2000);
+    if (catalogState.price === 'high') list = list.filter(t => t.price > 2000);
 
-    const avatarHtml = t.avatar_url
-      ? `<div class="tp__avatar" style="overflow:hidden;padding:0;"><img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
-      : `<div class="tp__avatar">${initials}</div>`;
-
-    const slotsHtml = (t.slots || []).map(s =>
-      `<span class="slot ${s.free ? 'slot--free' : 'slot--busy'}" ${s.free ? `data-slot data-slot-id="${s.id}" data-day="${s.day}" data-time="${s.time}" data-teacher="${t.id}"` : ''}>${s.day} ${s.time}</span>`
-    ).join('');
-    const tagsHtml = (t.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
-    const reviewsHtml = (t.reviews || []).map(r => `
-      <div class="review">
-        <div class="review__head">
-          <span class="review__name">${r.name}</span>
-          <span class="review__rating">★ ${r.rating}</span>
-        </div>
-        <div class="review__text">${r.text}</div>
-      </div>
-    `).join('') || '<div style="color:var(--text-mute);font-size:14px;">Пока нет отзывов</div>';
-
-    teacherContent.innerHTML = `
-      <div class="tp">
-        <div class="tp__head">
-          ${avatarHtml}
-          <div>
-            <div class="tp__name">${t.name}</div>
-            <div class="tp__subject">${t.subjectLabel} · ${t.reviewsCount || 0} отзывов</div>
-          </div>
-          <div class="tp__rating">★ ${t.rating || '—'}</div>
-        </div>
-        <div class="tp__grid">
-          <div>
-            <div class="tp__section-title">О преподавателе</div>
-            <p class="tp__bio">${t.bio || 'Информация пока не заполнена'}</p>
-            <div class="tp__section-title">Специализация</div>
-            <div class="teacher-card__tags">${tagsHtml}</div>
-          </div>
-          <div>
-            <div class="tp__section-title">Свободные слоты</div>
-            <div class="tp__slots">${slotsHtml || '<span style="color:var(--text-mute);font-size:13px;">Слотов пока нет</span>'}</div>
-            <div class="tp__section-title" style="margin-top:24px;">Отзывы</div>
-            <div class="tp__reviews">${reviewsHtml}</div>
-          </div>
-        </div>
-        <div class="tp__foot">
-          <div class="tp__price">${t.price} ₽<span> / урок</span></div>
-          <button class="btn btn--primary btn--lg" data-pay-open data-teacher="${t.id}">Забронировать</button>
-        </div>
-      </div>
-    `;
-
-    teacherModal.hidden = false;
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeModals() {
-    document.querySelectorAll('.modal').forEach(m => m.hidden = true);
-    document.body.style.overflow = '';
-  }
-
-  document.addEventListener('click', (e) => {
-    const card = e.target.closest('[data-teacher-id]');
-    if (card) { openTeacherModal(card.dataset.teacherId); return; }
-    if (e.target.closest('[data-modal-close]')) { closeModals(); return; }
-
-    const slot = e.target.closest('.slot--free[data-teacher]');
-    if (slot) {
-      e.preventDefault();
-      openPayModal(slot.dataset.teacher, slot.dataset.slotId, slot.dataset.day, slot.dataset.time);
-      return;
+    if (catalogState.query) {
+      const q = catalogState.query.toLowerCase().trim();
+      list = list.filter(t => {
+        const haystack = [t.name, t.subjectLabel, ...(t.tags || []), t.bio || ''].join(' ').toLowerCase();
+        return haystack.includes(q);
+      });
     }
 
-    const payOpen = e.target.closest('[data-pay-open]');
-    if (payOpen) {
-      e.preventDefault();
-      const t = (window.TEACHERS || []).find(x => String(x.id) === String(payOpen.dataset.teacher));
-      if (!t) return;
-      const firstFree = (t.slots || []).find(s => s.free);
-      openPayModal(t.id, firstFree?.id || null, firstFree?.day || '—', firstFree?.time || '—');
-    }
-  });
+    if (catalogState.sort === 'rating') list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    if (catalogState.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
+    if (catalogState.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeModals();
-  });
-
-  /* PAY MODAL */
-  const payModal = document.querySelector('[data-modal="pay"]');
-  const payContent = document.querySelector('[data-pay-content]');
-
-  async function openPayModal(teacherId, slotId, day, time) {
-    const t = (window.TEACHERS || []).find(x => String(x.id) === String(teacherId));
-    if (!t || !payModal) return;
-
-    const currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
-
-    if (currentUser) {
-      const { data: existing } = await window.supabaseClient
-        .from('bookings')
-        .select('id, status')
-        .eq('student_id', currentUser.user.id)
-        .eq('teacher_id', t.id)
-        .in('status', ['pending', 'confirmed'])
-        .maybeSingle();
-
-      if (existing) {
-        const msg = existing.status === 'pending'
-          ? 'У вас уже есть заявка к этому репетитору. Дождитесь подтверждения.'
-          : 'У вас уже есть подтверждённый урок с этим репетитором.';
-        payContent.innerHTML = `
-          <div class="pay">
-            <div class="pay__title">Заявка уже есть</div>
-            <p style="color:var(--text-dim);margin-bottom:24px;">${msg}</p>
-            <button class="btn btn--ghost btn--lg" style="width:100%;" data-modal-close>Закрыть</button>
-          </div>
-        `;
-        payModal.hidden = false;
-        document.body.style.overflow = 'hidden';
-        return;
-      }
-    }
-
-    payContent.innerHTML = `
-      <div class="pay">
-        <div class="pay__title">Бронирование урока</div>
-        <div class="pay__lesson">
-          <div class="pay__row"><span class="pay__row-label">Репетитор</span><span class="pay__row-value">${t.name}</span></div>
-          <div class="pay__row"><span class="pay__row-label">Предмет</span><span class="pay__row-value">${t.subjectLabel}</span></div>
-          <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value">${day} ${time}</span></div>
-          <div class="pay__row"><span class="pay__row-label">Длительность</span><span class="pay__row-value">60 мин</span></div>
-        </div>
-        <div class="pay__free-note">На старте всё бесплатно — вы платите репетитору напрямую, без комиссий.</div>
-        <div class="pay__lesson" style="background:transparent;border:none;padding:0;">
-          <div class="pay__row"><span class="pay__row-label">Стоимость урока</span><span class="pay__row-value">${t.price} ₽</span></div>
-          <div class="pay__row"><span class="pay__row-label">Комиссия сервиса</span><span class="pay__row-value" style="color:var(--accent);">0 ₽</span></div>
-          <div class="pay__divider"></div>
-          <div class="pay__row pay__row--total"><span class="pay__row-label">Итого</span><span class="pay__row-value">${t.price} ₽</span></div>
-        </div>
-        ${!currentUser ? '<div style="color:var(--red);font-size:13px;margin-top:12px;text-align:center;">Чтобы забронировать — войдите или зарегистрируйтесь</div>' : ''}
-        <button class="btn btn--primary btn--lg" style="width:100%;margin-top:24px;" data-pay-confirm ${!currentUser ? 'disabled' : ''}>
-          ${currentUser ? 'Подтвердить бронь' : 'Нужен аккаунт'}
-        </button>
-        <div class="pay__demo">Демо-режим · деньги не списываются</div>
-      </div>
-    `;
-
-    const confirmBtn = payContent.querySelector('[data-pay-confirm]');
-    if (confirmBtn && currentUser) {
-      confirmBtn.addEventListener('click', () => createBooking(t, slotId, day, time, currentUser));
-    }
-
-    payModal.hidden = false;
-    document.body.style.overflow = 'hidden';
-  }
-
-  async function createBooking(t, slotId, day, time, currentUser) {
-    const confirmBtn = payContent.querySelector('[data-pay-confirm]');
-    if (confirmBtn) {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = 'Бронируем…';
-    }
-
-    const { data: existing } = await window.supabaseClient
-      .from('bookings')
-      .select('id')
-      .eq('student_id', currentUser.user.id)
-      .eq('teacher_id', t.id)
-      .in('status', ['pending', 'confirmed'])
-      .maybeSingle();
-
-    if (existing) {
-      payContent.innerHTML = `
-        <div class="pay">
-          <div class="pay__title">Заявка уже есть</div>
-          <p style="color:var(--text-dim);margin-bottom:24px;">У вас уже есть активная заявка к этому репетитору.</p>
-          <button class="btn btn--ghost btn--lg" style="width:100%;" data-modal-close>Закрыть</button>
+    if (!list.length) {
+      catalogGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">🔍</div>
+          <div class="empty-state__title">Пока никого нет</div>
+          <div class="empty-state__desc">Репетиторы появятся после регистрации. Попробуйте позже.</div>
         </div>
       `;
       return;
     }
 
-    const { error } = await window.supabaseClient.from('bookings').insert({
-      student_id: currentUser.user.id,
-      teacher_id: t.id,
-      slot_id: slotId,
-      status: 'pending'
+    catalogGrid.innerHTML = list.map(teacherCard).join('');
+    observeReveals();
+    initMagnetic();
+  }
+
+  document.querySelectorAll('[data-filter]').forEach(group => {
+    const type = group.dataset.filter;
+    group.querySelectorAll('.filter').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.filter').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        catalogState[type] = btn.dataset.value;
+        renderCatalog();
+      });
     });
+  });
 
-    if (error) {
-      payContent.innerHTML = `
-        <div class="pay">
-          <div class="pay__title">Ошибка</div>
-          <p style="color:var(--red);margin-bottom:24px;">${error.message}</p>
-          <button class="btn btn--ghost btn--lg" style="width:100%;" data-modal-close>Закрыть</button>
-        </div>
-      `;
-      return;
-    }
-
-    payContent.innerHTML = `
-      <div class="pay">
-        <div class="pay__success">
-          <div class="pay__success-icon">✓</div>
-          <h3>Заявка отправлена</h3>
-          <p>Свяжемся с ${t.name} на ${day} ${time}.<br>Репетитор подтвердит бронь в кабинете.</p>
-          <button class="btn btn--ghost btn--lg" data-modal-close>Закрыть</button>
-        </div>
-      </div>
-    `;
+  if (searchInput) {
+    let searchTimer;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        catalogState.query = e.target.value;
+        renderCatalog();
+      }, 150);
+    });
   }
+
+  async function initCatalog() {
+    await loadTeachersFromDB();
+    renderCatalog();
+  }
+
+  initCatalog();
 
   /* MOBILE BURGER */
   const burger = document.querySelector('.nav__burger');
