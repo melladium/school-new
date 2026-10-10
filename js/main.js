@@ -62,7 +62,7 @@
     document.querySelectorAll('[data-hero-el]').forEach(el => el.classList.add('is-visible'));
   }
 
-  /* NAV */
+  /* NAV scroll */
   const nav = document.querySelector('.nav');
   if (nav) {
     window.addEventListener('scroll', () => {
@@ -179,7 +179,7 @@
 
       const [profilesRes, slotsRes] = await Promise.all([
         window.supabaseClient.from('profiles').select('id, name').in('id', ids),
-        window.supabaseClient.from('slots').select('teacher_id, date, time, is_booked').in('teacher_id', ids).eq('is_booked', false)
+        window.supabaseClient.from('schedule_template').select('teacher_id, weekday, time, status').in('teacher_id', ids).eq('status', 'free')
       ]);
 
       const profilesMap = {};
@@ -200,14 +200,11 @@
 
       const result = teacherRows.map(t => {
         const profile = profilesMap[t.id] || {};
-        const slots = (slotsMap[t.id] || []).slice(0, 8).map(s => {
-          const d = new Date(s.date);
-          return {
-            day: days[d.getDay()],
-            time: (s.time || '').slice(0, 5),
-            free: !s.is_booked
-          };
-        });
+        const slots = (slotsMap[t.id] || []).slice(0, 8).map(s => ({
+          day: days[s.weekday],
+          time: (s.time || '').slice(0, 5),
+          free: true
+        }));
 
         return {
           id: t.id,
@@ -411,96 +408,47 @@
   observeReveals();
   initMagnetic();
 
-  /* КАТАЛОГ */
-  const catalogGrid = document.querySelector('[data-catalog-grid]');
-  const searchInput = document.querySelector('[data-search]');
-  const catalogState = { subject: 'all', price: 'all', sort: 'rating', query: '' };
-
-  function renderCatalog() {
-    if (!catalogGrid) return;
-    let list = [...(window.TEACHERS || [])];
-
-    if (catalogState.subject !== 'all') list = list.filter(t => t.subject === catalogState.subject);
-    if (catalogState.price === 'low') list = list.filter(t => t.price < 1200);
-    if (catalogState.price === 'mid') list = list.filter(t => t.price >= 1200 && t.price <= 2000);
-    if (catalogState.price === 'high') list = list.filter(t => t.price > 2000);
-
-    if (catalogState.query) {
-      const q = catalogState.query.toLowerCase().trim();
-      list = list.filter(t => {
-        const haystack = [t.name, t.subjectLabel, ...(t.tags || []), t.bio || ''].join(' ').toLowerCase();
-        return haystack.includes(q);
-      });
-    }
-
-    if (catalogState.sort === 'rating') list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    if (catalogState.sort === 'price-asc') list.sort((a, b) => a.price - b.price);
-    if (catalogState.sort === 'price-desc') list.sort((a, b) => b.price - a.price);
-
-    if (!list.length) {
-      catalogGrid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state__icon">🔍</div>
-          <div class="empty-state__title">Пока никого нет</div>
-          <div class="empty-state__desc">Репетиторы появятся после регистрации. Попробуйте позже.</div>
-        </div>
-      `;
-      return;
-    }
-
-    catalogGrid.innerHTML = list.map(teacherCard).join('');
-    observeReveals();
-    initMagnetic();
-  }
-
-  document.querySelectorAll('[data-filter]').forEach(group => {
-    const type = group.dataset.filter;
-    group.querySelectorAll('.filter').forEach(btn => {
-      btn.addEventListener('click', () => {
-        group.querySelectorAll('.filter').forEach(b => b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        catalogState[type] = btn.dataset.value;
-        renderCatalog();
-      });
-    });
-  });
-
-  if (searchInput) {
-    let searchTimer;
-    searchInput.addEventListener('input', (e) => {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(() => {
-        catalogState.query = e.target.value;
-        renderCatalog();
-      }, 150);
-    });
-  }
-
-  async function initCatalog() {
-    await loadTeachersFromDB();
-    renderCatalog();
-  }
-
-  initCatalog();
-
-  /* MOBILE BURGER */
+  /* BURGER */
   const burger = document.querySelector('.nav__burger');
   if (burger) {
     burger.addEventListener('click', () => {
       const links = document.querySelector('.nav__links');
       if (!links) return;
-      const isOpen = links.style.display === 'flex';
-      links.style.display = isOpen ? '' : 'flex';
-      links.style.position = 'absolute';
-      links.style.top = '100%';
-      links.style.left = '0';
-      links.style.right = '0';
-      links.style.flexDirection = 'column';
-      links.style.padding = '20px';
-      links.style.background = 'rgba(8,8,10,0.95)';
-      links.style.backdropFilter = 'blur(20px)';
-      links.style.borderBottom = '1px solid var(--border)';
+      const isOpen = links.classList.contains('is-open');
+      links.classList.toggle('is-open', !isOpen);
+      burger.classList.toggle('is-active', !isOpen);
     });
+  }
+
+  /* AUTH HEADER — подмена шапки для залогиненного */
+  async function initAuthHeader() {
+    const actions = document.querySelector('[data-nav-actions]');
+    const roles = document.querySelector('[data-hero-roles]');
+    if (!actions || !window.authAPI) return;
+
+    const current = await window.authAPI.getCurrentUser();
+    if (!current) return;
+
+    // Скрываем блок "Я ученик / Я репетитор" у залогиненного
+    if (roles) roles.style.display = 'none';
+
+    const role = current.profile.role;
+    const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+
+    actions.innerHTML = `
+      <a href="${cabinetHref}" class="btn btn--ghost">Кабинет</a>
+      <button class="btn btn--primary" data-logout>Выйти</button>
+    `;
+
+    const logoutBtn = actions.querySelector('[data-logout]');
+    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+  }
+
+  // Запускаем после загрузки DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthHeader);
+  } else {
+    initAuthHeader();
   }
 
 })();
