@@ -78,7 +78,6 @@
   text-align: center;
 }
 
-/* SCREENS */
 .role-screen,
 .form-screen {
   animation: screenIn 0.5s var(--ease);
@@ -110,7 +109,6 @@
   font-weight: 600;
 }
 
-/* BIG ROLE CARDS */
 .role-picker--big {
   display: flex;
   flex-direction: column;
@@ -221,7 +219,6 @@
 
 .role-card-big--teacher:hover .role-card-big__arrow { color: var(--magenta); }
 
-/* FORM */
 .auth-form .field { margin-bottom: 16px; }
 
 .auth-form__error {
