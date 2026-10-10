@@ -232,6 +232,24 @@
   border-color: var(--border-strong);
 }
 
+.booking-row__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  color: var(--accent);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.page-teacher .booking-row__avatar { color: var(--magenta); }
+
 .booking-row__date {
   font-family: var(--font-mono);
   font-size: 14px;
@@ -415,7 +433,7 @@
   max-width: 60ch;
 }
 
-/* SCHEDULE GRID */
+/* SCHEDULE GRID (старая сетка — оставлена для совместимости) */
 .schedule-grid {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -491,6 +509,142 @@
 
 .schedule-cell.is-active:hover {
   background: rgba(232, 78, 198, 0.25);
+}
+
+/* ====================================================== */
+/* WEEK BOARD — расписание репетитора (Пн–Вс + ячейки)    */
+/* ====================================================== */
+
+.week-board {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+.week-board__loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.week-day__head {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.week-day__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+}
+
+.week-day__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+}
+
+.week-cell {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.week-cell:hover {
+  transform: translateY(-1px);
+  border-color: var(--magenta);
+}
+
+.week-cell__time {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+.week-cell__status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.week-cell__note {
+  font-size: 11px;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* СТАТУСЫ ЯЧЕЕК */
+.week-cell--free {
+  background: var(--accent-dim);
+  border-color: rgba(78, 232, 232, 0.4);
+}
+.week-cell--free .week-cell__status { color: var(--accent); }
+.week-cell--free:hover {
+  background: rgba(78, 232, 232, 0.18);
+  border-color: var(--accent);
+}
+
+.week-cell--busy {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+.week-cell--busy .week-cell__status { color: var(--red); }
+.week-cell--busy:hover {
+  background: rgba(248, 113, 113, 0.16);
+  border-color: var(--red);
+}
+
+.week-cell--off {
+  background: var(--surface-2);
+  border-color: var(--border);
+  opacity: 0.7;
+}
+.week-cell--off .week-cell__status { color: var(--text-mute); }
+.week-cell--off:hover {
+  opacity: 1;
+  border-color: var(--border-strong);
 }
 
 /* NOTIFICATIONS */
@@ -593,6 +747,12 @@
 }
 
 /* MOBILE */
+@media (max-width: 1024px) {
+  .week-board {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .cabinet { padding: 120px 0 60px; }
   .cabinet__stats { grid-template-columns: 1fr; gap: 10px; margin-bottom: 40px; }
@@ -609,4 +769,15 @@
   .notif-panel { width: 280px; right: -8px; }
   .profile-grid { grid-template-columns: 1fr; }
   .schedule-cell { height: 38px; font-size: 10px; }
+  .week-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 14px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .week-board {
+    grid-template-columns: 1fr;
+  }
 }
