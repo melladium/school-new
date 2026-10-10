@@ -197,26 +197,41 @@
           <div style="font-family:var(--font-mono);font-size:12px;color:var(--magenta);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">
             Как работает расписание
           </div>
-          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;color:var(--text-dim);font-size:14px;line-height:1.6;">
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px;color:var(--text-dim);font-size:14px;line-height:1.6;">
             <li style="display:flex;gap:12px;">
               <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">01</span>
-              <span>Кликните по любой ячейке в таблице — откроется окно для ввода текста.</span>
+              <div>
+                <div style="color:var(--text);">Кликните по любой ячейке в таблице.</div>
+                <div style="font-size:13px;color:var(--text-mute);margin-top:2px;">Откроется окно для ввода текста — как всплывающая карточка.</div>
+              </div>
             </li>
             <li style="display:flex;gap:12px;">
               <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">02</span>
-              <span>Напишите до 70 символов — имя ученика, ссылку на звонок или пометку «занято».</span>
+              <div>
+                <div style="color:var(--text);">Напишите до 70 символов.</div>
+                <div style="font-size:13px;color:var(--text-mute);margin-top:2px;">Например: имя ученика, ссылку на звонок или что угодно для себя. Это ваша личная пометка.</div>
+              </div>
             </li>
             <li style="display:flex;gap:12px;">
               <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">03</span>
-              <span>Сохраните. Ученики увидят эту ячейку <strong style="color:#F87171;">красной</strong> — время занято.</span>
+              <div>
+                <div style="color:var(--text);">Сохраните.</div>
+                <div style="font-size:13px;color:var(--text-mute);margin-top:2px;">Ученики увидят эту ячейку <strong style="color:#F87171;">красной</strong> — поймут, что время занято, и не будут просить его.</div>
+              </div>
             </li>
             <li style="display:flex;gap:12px;">
               <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">04</span>
-              <span>Пустые ячейки будут <strong style="color:#4ADE80;">зелёными</strong> — ученики смогут попросить это место.</span>
+              <div>
+                <div style="color:var(--text);">Пустые ячейки — <strong style="color:#4ADE80;">зелёные</strong>.</div>
+                <div style="font-size:13px;color:var(--text-mute);margin-top:2px;">Ученик нажимает на зелёную ячейку → отправляет заявку на это место. Заявка приходит вам в уведомления (колокольчик справа вверху) и в блок «Заявки на место» ниже.</div>
+              </div>
             </li>
             <li style="display:flex;gap:12px;">
               <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">05</span>
-              <span>Чтобы освободить ячейку — кликните по ней и нажмите «Очистить».</span>
+              <div>
+                <div style="color:var(--text);">Одобряете заявку — ячейка автоматически становится занятой.</div>
+                <div style="font-size:13px;color:var(--text-mute);margin-top:2px;">Отклоняете — ячейка остаётся зелёной, ученик сможет выбрать другое время.</div>
+              </div>
             </li>
           </ul>
         </div>
@@ -264,6 +279,9 @@
         <div class="field" style="margin-bottom:16px;">
           <label>Текст (до 70 символов)</label>
           <input type="text" maxlength="70" data-slot-text placeholder="Андрей, meet.google.com/abc">
+          <div style="font-size:12px;color:var(--text-mute);margin-top:8px;">
+            Это ваша пометка. Ученикам показывается просто «занято».
+          </div>
         </div>
 
         <div class="auth-form__error" data-slot-error></div>
