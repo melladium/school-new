@@ -56,7 +56,7 @@
       <div class="cabinet__stats">
         <div class="cabinet-stat">
           <div class="cabinet-stat__num" data-stat="slots">0</div>
-          <div class="cabinet-stat__label">Свободных ячеек</div>
+          <div class="cabinet-stat__label">Заполненных ячеек</div>
         </div>
         <div class="cabinet-stat">
           <div class="cabinet-stat__num" data-stat="bookings">0</div>
@@ -192,9 +192,35 @@
         <div class="cabinet__section-head">
           <h2 class="cabinet__section-title">Моё расписание</h2>
         </div>
-        <p style="color:var(--text-dim);font-size:14px;margin-bottom:16px;">
-          Кликайте по ячейкам и пишите текст — до 70 символов. Что напишете, то увидят ученики: имя, ссылку на звонок или пометку «занято».
-        </p>
+
+        <div style="background:var(--surface-1);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px;">
+          <div style="font-family:var(--font-mono);font-size:12px;color:var(--magenta);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;">
+            Как работает расписание
+          </div>
+          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;color:var(--text-dim);font-size:14px;line-height:1.6;">
+            <li style="display:flex;gap:12px;">
+              <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">01</span>
+              <span>Кликните по любой ячейке в таблице — откроется окно для ввода текста.</span>
+            </li>
+            <li style="display:flex;gap:12px;">
+              <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">02</span>
+              <span>Напишите до 70 символов — имя ученика, ссылку на звонок или пометку «занято».</span>
+            </li>
+            <li style="display:flex;gap:12px;">
+              <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">03</span>
+              <span>Сохраните. Ученики увидят эту ячейку <strong style="color:#F87171;">красной</strong> — время занято.</span>
+            </li>
+            <li style="display:flex;gap:12px;">
+              <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">04</span>
+              <span>Пустые ячейки будут <strong style="color:#4ADE80;">зелёными</strong> — ученики смогут попросить это место.</span>
+            </li>
+            <li style="display:flex;gap:12px;">
+              <span style="color:var(--magenta);font-family:var(--font-mono);flex-shrink:0;">05</span>
+              <span>Чтобы освободить ячейку — кликните по ней и нажмите «Очистить».</span>
+            </li>
+          </ul>
+        </div>
+
         <div class="schedule-grid" data-schedule-grid>
           <div class="schedule-grid__loading">Загружаем…</div>
         </div>
