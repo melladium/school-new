@@ -22,7 +22,6 @@
       <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
       <nav class="nav__links">
         <a href="index.html">Главная</a>
-        <a href="index.html#catalog">Репетиторы</a>
         <a href="cabinet-student.html" class="is-current">Кабинет</a>
       </nav>
       <div class="nav__actions">
@@ -40,8 +39,16 @@
           </button>
           <div class="notif-panel" data-notif-panel hidden></div>
         </div>
+        <button class="nav__burger" aria-label="Меню">
+          <span></span><span></span>
+        </button>
       </div>
     </div>
+    <nav class="nav__mobile" data-nav-mobile hidden>
+      <a href="index.html">Главная</a>
+      <a href="cabinet-student.html" class="is-current">Кабинет</a>
+      <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
+    </nav>
   </header>
 
   <main class="cabinet">
@@ -71,8 +78,8 @@
           <div class="cabinet__empty">
             <div class="cabinet__empty-icon">📅</div>
             <div class="cabinet__empty-title">Пока пусто</div>
-            <div class="cabinet__empty-desc">Найдите репетитора в каталоге и оставьте первую заявку</div>
-            <a href="index.html#catalog" class="btn btn--primary">К репетиторам</a>
+            <div class="cabinet__empty-desc">Найдите репетитора в автоподборе и оставьте первую заявку</div>
+            <a href="index.html#podbor" class="btn btn--primary">К репетиторам</a>
           </div>
         </div>
       </div>
