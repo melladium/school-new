@@ -18,23 +18,16 @@
     cancelled: 'Отменена'
   };
 
-  /* === ВРЕМЯ === */
+  /* ВРЕМЯ */
   function cellDateTime(weekday, time) {
-    // weekday: 0=Вс .. 6=Сб. time: "HH:MM"
     const now = new Date();
     const [hh, mm] = (time || '00:00').split(':').map(Number);
     const currentDay = now.getDay();
     let diff = weekday - currentDay;
     const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
     d.setDate(d.getDate() + diff);
-    // Если это сегодня, но время уже прошло — считаем как на следующей неделе
-    if (diff === 0 && d.getTime() < now.getTime()) {
-      d.setDate(d.getDate() + 7);
-    }
-    // Если день в прошлом на этой неделе — берём следующую неделю
-    if (diff < 0) {
-      d.setDate(d.getDate() + 7);
-    }
+    if (diff === 0 && d.getTime() < now.getTime()) d.setDate(d.getDate() + 7);
+    if (diff < 0) d.setDate(d.getDate() + 7);
     return d;
   }
 
@@ -42,7 +35,7 @@
     return cellDateTime(weekday, time).getTime() < Date.now();
   }
 
-  /* === INIT === */
+  /* INIT */
   async function init() {
     currentUser = await window.authAPI.requireAuth('student');
     if (!currentUser) return;
@@ -61,6 +54,7 @@
     const deleteBtn = document.querySelector('[data-delete-account]');
     if (deleteBtn) deleteBtn.addEventListener('click', deleteAccount);
 
+    initBurger();
     initNotifications();
     initReviewModal();
 
@@ -70,7 +64,21 @@
     ]);
   }
 
-  /* === УВЕДОМЛЕНИЯ === */
+  /* BURGER */
+  function initBurger() {
+    const burger = document.querySelector('.nav__burger');
+    const mobileMenu = document.querySelector('[data-nav-mobile]');
+    if (burger && mobileMenu) {
+      burger.addEventListener('click', () => {
+        mobileMenu.hidden = !mobileMenu.hidden;
+        burger.classList.toggle('is-active', !mobileMenu.hidden);
+      });
+    }
+    const logoutMobile = document.querySelector('[data-logout-mobile]');
+    if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
+  }
+
+  /* УВЕДОМЛЕНИЯ */
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -153,7 +161,7 @@
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
-  /* === ОТЗЫВЫ: КОГО УЖЕ ОЦЕНИЛ === */
+  /* ОТЗЫВЫ: КОГО УЖЕ ОЦЕНИЛ */
   async function loadReviewedTeachers() {
     const { data } = await window.supabaseClient
       .from('reviews')
@@ -162,7 +170,7 @@
     reviewedTeacherIds = new Set((data || []).map(r => r.teacher_id));
   }
 
-  /* === ЗАЯВКИ === */
+  /* ЗАЯВКИ */
   async function loadBookings() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
@@ -287,7 +295,7 @@
     if (dEl) dEl.textContent = done.length;
   }
 
-  /* === МОДАЛКА ОТЗЫВА === */
+  /* МОДАЛКА ОТЗЫВА */
   function initReviewModal() {
     const modal = document.querySelector('[data-modal="review"]');
     if (!modal) return;
@@ -381,7 +389,6 @@
       return;
     }
 
-    // Уведомление репетитору
     await window.supabaseClient.from('notifications').insert({
       user_id: selectedBooking.teacherId,
       type: 'review',
@@ -389,7 +396,6 @@
       link: 'cabinet-teacher.html'
     });
 
-    // Пересчёт рейтинга
     await recalcTeacherRating(selectedBooking.teacherId);
 
     saveBtn.disabled = false;
@@ -418,7 +424,7 @@
       .eq('id', teacherId);
   }
 
-  /* === УДАЛЕНИЕ АККАУНТА === */
+  /* УДАЛЕНИЕ АККАУНТА */
   async function deleteAccount() {
     if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные будут удалены. Это нельзя отменить.')) return;
     if (!confirm('Точно? Это последнее предупреждение.')) return;
