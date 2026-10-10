@@ -2,7 +2,6 @@
   'use strict';
 
   let teacher = null;
-  let allSlots = [];
   let selectedCell = null;
   let currentUser = null;
 
@@ -50,7 +49,6 @@
     initModals();
   }
 
-  /* ЗАГРУЗКА */
   async function loadTeacher(id) {
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -74,7 +72,6 @@
     };
   }
 
-  /* HERO */
   function renderHero() {
     document.title = teacher.name + ' — Школа Кузнечевского';
 
@@ -111,14 +108,12 @@
     }
   }
 
-  /* О СЕБЕ */
   function renderBio() {
     if (!teacher.bio) return;
     document.querySelector('[data-section-bio]').hidden = false;
     setText('[data-bio-text]', teacher.bio);
   }
 
-  /* ПОРТФОЛИО */
   function renderPortfolio() {
     if (!teacher.portfolio_url) return;
     document.querySelector('[data-section-portfolio]').hidden = false;
@@ -126,7 +121,6 @@
     if (img) img.src = teacher.portfolio_url;
   }
 
-  /* КОНТАКТЫ */
   function renderContacts() {
     let hasAny = false;
 
@@ -173,7 +167,6 @@
     if (hasAny) document.querySelector('[data-section-contacts]').hidden = false;
   }
 
-  /* РАСПИСАНИЕ — как у репетитора, по дням недели */
   async function renderSchedule(teacherId) {
     const el = document.querySelector('[data-schedule]');
     if (!el) return;
@@ -228,7 +221,6 @@
     html += '</div>';
     el.innerHTML = html;
 
-    // Клик — только по свободным
     el.querySelectorAll('.week-cell--free').forEach(cell => {
       cell.addEventListener('click', () => openRequestModal(cell));
     });
@@ -250,7 +242,6 @@
     `;
   }
 
-  /* ОТЗЫВЫ */
   async function renderReviews(teacherId) {
     const { data } = await window.supabaseClient
       .from('reviews')
@@ -278,7 +269,6 @@
     }
   }
 
-  /* МОДАЛКИ */
   function initModals() {
     document.querySelectorAll('[data-modal-close]').forEach(el => {
       el.addEventListener('click', closeAllModals);
@@ -335,7 +325,6 @@
     btn.disabled = true;
     btn.textContent = 'Отправляем…';
 
-    // Проверка: нет ли уже активной заявки
     const { data: existing } = await window.supabaseClient
       .from('booking_requests')
       .select('id')
@@ -374,7 +363,6 @@
     document.body.style.overflow = 'hidden';
   }
 
-  /* УТИЛИТЫ */
   function setText(sel, val) {
     const el = document.querySelector(sel);
     if (el) el.textContent = val || '—';
