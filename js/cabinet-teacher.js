@@ -935,4 +935,20 @@
   }
 
   function updateBookingsStat(n) {
-    const el =
+    const el = document.querySelector('[data-stat="bookings"]');
+    if (el) el.textContent = n;
+  }
+
+  async function loadRating() {
+    const { data } = await window.supabaseClient
+      .from('teachers')
+      .select('rating')
+      .eq('id', currentUser.user.id)
+      .single();
+
+    const el = document.querySelector('[data-stat="rating"]');
+    if (el) el.textContent = data && data.rating ? data.rating : '—';
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
