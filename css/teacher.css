@@ -145,16 +145,18 @@
 
 /* PORTFOLIO */
 .tp-portfolio {
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border);
   background: var(--surface-1);
-  max-width: 900px;
+  max-width: 480px;
 }
 
 .tp-portfolio img {
   width: 100%;
   height: auto;
+  max-height: 360px;
+  object-fit: cover;
   display: block;
 }
 
@@ -390,5 +392,9 @@
 
   .tp-legend {
     flex-wrap: wrap;
+  }
+
+  .tp-portfolio {
+    max-width: 100%;
   }
 }
