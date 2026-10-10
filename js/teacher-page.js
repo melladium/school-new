@@ -8,11 +8,16 @@
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
 
   const SUBJECT_LABELS = {
     math: 'Математика', english: 'Английский', physics: 'Физика',
     russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
+  };
+
+  const STATUS_LABELS = {
+    free: 'Свободно',
+    busy: 'Занято',
+    off: 'Не работает'
   };
 
   async function init() {
@@ -20,7 +25,8 @@
     const id = params.get('id');
 
     if (!id) {
-      document.querySelector('[data-hero-name]').textContent = 'Репетитор не найден';
+      const nameEl = document.querySelector('[data-hero-name]');
+      if (nameEl) nameEl.textContent = 'Репетитор не найден';
       return;
     }
 
@@ -29,7 +35,8 @@
     await loadTeacher(id);
 
     if (!teacher) {
-      document.querySelector('[data-hero-name]').textContent = 'Репетитор не найден';
+      const nameEl = document.querySelector('[data-hero-name]');
+      if (nameEl) nameEl.textContent = 'Репетитор не найден';
       return;
     }
 
@@ -166,52 +173,81 @@
     if (hasAny) document.querySelector('[data-section-contacts]').hidden = false;
   }
 
-  /* РАСПИСАНИЕ */
+  /* РАСПИСАНИЕ — как у репетитора, по дням недели */
   async function renderSchedule(teacherId) {
     const el = document.querySelector('[data-schedule]');
     if (!el) return;
 
     const { data, error } = await window.supabaseClient
       .from('schedule_template')
-      .select('weekday, time, text_content')
-      .eq('teacher_id', teacherId);
+      .select('weekday, time, status')
+      .eq('teacher_id', teacherId)
+      .order('weekday', { ascending: true })
+      .order('time', { ascending: true });
 
     if (error) {
       el.innerHTML = '<div class="tp-schedule__loading">Ошибка загрузки расписания</div>';
       return;
     }
 
-    const scheduleMap = {};
-    (data || []).forEach(item => {
-      scheduleMap[item.weekday + '|' + item.time] = item.text_content || '';
+    if (!data || !data.length) {
+      el.innerHTML = '<div class="tp-schedule__empty">Репетитор пока не добавил расписание</div>';
+      return;
+    }
+
+    const cellsMap = {};
+    data.forEach(item => {
+      const key = item.weekday + '|' + item.time;
+      cellsMap[key] = {
+        status: item.status || 'free',
+        time: item.time
+      };
     });
 
-    let html = '<div class="tp-schedule__grid">';
-    html += '<div class="tp-schedule__head"></div>';
-    DAY_ORDER.forEach(d => {
-      html += `<div class="tp-schedule__head">${DAYS[d]}</div>`;
-    });
+    let html = '<div class="week-board">';
 
-    HOURS.forEach(hour => {
-      html += `<div class="tp-schedule__time">${hour}</div>`;
-      DAY_ORDER.forEach(d => {
-        const key = d + '|' + hour;
-        const hasText = scheduleMap.hasOwnProperty(key);
+    DAY_ORDER.forEach(day => {
+      const dayCells = Object.keys(cellsMap)
+        .filter(key => key.startsWith(day + '|'))
+        .map(key => ({ key, ...cellsMap[key] }))
+        .sort((a, b) => a.time.localeCompare(b.time));
 
-        if (hasText) {
-          html += `<div class="tp-schedule__cell tp-schedule__cell--busy" title="${scheduleMap[key]}">занято</div>`;
-        } else {
-          html += `<div class="tp-schedule__cell tp-schedule__cell--free" data-day="${d}" data-time="${hour}"></div>`;
-        }
-      });
+      html += `
+        <div class="week-day">
+          <div class="week-day__head">${DAYS[day]}</div>
+          <div class="week-day__body">
+            ${dayCells.length
+              ? dayCells.map(c => renderCell(day, c)).join('')
+              : '<div class="week-day__empty">Нет занятий</div>'
+            }
+          </div>
+        </div>
+      `;
     });
 
     html += '</div>';
     el.innerHTML = html;
 
-    el.querySelectorAll('.tp-schedule__cell--free').forEach(cell => {
+    // Клик — только по свободным
+    el.querySelectorAll('.week-cell--free').forEach(cell => {
       cell.addEventListener('click', () => openRequestModal(cell));
     });
+  }
+
+  function renderCell(day, cell) {
+    const statusClass = 'week-cell--' + cell.status;
+    const statusLabel = STATUS_LABELS[cell.status] || cell.status;
+    const clickable = cell.status === 'free';
+
+    return `
+      <div class="week-cell ${statusClass} ${clickable ? 'is-clickable' : ''}"
+           data-day="${day}"
+           data-time="${cell.time}"
+           data-status="${cell.status}">
+        <div class="week-cell__time">${cell.time}</div>
+        <div class="week-cell__status">${statusLabel}</div>
+      </div>
+    `;
   }
 
   /* ОТЗЫВЫ */
