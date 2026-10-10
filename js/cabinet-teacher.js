@@ -411,7 +411,7 @@
     }
   }
 
-  /* ЯЧЕЙКИ */
+  /* ПУБЛИЧНОЕ РАСПИСАНИЕ */
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
@@ -429,8 +429,6 @@
     }
 
     cellsMap = {};
-    personalMap = {};
-
     (data || []).forEach(item => {
       const key = item.weekday + '|' + item.time;
       cellsMap[key] = {
@@ -438,11 +436,9 @@
         status: item.status || 'free',
         note: item.text_content || ''
       };
-      personalMap[key] = item.text_content || '';
     });
 
     renderWeekBoard();
-    renderPersonalBoard();
     updateSlotsStat(data ? data.length : 0);
   }
 
@@ -499,7 +495,6 @@
     if (el) el.textContent = n;
   }
 
-  /* МОДАЛКА ЯЧЕЙКИ */
   function initCellModal() {
     const modal = document.querySelector('[data-modal="cell-edit"]');
     if (!modal) return;
@@ -633,15 +628,18 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ */
+  /* ЛИЧНОЕ РАСПИСАНИЕ — отдельная таблица personal_schedule */
   function initPersonalBoard() {
     const toggleBtn = document.querySelector('[data-toggle-personal]');
     const wrap = document.querySelector('[data-personal-wrap]');
     if (toggleBtn && wrap) {
-      toggleBtn.addEventListener('click', () => {
+      toggleBtn.addEventListener('click', async () => {
         wrap.hidden = !wrap.hidden;
         toggleBtn.textContent = wrap.hidden ? 'Развернуть' : 'Свернуть';
-        if (!wrap.hidden) renderPersonalBoard();
+        if (!wrap.hidden) {
+          await loadPersonal();
+          renderPersonalBoard();
+        }
       });
     }
 
@@ -671,13 +669,12 @@
         saveBtn.textContent = 'Сохраняем…';
 
         const { error } = await window.supabaseClient
-          .from('schedule_template')
+          .from('personal_schedule')
           .upsert({
             teacher_id: currentUser.user.id,
             weekday: parseInt(day, 10),
             time: time,
-            text_content: text,
-            status: (cellsMap[personalEditingKey] && cellsMap[personalEditingKey].status) || 'free'
+            text_content: text
           }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false;
@@ -691,7 +688,8 @@
         modal.hidden = true;
         document.body.style.overflow = '';
         personalEditingKey = null;
-        await loadCells();
+        await loadPersonal();
+        renderPersonalBoard();
       });
     }
 
@@ -701,8 +699,8 @@
         const [day, time] = personalEditingKey.split('|');
 
         await window.supabaseClient
-          .from('schedule_template')
-          .update({ text_content: '' })
+          .from('personal_schedule')
+          .delete()
           .eq('teacher_id', currentUser.user.id)
           .eq('weekday', parseInt(day, 10))
           .eq('time', time);
@@ -710,9 +708,24 @@
         modal.hidden = true;
         document.body.style.overflow = '';
         personalEditingKey = null;
-        await loadCells();
+        await loadPersonal();
+        renderPersonalBoard();
       });
     }
+  }
+
+  async function loadPersonal() {
+    personalMap = {};
+    const { data, error } = await window.supabaseClient
+      .from('personal_schedule')
+      .select('weekday, time, text_content')
+      .eq('teacher_id', currentUser.user.id);
+
+    if (error) return;
+
+    (data || []).forEach(item => {
+      personalMap[item.weekday + '|' + item.time] = item.text_content || '';
+    });
   }
 
   function renderPersonalBoard() {
@@ -922,21 +935,4 @@
   }
 
   function updateBookingsStat(n) {
-    const el = document.querySelector('[data-stat="bookings"]');
-    if (el) el.textContent = n;
-  }
-
-  /* РЕЙТИНГ */
-  async function loadRating() {
-    const { data } = await window.supabaseClient
-      .from('teachers')
-      .select('rating')
-      .eq('id', currentUser.user.id)
-      .single();
-
-    const el = document.querySelector('[data-stat="rating"]');
-    if (el) el.textContent = data && data.rating ? data.rating : '—';
-  }
-
-  document.addEventListener('DOMContentLoaded', init);
-})();
+    const el =
