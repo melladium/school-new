@@ -36,6 +36,7 @@
     const logoutBtn = document.querySelector('[data-logout]');
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
+    initBurger();
     initProfileSection();
     initNotifications();
     initCellModal();
@@ -50,6 +51,20 @@
       loadRequests(),
       loadRating()
     ]);
+  }
+
+  /* BURGER */
+  function initBurger() {
+    const burger = document.querySelector('.nav__burger');
+    const mobileMenu = document.querySelector('[data-nav-mobile]');
+    if (burger && mobileMenu) {
+      burger.addEventListener('click', () => {
+        mobileMenu.hidden = !mobileMenu.hidden;
+        burger.classList.toggle('is-active', !mobileMenu.hidden);
+      });
+    }
+    const logoutMobile = document.querySelector('[data-logout-mobile]');
+    if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
   }
 
   /* УВЕДОМЛЕНИЯ */
@@ -628,7 +643,7 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ — отдельная таблица personal_schedule */
+  /* ЛИЧНОЕ РАСПИСАНИЕ */
   function initPersonalBoard() {
     const toggleBtn = document.querySelector('[data-toggle-personal]');
     const wrap = document.querySelector('[data-personal-wrap]');
@@ -939,6 +954,7 @@
     if (el) el.textContent = n;
   }
 
+  /* РЕЙТИНГ */
   async function loadRating() {
     const { data } = await window.supabaseClient
       .from('teachers')
