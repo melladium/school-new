@@ -108,6 +108,12 @@
     return current;
   }
 
+  /* РЕДИРЕКТ ПО РОЛИ */
+  function redirectByRole(role) {
+    if (role === 'teacher') window.location.href = 'cabinet-teacher.html';
+    else window.location.href = 'cabinet-student.html';
+  }
+
   /* ПОКАЗ ПАРОЛЯ */
   function initPasswordToggles() {
     document.querySelectorAll('[data-toggle-password]').forEach(btn => {
@@ -153,11 +159,7 @@
         return;
       }
 
-      if (result.role === 'teacher') {
-        window.location.href = 'cabinet-teacher.html';
-      } else {
-        window.location.href = 'cabinet-student.html';
-      }
+      redirectByRole(result.role);
     });
   }
 
@@ -240,11 +242,7 @@
         return;
       }
 
-      if (selectedRole === 'teacher') {
-        window.location.href = 'cabinet-teacher.html';
-      } else {
-        window.location.href = 'cabinet-student.html';
-      }
+      redirectByRole(selectedRole);
     });
   }
 
@@ -278,6 +276,6 @@
     initHeaderAuth();
   });
 
-  window.authAPI = { signUp, signIn, signOut, getCurrentUser, requireAuth };
+  window.authAPI = { signUp, signIn, signOut, getCurrentUser, requireAuth, redirectByRole };
 
 })();
