@@ -449,14 +449,6 @@
   font-size: 13px;
 }
 
-/* MODAL ACTIONS */
-.modal-actions {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  margin-top: 4px; padding-top: 20px;
-  border-top: 1px solid var(--border);
-}
-
-/* MOBILE */
 @media (max-width: 1024px) {
   .week-board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
@@ -491,19 +483,9 @@
     gap: 2px;
     font-size: 9px;
   }
-  .schedule-table__head {
-    font-size: 9px;
-    padding: 4px 0;
-  }
-  .schedule-table__time {
-    font-size: 9px;
-    padding: 4px 4px 4px 0;
-  }
-  .schedule-cell {
-    height: 28px;
-    font-size: 8.5px;
-    padding: 0 2px;
-  }
+  .schedule-table__head { font-size: 9px; padding: 4px 0; }
+  .schedule-table__time { font-size: 9px; padding: 4px 4px 4px 0; }
+  .schedule-cell { height: 28px; font-size: 8.5px; padding: 0 2px; }
 }
 
 @media (max-width: 480px) {
