@@ -33,6 +33,10 @@
     const nameEl = document.querySelector('[data-user-name]');
     if (nameEl) nameEl.textContent = currentUser.profile.name || currentUser.profile.email;
 
+    const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const navAvatar = document.querySelector('[data-user-avatar]');
+    if (navAvatar) navAvatar.textContent = initials;
+
     const logoutBtn = document.querySelector('[data-logout]');
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
@@ -53,7 +57,6 @@
     ]);
   }
 
-  /* BURGER */
   function initBurger() {
     const burger = document.querySelector('.nav__burger');
     const mobileMenu = document.querySelector('[data-nav-mobile]');
@@ -67,7 +70,6 @@
     if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
   }
 
-  /* УВЕДОМЛЕНИЯ */
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -151,7 +153,6 @@
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
-  /* ПРОФИЛЬ */
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -426,7 +427,6 @@
     }
   }
 
-  /* ПУБЛИЧНОЕ РАСПИСАНИЕ */
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
@@ -643,7 +643,6 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ */
   function initPersonalBoard() {
     const toggleBtn = document.querySelector('[data-toggle-personal]');
     const wrap = document.querySelector('[data-personal-wrap]');
@@ -794,7 +793,6 @@
     setTimeout(() => textInput && textInput.focus(), 150);
   }
 
-  /* ЗАЯВКИ */
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
@@ -954,7 +952,6 @@
     if (el) el.textContent = n;
   }
 
-  /* РЕЙТИНГ */
   async function loadRating() {
     const { data } = await window.supabaseClient
       .from('teachers')
