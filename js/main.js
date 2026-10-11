@@ -43,7 +43,6 @@
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isFinePointer = window.matchMedia('(pointer: fine)').matches;
 
-  /* LOADER */
   document.body.classList.add('is-loading');
   const loader = document.querySelector('[data-loader]');
   const logo = document.querySelector('[data-logo]');
@@ -62,7 +61,6 @@
     document.querySelectorAll('[data-hero-el]').forEach(el => el.classList.add('is-visible'));
   }
 
-  /* NAV scroll */
   const nav = document.querySelector('.nav');
   if (nav) {
     window.addEventListener('scroll', () => {
@@ -70,7 +68,6 @@
     }, { passive: true });
   }
 
-  /* CURSOR GLOW */
   const glow = document.querySelector('[data-cursor-glow]');
   if (glow && !prefersReducedMotion && isFinePointer) {
     let gx = 0, gy = 0, tx = 0, ty = 0;
@@ -88,7 +85,6 @@
     })();
   }
 
-  /* MAGNETIC */
   function initMagnetic() {
     if (prefersReducedMotion || !isFinePointer) return;
     document.querySelectorAll('[data-magnetic]').forEach(btn => {
@@ -104,7 +100,6 @@
     });
   }
 
-  /* PARALLAX */
   const parallaxEl = document.querySelector('[data-parallax]');
   if (parallaxEl && !prefersReducedMotion) {
     window.addEventListener('scroll', () => {
@@ -113,7 +108,6 @@
     }, { passive: true });
   }
 
-  /* REVEAL */
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -127,7 +121,6 @@
     document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
   }
 
-  /* TEACHER CARD */
   function teacherCard(t) {
     const initials = (t.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
     const freeSlots = (t.slots || []).filter(s => s.free).slice(0, 4);
@@ -160,7 +153,6 @@
     `;
   }
 
-  /* LOAD TEACHERS */
   async function loadTeachersFromDB() {
     if (!window.supabaseClient) return [];
     try {
@@ -230,7 +222,6 @@
     }
   }
 
-  /* PODBOR */
   const podborState = { step: 1, subject: null, goal: null, time: null, budget: null };
 
   const podborSteps = document.querySelectorAll('.podbor__step');
@@ -410,21 +401,25 @@
 
   /* BURGER */
   const burger = document.querySelector('.nav__burger');
-  const mobileMenu = document.querySelector('[data-nav-mobile]');
-  if (burger && mobileMenu) {
+  if (burger) {
     burger.addEventListener('click', () => {
-      mobileMenu.hidden = !mobileMenu.hidden;
-      burger.classList.toggle('is-active', !mobileMenu.hidden);
-    });
-    mobileMenu.querySelectorAll('a').forEach(a => {
-      a.addEventListener('click', () => {
-        mobileMenu.hidden = true;
-        burger.classList.remove('is-active');
-      });
+      const links = document.querySelector('.nav__links');
+      if (!links) return;
+      const isOpen = links.style.display === 'flex';
+      links.style.display = isOpen ? '' : 'flex';
+      links.style.position = 'absolute';
+      links.style.top = '100%';
+      links.style.left = '0';
+      links.style.right = '0';
+      links.style.flexDirection = 'column';
+      links.style.padding = '20px';
+      links.style.background = 'rgba(8,8,10,0.95)';
+      links.style.backdropFilter = 'blur(20px)';
+      links.style.borderBottom = '1px solid var(--border)';
     });
   }
 
-  /* AUTH HEADER */
+  /* AUTH HEADER — имя + аватар → дропдаун */
   async function initAuthHeader() {
     if (!window.authAPI) return;
 
@@ -433,37 +428,39 @@
 
     const role = current.profile.role;
     const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
-    const name = current.profile.name || current.profile.email || 'Кабинет';
+    const name = current.profile.name || current.profile.email || 'Профиль';
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    // 1. Десктоп: скрыть кнопки Войти/Регистрация
+    // Скрываем кнопки "Войти / Регистрация"
     const actions = document.querySelector('[data-nav-actions]');
     if (actions) actions.hidden = true;
 
-    // 2. Десктоп + мобилка: показать аватар, который ведёт в кабинет
-    const badge = document.querySelector('[data-nav-badge]');
+    // Показываем блок с именем + аватаром
+    const userMenu = document.querySelector('[data-user-menu]');
+    const nameEl = document.querySelector('[data-user-name]');
     const avatarEl = document.querySelector('[data-user-avatar]');
-    if (badge) {
-      badge.href = cabinetHref;
-      badge.hidden = false;
-    }
-    if (avatarEl) {
-      if (current.profile.role === 'teacher' && current.profile.avatar_url) {
-        avatarEl.innerHTML = `<img src="${current.profile.avatar_url}" alt="">`;
-      } else {
-        avatarEl.textContent = initials;
-      }
-    }
+    const cabinetLink = document.querySelector('[data-user-cabinet]');
+    const logoutBtn = document.querySelector('[data-user-logout]');
+    const trigger = document.querySelector('[data-user-trigger]');
+    const dropdown = document.querySelector('[data-user-dropdown]');
 
-    // 3. Мобильное меню: добавить "Кабинет" + "Выйти"
-    const mobileAuth = document.querySelector('[data-nav-mobile-auth]');
-    if (mobileAuth) {
-      mobileAuth.innerHTML = `
-        <a href="${cabinetHref}">Кабинет</a>
-        <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
-      `;
-      const logoutBtn = mobileAuth.querySelector('[data-logout-mobile]');
-      if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+    if (userMenu) userMenu.hidden = false;
+    if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
+    if (avatarEl) avatarEl.textContent = initials;
+    if (cabinetLink) cabinetLink.href = cabinetHref;
+
+    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+
+    if (trigger && dropdown) {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.hidden = !dropdown.hidden;
+      });
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+          dropdown.hidden = true;
+        }
+      });
     }
   }
 
