@@ -8,55 +8,8 @@
 @media (max-width: 768px) {
   .nav__burger { display: flex; }
 
-  /* Скрыть "Войти/Регистрация" на мобилке — они уходят в бургер */
-  .nav__actions { display: none; }
-
-  /* Мобильное меню */
-  .nav__mobile {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(8, 8, 10, 0.96);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    animation: navMobileIn 0.4s var(--ease);
-    z-index: 90;
-  }
-  .nav__mobile[hidden] { display: none; }
-  .nav__mobile a,
-  .nav__mobile button {
-    font-size: 15px;
-    color: var(--text-dim);
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    text-align: left;
-    background: none;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-  }
-  .nav__mobile a:hover,
-  .nav__mobile button:hover { color: var(--text); }
-  .nav__mobile-auth { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-  .nav__mobile-auth .btn { width: 100%; }
-
-  @keyframes navMobileIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .nav__burger.is-active span:nth-child(1) { transform: translateY(3.25px) rotate(45deg); }
-  .nav__burger.is-active span:nth-child(2) { transform: translateY(-3.25px) rotate(-45deg); }
-
   .hero { padding: 140px 0 80px; }
+  .hero__roles { grid-template-columns: 1fr; margin-bottom: 48px; }
   .hero__title { font-size: clamp(32px, 8vw, 48px); }
 
   .podbor { padding: 64px 0; }
