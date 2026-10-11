@@ -12,41 +12,26 @@
     math: 'Математика', english: 'Английский', physics: 'Физика',
     russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
   };
-
-  const STATUS_LABELS = {
-    free: 'Свободно',
-    busy: 'Занято',
-    off: 'Не работает'
-  };
+  const STATUS_LABELS = { free: 'Свободно', busy: 'Занято', off: 'Не работает' };
 
   async function init() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
-
-    if (!id) {
-      const nameEl = document.querySelector('[data-hero-name]');
-      if (nameEl) nameEl.textContent = 'Репетитор не найден';
-      return;
-    }
+    if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
     currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
-
     await loadTeacher(id);
-
-    if (!teacher) {
-      const nameEl = document.querySelector('[data-hero-name]');
-      if (nameEl) nameEl.textContent = 'Репетитор не найден';
-      return;
-    }
+    if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
     renderHero();
-    renderBio();
-    renderPortfolio();
-    renderContacts();
     await renderSchedule(id);
+    renderBio();
+    renderContacts();
     await renderReviews(id);
+    renderPortfolio();
 
     initModals();
+    initAvatarLightbox();
   }
 
   async function loadTeacher(id) {
@@ -56,14 +41,10 @@
       .eq('id', id)
       .eq('is_active', true)
       .single();
-
     if (error || !data) return;
 
     const { data: profile } = await window.supabaseClient
-      .from('profiles')
-      .select('name')
-      .eq('id', id)
-      .single();
+      .from('profiles').select('name').eq('id', id).single();
 
     teacher = {
       ...data,
@@ -74,13 +55,12 @@
 
   function renderHero() {
     document.title = teacher.name + ' — Школа Кузнечевского';
-
     const initials = teacher.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
     const avatarEl = document.querySelector('[data-hero-avatar]');
     if (avatarEl) {
       if (teacher.avatar_url) {
-        avatarEl.innerHTML = `<img src="${teacher.avatar_url}" alt="">`;
+        avatarEl.innerHTML = `<img src="${teacher.avatar_url}" alt="" data-avatar-full="${teacher.avatar_url}">`;
       } else {
         avatarEl.textContent = initials;
       }
@@ -94,29 +74,28 @@
 
     const tgBtn = document.querySelector('[data-hero-telegram]');
     if (tgBtn && teacher.telegram) {
-      const handle = teacher.telegram.replace('@', '');
-      tgBtn.href = 'https://t.me/' + handle;
+      tgBtn.href = 'https://t.me/' + teacher.telegram.replace('@', '');
       tgBtn.hidden = false;
     }
 
     const scrollBtn = document.querySelector('[data-scroll-to-schedule]');
-    if (scrollBtn) {
-      scrollBtn.addEventListener('click', () => {
-        const schedule = document.getElementById('schedule');
-        if (schedule) schedule.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    }
+    if (scrollBtn) scrollBtn.addEventListener('click', () => {
+      const s = document.getElementById('schedule');
+      if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   function renderBio() {
     if (!teacher.bio) return;
-    document.querySelector('[data-section-bio]').hidden = false;
+    const el = document.querySelector('[data-section-bio]');
+    if (el) el.hidden = false;
     setText('[data-bio-text]', teacher.bio);
   }
 
   function renderPortfolio() {
     if (!teacher.portfolio_url) return;
-    document.querySelector('[data-section-portfolio]').hidden = false;
+    const sec = document.querySelector('[data-section-portfolio]');
+    if (sec) sec.hidden = false;
     const img = document.querySelector('[data-portfolio-image]');
     if (img) img.src = teacher.portfolio_url;
   }
@@ -124,22 +103,13 @@
   function renderContacts() {
     let hasAny = false;
 
-    if (teacher.phone) {
-      const el = document.querySelector('[data-contact-phone]');
-      if (el) {
-        el.hidden = false;
-        el.href = 'tel:' + teacher.phone;
-        el.querySelector('.tp-contact__value').textContent = teacher.phone;
-        hasAny = true;
-      }
-    }
-
     if (teacher.telegram) {
       const el = document.querySelector('[data-contact-telegram]');
       if (el) {
         el.hidden = false;
         el.href = 'https://t.me/' + teacher.telegram.replace('@', '');
-        el.querySelector('.tp-contact__value').textContent = teacher.telegram;
+        const v = el.querySelector('.tp-contact__value');
+        if (v) v.textContent = 'Написать в Telegram';
         hasAny = true;
       }
     }
@@ -149,7 +119,19 @@
       if (el) {
         el.hidden = false;
         el.href = 'https://wa.me/' + teacher.whatsapp.replace(/[^\d]/g, '');
-        el.querySelector('.tp-contact__value').textContent = teacher.whatsapp;
+        const v = el.querySelector('.tp-contact__value');
+        if (v) v.textContent = 'Написать в WhatsApp';
+        hasAny = true;
+      }
+    }
+
+    if (teacher.phone) {
+      const el = document.querySelector('[data-contact-phone]');
+      if (el) {
+        el.hidden = false;
+        el.href = 'tel:' + teacher.phone;
+        const v = el.querySelector('.tp-contact__value');
+        if (v) v.textContent = 'Позвонить · ' + teacher.phone;
         hasAny = true;
       }
     }
@@ -159,12 +141,14 @@
       if (el) {
         el.hidden = false;
         el.href = teacher.meeting_link;
-        el.querySelector('.tp-contact__value').textContent = teacher.meeting_link;
+        const v = el.querySelector('.tp-contact__value');
+        if (v) v.textContent = 'Ссылка на урок';
         hasAny = true;
       }
     }
 
-    if (hasAny) document.querySelector('[data-section-contacts]').hidden = false;
+    const sec = document.querySelector('[data-section-contacts]');
+    if (sec && hasAny) sec.hidden = false;
   }
 
   async function renderSchedule(teacherId) {
@@ -178,27 +162,15 @@
       .order('weekday', { ascending: true })
       .order('time', { ascending: true });
 
-    if (error) {
-      el.innerHTML = '<div class="tp-schedule__loading">Ошибка загрузки расписания</div>';
-      return;
-    }
-
-    if (!data || !data.length) {
-      el.innerHTML = '<div class="tp-schedule__empty">Репетитор пока не добавил расписание</div>';
-      return;
-    }
+    if (error) { el.innerHTML = '<div class="tp-schedule__loading">Ошибка загрузки расписания</div>'; return; }
+    if (!data || !data.length) { el.innerHTML = '<div class="tp-schedule__empty">Репетитор пока не добавил расписание</div>'; return; }
 
     const cellsMap = {};
     data.forEach(item => {
-      const key = item.weekday + '|' + item.time;
-      cellsMap[key] = {
-        status: item.status || 'free',
-        time: item.time
-      };
+      cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
     });
 
     let html = '<div class="week-board">';
-
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
         .filter(key => key.startsWith(day + '|'))
@@ -209,15 +181,11 @@
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
           <div class="week-day__body">
-            ${dayCells.length
-              ? dayCells.map(c => renderCell(day, c)).join('')
-              : '<div class="week-day__empty">Нет занятий</div>'
-            }
+            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">Нет занятий</div>'}
           </div>
         </div>
       `;
     });
-
     html += '</div>';
     el.innerHTML = html;
 
@@ -227,17 +195,12 @@
   }
 
   function renderCell(day, cell) {
-    const statusClass = 'week-cell--' + cell.status;
-    const statusLabel = STATUS_LABELS[cell.status] || cell.status;
     const clickable = cell.status === 'free';
-
     return `
-      <div class="week-cell ${statusClass} ${clickable ? 'is-clickable' : ''}"
-           data-day="${day}"
-           data-time="${cell.time}"
-           data-status="${cell.status}">
+      <div class="week-cell week-cell--${cell.status} ${clickable ? 'is-clickable' : ''}"
+           data-day="${day}" data-time="${cell.time}" data-status="${cell.status}">
         <div class="week-cell__time">${cell.time}</div>
-        <div class="week-cell__status">${statusLabel}</div>
+        <div class="week-cell__status">${STATUS_LABELS[cell.status] || cell.status}</div>
       </div>
     `;
   }
@@ -252,7 +215,8 @@
 
     if (!data || !data.length) return;
 
-    document.querySelector('[data-section-reviews]').hidden = false;
+    const sec = document.querySelector('[data-section-reviews]');
+    if (sec) sec.hidden = false;
     setText('[data-reviews-count]', data.length);
 
     const list = document.querySelector('[data-reviews-list]');
@@ -273,11 +237,9 @@
     document.querySelectorAll('[data-modal-close]').forEach(el => {
       el.addEventListener('click', closeAllModals);
     });
-
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeAllModals();
     });
-
     const sendBtn = document.querySelector('[data-request-send]');
     if (sendBtn) sendBtn.addEventListener('click', sendRequest);
   }
@@ -288,19 +250,11 @@
   }
 
   function openRequestModal(cell) {
-    if (!currentUser) {
-      window.location.href = 'login.html';
-      return;
-    }
-
-    if (currentUser.profile.role !== 'student') {
-      alert('Только ученик может оставить заявку.');
-      return;
-    }
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+    if (currentUser.profile.role !== 'student') { alert('Только ученик может оставить заявку.'); return; }
 
     const day = parseInt(cell.dataset.day, 10);
     const time = cell.dataset.time;
-
     selectedCell = { day, time };
 
     setText('[data-request-teacher]', teacher.name);
@@ -308,8 +262,8 @@
     setText('[data-request-time]', DAYS[day] + ' · ' + time);
     setText('[data-request-price]', teacher.price + ' ₽');
 
-    const errorEl = document.querySelector('[data-request-error]');
-    if (errorEl) errorEl.textContent = '';
+    const errEl = document.querySelector('[data-request-error]');
+    if (errEl) errEl.textContent = '';
 
     document.querySelector('[data-modal="request"]').hidden = false;
     document.body.style.overflow = 'hidden';
@@ -317,11 +271,9 @@
 
   async function sendRequest() {
     if (!selectedCell || !currentUser) return;
-
-    const errorEl = document.querySelector('[data-request-error]');
+    const errEl = document.querySelector('[data-request-error]');
     const btn = document.querySelector('[data-request-send]');
-
-    errorEl.textContent = '';
+    errEl.textContent = '';
     btn.disabled = true;
     btn.textContent = 'Отправляем…';
 
@@ -336,7 +288,7 @@
       .maybeSingle();
 
     if (existing) {
-      errorEl.textContent = 'У вас уже есть заявка на это время.';
+      errEl.textContent = 'У вас уже есть заявка на это время.';
       btn.disabled = false;
       btn.textContent = 'Отправить заявку';
       return;
@@ -353,14 +305,35 @@
     btn.disabled = false;
     btn.textContent = 'Отправить заявку';
 
-    if (error) {
-      errorEl.textContent = 'Ошибка: ' + error.message;
-      return;
-    }
+    if (error) { errEl.textContent = 'Ошибка: ' + error.message; return; }
 
     closeAllModals();
     document.querySelector('[data-modal="success"]').hidden = false;
     document.body.style.overflow = 'hidden';
+  }
+
+  function initAvatarLightbox() {
+    const avatar = document.querySelector('[data-hero-avatar]');
+    if (!avatar) return;
+
+    avatar.style.cursor = 'zoom-in';
+
+    avatar.addEventListener('click', () => {
+      const img = avatar.querySelector('img');
+      const src = img && img.src;
+      if (!src) return;
+
+      const lightbox = document.createElement('div');
+      lightbox.className = 'avatar-lightbox';
+      lightbox.innerHTML = `<img src="${src}" alt="">`;
+      document.body.appendChild(lightbox);
+      document.body.style.overflow = 'hidden';
+
+      lightbox.addEventListener('click', () => {
+        lightbox.remove();
+        document.body.style.overflow = '';
+      });
+    });
   }
 
   function setText(sel, val) {
