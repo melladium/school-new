@@ -38,10 +38,19 @@
         <a href="login.html" class="btn btn--ghost">Войти</a>
         <a href="register.html" class="btn btn--primary">Регистрация</a>
       </div>
+      <a href="#" class="nav__user-badge" data-nav-badge hidden>
+        <span class="nav__user-avatar" data-user-avatar>?</span>
+      </a>
       <button class="nav__burger" aria-label="Меню">
         <span></span><span></span>
       </button>
     </div>
+    <nav class="nav__mobile" data-nav-mobile hidden>
+      <a href="#podbor">Автоподбор</a>
+      <a href="#how">Как это работает</a>
+      <a href="#repetitoram">Репетиторам</a>
+      <div class="nav__mobile-auth" data-nav-mobile-auth></div>
+    </nav>
   </header>
 
   <main>
@@ -53,48 +62,13 @@
       </div>
 
       <div class="hero__inner">
-        <div class="hero__eyebrow" data-hero-el>
-          <span class="dot"></span>
-          Бесплатно для всех
-        </div>
         <h1 class="hero__title" data-hero-el>
           Школа, где репетитор <em>главное</em>
         </h1>
         <p class="hero__lead" data-hero-el>
-          Реальные репетиторы. Живые анкеты. Прямая связь без посредников.
-          Никаких курсов, никаких комиссий — просто найдите своего.
+          Реальный репетитор и прямая связь без посредников.
+          Никаких курсов, никаких комиссий — просто найдите своего учителя.
         </p>
-
-        <div class="hero__roles" data-hero-el data-hero-roles>
-          <a href="#podbor" class="role-card" data-magnetic>
-            <div class="role-card__icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M12 3L2 8l10 5 10-5-10-5z"/>
-                <path d="M6 10v6c0 1.5 3 3 6 3s6-1.5 6-3v-6"/>
-              </svg>
-            </div>
-            <div class="role-card__body">
-              <div class="role-card__title">Я ученик</div>
-              <div class="role-card__desc">Найти репетитора за 30 секунд</div>
-            </div>
-            <div class="role-card__arrow">→</div>
-          </a>
-
-          <a href="#repetitoram" class="role-card role-card--teacher" data-magnetic>
-            <div class="role-card__icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="8" r="4"/>
-                <path d="M4 21v-2a6 6 0 0112 0v2"/>
-                <path d="M17 11l2 2 4-4"/>
-              </svg>
-            </div>
-            <div class="role-card__body">
-              <div class="role-card__title">Я репетитор</div>
-              <div class="role-card__desc">Получить учеников бесплатно</div>
-            </div>
-            <div class="role-card__arrow">→</div>
-          </a>
-        </div>
       </div>
     </section>
 
