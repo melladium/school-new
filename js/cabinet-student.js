@@ -391,4 +391,59 @@
       });
 
     if (error) {
-      errEl.textContent = 'Ошибка: '
+      errEl.textContent = 'Ошибка: ' + error.message;
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Отправить отзыв';
+      return;
+    }
+
+    await window.supabaseClient.from('notifications').insert({
+      user_id: selectedBooking.teacherId,
+      type: 'review',
+      text: 'Новый отзыв: ★ ' + selectedRating,
+      link: 'cabinet-teacher.html'
+    });
+
+    await recalcTeacherRating(selectedBooking.teacherId);
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Отправить отзыв';
+    closeReviewModal();
+
+    reviewedTeacherIds.add(selectedBooking.teacherId);
+    await loadBookings();
+  }
+
+  async function recalcTeacherRating(teacherId) {
+    const { data } = await window.supabaseClient
+      .from('reviews')
+      .select('rating')
+      .eq('teacher_id', teacherId);
+
+    const list = data || [];
+    const count = list.length;
+    const avg = count
+      ? Math.round((list.reduce((s, r) => s + (r.rating || 0), 0) / count) * 10) / 10
+      : 0;
+
+    await window.supabaseClient
+      .from('teachers')
+      .update({ rating: avg, reviews_count: count })
+      .eq('id', teacherId);
+  }
+
+  async function deleteAccount() {
+    if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные будут удалены. Это нельзя отменить.')) return;
+    if (!confirm('Точно? Это последнее предупреждение.')) return;
+
+    const { error } = await window.supabaseClient.rpc('delete_user');
+    if (error) {
+      alert('Ошибка удаления: ' + error.message);
+      return;
+    }
+    alert('Аккаунт удалён. Сейчас вы выйдете.');
+    await window.authAPI.signOut();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
