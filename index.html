@@ -38,19 +38,20 @@
         <a href="login.html" class="btn btn--ghost">Войти</a>
         <a href="register.html" class="btn btn--primary">Регистрация</a>
       </div>
-      <a href="#" class="nav__user-badge" data-nav-badge hidden>
-        <span class="nav__user-avatar" data-user-avatar>?</span>
-      </a>
+      <div class="nav__user-menu" data-user-menu hidden>
+        <button class="nav__user-trigger" data-user-trigger>
+          <span class="nav__user-name" data-user-name>…</span>
+          <span class="nav__user-avatar" data-user-avatar>?</span>
+        </button>
+        <div class="nav__user-dropdown" data-user-dropdown hidden>
+          <a href="#" data-user-cabinet>Кабинет</a>
+          <button data-user-logout>Выйти</button>
+        </div>
+      </div>
       <button class="nav__burger" aria-label="Меню">
         <span></span><span></span>
       </button>
     </div>
-    <nav class="nav__mobile" data-nav-mobile hidden>
-      <a href="#podbor">Автоподбор</a>
-      <a href="#how">Как это работает</a>
-      <a href="#repetitoram">Репетиторам</a>
-      <div class="nav__mobile-auth" data-nav-mobile-auth></div>
-    </nav>
   </header>
 
   <main>
@@ -62,12 +63,16 @@
       </div>
 
       <div class="hero__inner">
+        <div class="hero__eyebrow" data-hero-el>
+          <span class="dot"></span>
+          Бесплатно для всех · без курсов · без комиссий
+        </div>
         <h1 class="hero__title" data-hero-el>
           Школа, где репетитор <em>главное</em>
         </h1>
         <p class="hero__lead" data-hero-el>
-          Реальный репетитор и прямая связь без посредников.
-          Никаких курсов, никаких комиссий — просто найдите своего учителя.
+          Реальные репетиторы. Живые анкеты. Прямая связь без посредников.
+          Никаких курсов, никаких комиссий — просто найдите своего.
         </p>
       </div>
     </section>
@@ -253,7 +258,7 @@
       </div>
       <div class="footer__bottom">
         <span>© 2026 Школа Кузнечевского</span>
-        <span>Бесплатно для всех</span>
+        <span>Бесплатно для всех · без комиссий</span>
       </div>
     </div>
   </footer>
