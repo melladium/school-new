@@ -410,41 +410,63 @@
 
   /* BURGER */
   const burger = document.querySelector('.nav__burger');
-  if (burger) {
+  const mobileMenu = document.querySelector('[data-nav-mobile]');
+  if (burger && mobileMenu) {
     burger.addEventListener('click', () => {
-      const links = document.querySelector('.nav__links');
-      if (!links) return;
-      const isOpen = links.classList.contains('is-open');
-      links.classList.toggle('is-open', !isOpen);
-      burger.classList.toggle('is-active', !isOpen);
+      mobileMenu.hidden = !mobileMenu.hidden;
+      burger.classList.toggle('is-active', !mobileMenu.hidden);
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        mobileMenu.hidden = true;
+        burger.classList.remove('is-active');
+      });
     });
   }
 
-  /* AUTH HEADER — подмена шапки для залогиненного */
+  /* AUTH HEADER */
   async function initAuthHeader() {
-    const actions = document.querySelector('[data-nav-actions]');
-    const roles = document.querySelector('[data-hero-roles]');
-    if (!actions || !window.authAPI) return;
+    if (!window.authAPI) return;
 
     const current = await window.authAPI.getCurrentUser();
     if (!current) return;
 
-    // Скрываем блок "Я ученик / Я репетитор" у залогиненного
-    if (roles) roles.style.display = 'none';
-
     const role = current.profile.role;
     const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+    const name = current.profile.name || current.profile.email || 'Кабинет';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    actions.innerHTML = `
-      <a href="${cabinetHref}" class="btn btn--ghost">Кабинет</a>
-      <button class="btn btn--primary" data-logout>Выйти</button>
-    `;
+    // 1. Десктоп: скрыть кнопки Войти/Регистрация
+    const actions = document.querySelector('[data-nav-actions]');
+    if (actions) actions.hidden = true;
 
-    const logoutBtn = actions.querySelector('[data-logout]');
-    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+    // 2. Десктоп + мобилка: показать аватар, который ведёт в кабинет
+    const badge = document.querySelector('[data-nav-badge]');
+    const avatarEl = document.querySelector('[data-user-avatar]');
+    if (badge) {
+      badge.href = cabinetHref;
+      badge.hidden = false;
+    }
+    if (avatarEl) {
+      if (current.profile.role === 'teacher' && current.profile.avatar_url) {
+        avatarEl.innerHTML = `<img src="${current.profile.avatar_url}" alt="">`;
+      } else {
+        avatarEl.textContent = initials;
+      }
+    }
+
+    // 3. Мобильное меню: добавить "Кабинет" + "Выйти"
+    const mobileAuth = document.querySelector('[data-nav-mobile-auth]');
+    if (mobileAuth) {
+      mobileAuth.innerHTML = `
+        <a href="${cabinetHref}">Кабинет</a>
+        <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
+      `;
+      const logoutBtn = mobileAuth.querySelector('[data-logout-mobile]');
+      if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+    }
   }
 
-  // Запускаем после загрузки DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initAuthHeader);
   } else {
