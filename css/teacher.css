@@ -30,19 +30,16 @@
   pointer-events: none;
 }
 
-.tp-page__inner {
-  position: relative;
-  z-index: 2;
-}
+.tp-page__inner { position: relative; z-index: 2; }
 
 /* HERO */
 .tp-hero {
   display: flex;
   gap: 40px;
   align-items: center;
-  padding-bottom: 48px;
+  padding-bottom: 40px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 56px;
+  margin-bottom: 40px;
 }
 
 .tp-hero__avatar {
@@ -59,6 +56,12 @@
   color: var(--accent);
   flex-shrink: 0;
   overflow: hidden;
+  transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease);
+}
+
+.tp-hero__avatar:hover {
+  transform: scale(1.03);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
 }
 
 .tp-hero__avatar img {
@@ -67,10 +70,7 @@
   object-fit: cover;
 }
 
-.tp-hero__info {
-  flex: 1;
-  min-width: 0;
-}
+.tp-hero__info { flex: 1; min-width: 0; }
 
 .tp-hero__name {
   font-family: var(--font-display);
@@ -103,7 +103,6 @@
 }
 
 .tp-hero__star { color: var(--accent); }
-
 .tp-hero__reviews-count { color: var(--text-mute); }
 
 .tp-hero__actions {
@@ -113,9 +112,7 @@
 }
 
 /* SECTIONS */
-.tp-section {
-  margin-bottom: 56px;
-}
+.tp-section { margin-bottom: 48px; }
 
 .tp-section__head {
   display: flex;
@@ -143,7 +140,7 @@
   max-width: 70ch;
 }
 
-/* PORTFOLIO */
+/* PORTFOLIO (в конце страницы) */
 .tp-portfolio {
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -168,11 +165,7 @@
   color: var(--text-dim);
 }
 
-.tp-legend__item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.tp-legend__item { display: flex; align-items: center; gap: 8px; }
 
 .tp-legend__dot {
   width: 12px;
@@ -182,8 +175,8 @@
 }
 
 .tp-legend__dot--free {
-  background: rgba(74, 222, 128, 0.25);
-  border-color: rgba(74, 222, 128, 0.6);
+  background: rgba(78, 232, 232, 0.25);
+  border-color: rgba(78, 232, 232, 0.6);
 }
 
 .tp-legend__dot--busy {
@@ -212,69 +205,15 @@
   font-size: 13px;
 }
 
-.tp-schedule__grid {
-  display: grid;
-  grid-template-columns: 70px repeat(7, 1fr);
-  gap: 4px;
-  min-width: 680px;
-}
-
-.tp-schedule__head {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-mute);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+.tp-schedule__empty {
   text-align: center;
-  padding: 8px 0;
-}
-
-.tp-schedule__time {
-  font-family: var(--font-mono);
-  font-size: 11px;
+  padding: 40px;
   color: var(--text-mute);
-  padding: 8px 8px 8px 0;
-  text-align: right;
-}
-
-.tp-schedule__cell {
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: var(--surface-2);
-  transition: all 0.2s var(--ease);
-  font-size: 10px;
   font-family: var(--font-mono);
-  color: var(--text-mute);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 0 4px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 13px;
 }
 
-.tp-schedule__cell--free {
-  background: rgba(74, 222, 128, 0.10);
-  border-color: rgba(74, 222, 128, 0.4);
-  cursor: pointer;
-}
-
-.tp-schedule__cell--free:hover {
-  background: rgba(74, 222, 128, 0.25);
-  border-color: #4ADE80;
-  transform: scale(1.05);
-  color: #4ADE80;
-}
-
-.tp-schedule__cell--busy {
-  background: rgba(248, 113, 113, 0.12);
-  border-color: rgba(248, 113, 113, 0.4);
-  color: rgba(248, 113, 113, 0.9);
-}
-
-/* CONTACTS */
+/* CONTACTS — крупные кнопки */
 .tp-contacts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -286,28 +225,31 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 16px 20px;
+  padding: 18px 22px;
   background: var(--surface-1);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   transition: all 0.25s var(--ease);
   color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .tp-contact:hover {
   border-color: var(--accent);
   transform: translateY(-2px);
+  background: var(--surface-2);
 }
 
 .tp-contact__icon {
-  font-size: 20px;
+  font-size: 22px;
   flex-shrink: 0;
 }
 
 .tp-contact__value {
-  font-size: 14px;
+  font-size: 15px;
   word-break: break-word;
-  color: var(--text-dim);
+  color: var(--text);
 }
 
 /* REVIEWS */
@@ -332,19 +274,36 @@
   font-size: 14px;
 }
 
-.tp-reviews .review__name {
-  font-weight: 600;
+.tp-reviews .review__name { font-weight: 600; }
+.tp-reviews .review__rating { font-family: var(--font-mono); color: var(--accent); }
+.tp-reviews .review__text { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+
+/* AVATAR LIGHTBOX */
+.avatar-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 24px;
+  cursor: zoom-out;
+  animation: lightboxIn 0.35s var(--ease);
 }
 
-.tp-reviews .review__rating {
-  font-family: var(--font-mono);
-  color: var(--accent);
+.avatar-lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8);
 }
 
-.tp-reviews .review__text {
-  color: var(--text-dim);
-  font-size: 14px;
-  line-height: 1.6;
+@keyframes lightboxIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* MOBILE */
@@ -363,21 +322,10 @@
     font-size: 36px;
   }
 
-  .tp-hero__meta {
-    justify-content: center;
-  }
-
-  .tp-hero__rating {
-    justify-content: center;
-  }
-
-  .tp-hero__actions {
-    justify-content: center;
-  }
-
-  .tp-hero__actions .btn {
-    width: 100%;
-  }
+  .tp-hero__meta { justify-content: center; }
+  .tp-hero__rating { justify-content: center; }
+  .tp-hero__actions { justify-content: center; }
+  .tp-hero__actions .btn { width: 100%; }
 
   .tp-section { margin-bottom: 40px; }
 
@@ -386,15 +334,7 @@
     align-items: flex-start;
   }
 
-  .tp-contacts {
-    grid-template-columns: 1fr;
-  }
-
-  .tp-legend {
-    flex-wrap: wrap;
-  }
-
-  .tp-portfolio {
-    max-width: 100%;
-  }
+  .tp-contacts { grid-template-columns: 1fr; }
+  .tp-legend { flex-wrap: wrap; }
+  .tp-portfolio { max-width: 100%; }
 }
