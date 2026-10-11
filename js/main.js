@@ -399,7 +399,6 @@
   observeReveals();
   initMagnetic();
 
-  /* BURGER */
   const burger = document.querySelector('.nav__burger');
   if (burger) {
     burger.addEventListener('click', () => {
@@ -419,7 +418,6 @@
     });
   }
 
-  /* AUTH HEADER — имя + аватар → дропдаун */
   async function initAuthHeader() {
     if (!window.authAPI) return;
 
@@ -431,11 +429,9 @@
     const name = current.profile.name || current.profile.email || 'Профиль';
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    // Скрываем кнопки "Войти / Регистрация"
     const actions = document.querySelector('[data-nav-actions]');
     if (actions) actions.hidden = true;
 
-    // Показываем блок с именем + аватаром
     const userMenu = document.querySelector('[data-user-menu]');
     const nameEl = document.querySelector('[data-user-name]');
     const avatarEl = document.querySelector('[data-user-avatar]');
@@ -448,7 +444,6 @@
     if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
     if (avatarEl) avatarEl.textContent = initials;
     if (cabinetLink) cabinetLink.href = cabinetHref;
-
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
     if (trigger && dropdown) {
