@@ -11,17 +11,6 @@
   /* Скрыть "Войти/Регистрация" на мобилке — они уходят в бургер */
   .nav__actions { display: none; }
 
-  /* Аватар в шапке — виден на мобилке */
-  .nav__user-badge {
-    display: flex;
-    padding: 4px;
-    background: var(--surface-1);
-    border: 1px solid var(--border-strong);
-    border-radius: 999px;
-  }
-  .nav__user-badge[hidden] { display: none; }
-  .nav__user-badge .nav__user-avatar { width: 28px; height: 28px; }
-
   /* Мобильное меню */
   .nav__mobile {
     position: absolute;
