@@ -105,11 +105,7 @@
 .tp-hero__star { color: var(--accent); }
 .tp-hero__reviews-count { color: var(--text-mute); }
 
-.tp-hero__actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+.tp-hero__actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
 /* SECTIONS */
 .tp-section { margin-bottom: 48px; }
@@ -140,7 +136,7 @@
   max-width: 70ch;
 }
 
-/* PORTFOLIO (в конце страницы) */
+/* PORTFOLIO */
 .tp-portfolio {
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -197,14 +193,7 @@
   overflow-x: auto;
 }
 
-.tp-schedule__loading {
-  text-align: center;
-  padding: 40px;
-  color: var(--text-mute);
-  font-family: var(--font-mono);
-  font-size: 13px;
-}
-
+.tp-schedule__loading,
 .tp-schedule__empty {
   text-align: center;
   padding: 40px;
@@ -213,7 +202,7 @@
   font-size: 13px;
 }
 
-/* CONTACTS — крупные кнопки */
+/* CONTACTS */
 .tp-contacts {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -241,10 +230,7 @@
   background: var(--surface-2);
 }
 
-.tp-contact__icon {
-  font-size: 22px;
-  flex-shrink: 0;
-}
+.tp-contact__icon { font-size: 22px; flex-shrink: 0; }
 
 .tp-contact__value {
   font-size: 15px;
