@@ -246,34 +246,11 @@
     });
   }
 
-  /* ШАПКА — не трогает, если колокольчик есть */
-  async function initHeaderAuth() {
-    const navActions = document.querySelector('.nav__actions');
-    if (!navActions) return;
-
-    if (navActions.querySelector('[data-notif-bell]')) return;
-
-    const current = await getCurrentUser();
-    if (!current) return;
-
-    const cabinetHref = current.profile.role === 'teacher'
-      ? 'cabinet-teacher.html'
-      : 'cabinet-student.html';
-
-    navActions.innerHTML = `
-      <a href="${cabinetHref}" class="btn btn--ghost">${current.profile.name || 'Кабинет'}</a>
-      <button class="btn btn--primary" data-logout>Выйти</button>
-    `;
-
-    navActions.querySelector('[data-logout]').addEventListener('click', signOut);
-  }
-
   /* СТАРТ */
   document.addEventListener('DOMContentLoaded', () => {
     initPasswordToggles();
     initLoginForm();
     initRegisterForm();
-    initHeaderAuth();
   });
 
   window.authAPI = { signUp, signIn, signOut, getCurrentUser, requireAuth, redirectByRole };
