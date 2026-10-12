@@ -10,7 +10,12 @@
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
   const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
 
-  const STATUS_LABELS = { free: 'Свободно', busy: 'Занято', off: 'Не работает' };
+  const STATUS_LABELS = {
+    free: 'Свободно',
+    busy: 'Занято',
+    off: 'Не работает'
+  };
+
   const SUBJECT_LABELS = {
     math: 'Математика', english: 'Английский', physics: 'Физика',
     russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
@@ -18,6 +23,7 @@
 
   let cellsMap = {};
   let editingKey = null;
+
   let personalMap = {};
   let personalEditingKey = null;
 
@@ -40,9 +46,15 @@
     const addBtn = document.querySelector('[data-add-cell]');
     if (addBtn) addBtn.addEventListener('click', () => openCellModal(null));
 
-    await Promise.all([loadProfile(), loadCells(), loadRequests(), loadRating()]);
+    await Promise.all([
+      loadProfile(),
+      loadCells(),
+      loadRequests(),
+      loadRating()
+    ]);
   }
 
+  /* BURGER */
   function initBurger() {
     const burger = document.querySelector('.nav__burger');
     const mobileMenu = document.querySelector('[data-nav-mobile]');
@@ -56,48 +68,73 @@
     if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
   }
 
+  /* УВЕДОМЛЕНИЯ */
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
     if (!bell || !panel) return;
+
     bell.addEventListener('click', async (e) => {
       e.stopPropagation();
       panel.hidden = !panel.hidden;
       if (!panel.hidden) await renderNotifications();
     });
+
     document.addEventListener('click', (e) => {
       if (!panel.contains(e.target) && !bell.contains(e.target)) panel.hidden = true;
     });
+
     loadUnreadCount();
   }
 
   async function loadUnreadCount() {
     const countEl = document.querySelector('[data-notif-count]');
     if (!countEl) return;
+
     const { count } = await window.supabaseClient
-      .from('notifications').select('*', { count: 'exact', head: true })
-      .eq('user_id', currentUser.user.id).eq('read', false);
-    if (count && count > 0) { countEl.textContent = count; countEl.hidden = false; }
-    else { countEl.hidden = true; }
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', currentUser.user.id)
+      .eq('read', false);
+
+    if (count && count > 0) {
+      countEl.textContent = count;
+      countEl.hidden = false;
+    } else {
+      countEl.hidden = true;
+    }
   }
 
   async function renderNotifications() {
     const panel = document.querySelector('[data-notif-panel]');
     if (!panel) return;
+
     const { data } = await window.supabaseClient
-      .from('notifications').select('id, text, link, read, created_at')
+      .from('notifications')
+      .select('id, text, link, read, created_at')
       .eq('user_id', currentUser.user.id)
-      .order('created_at', { ascending: false }).limit(20);
-    if (!data || !data.length) { panel.innerHTML = '<div class="notif-empty">Пока нет уведомлений</div>'; return; }
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (!data || !data.length) {
+      panel.innerHTML = '<div class="notif-empty">Пока нет уведомлений</div>';
+      return;
+    }
+
     panel.innerHTML = data.map(n => `
       <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link}">
         ${n.text}
         <span class="notif-item__time">${formatTime(n.created_at)}</span>
       </div>
     `).join('');
+
     panel.querySelectorAll('[data-notif-id]').forEach(item => {
       item.addEventListener('click', async () => {
-        await window.supabaseClient.from('notifications').update({ read: true }).eq('id', item.dataset.notifId);
+        await window.supabaseClient
+          .from('notifications')
+          .update({ read: true })
+          .eq('id', item.dataset.notifId);
+
         if (item.dataset.link) window.location.href = item.dataset.link;
         else await renderNotifications();
       });
@@ -105,19 +142,24 @@
   }
 
   function formatTime(iso) {
-    const d = new Date(iso); const now = new Date();
+    const d = new Date(iso);
+    const now = new Date();
     const diff = Math.floor((now - d) / 1000);
+
     if (diff < 60) return 'только что';
     if (diff < 3600) return Math.floor(diff / 60) + ' мин назад';
     if (diff < 86400) return Math.floor(diff / 3600) + ' ч назад';
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
+  /* ПРОФИЛЬ */
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
       .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, is_active, avatar_url, portfolio_url, portfolio_url_2')
-      .eq('id', currentUser.user.id).single();
+      .eq('id', currentUser.user.id)
+      .single();
+
     if (error || !data) return;
 
     const setText = (sel, val) => {
@@ -139,38 +181,58 @@
 
     const avatarEl = document.querySelector('[data-profile-avatar]');
     if (avatarEl) {
-      if (data.avatar_url) avatarEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else avatarEl.textContent = initials;
+      if (data.avatar_url) {
+        avatarEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      } else {
+        avatarEl.textContent = initials;
+      }
     }
 
     const navAvatar = document.querySelector('[data-user-avatar]');
     if (navAvatar) {
-      if (data.avatar_url) navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
-      else navAvatar.textContent = initials;
+      if (data.avatar_url) {
+        navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
+      } else {
+        navAvatar.textContent = initials;
+      }
     }
 
     const previewEl = document.querySelector('[data-avatar-preview]');
     if (previewEl) {
-      if (data.avatar_url) previewEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else previewEl.textContent = '👤';
+      if (data.avatar_url) {
+        previewEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      } else {
+        previewEl.textContent = '👤';
+      }
     }
 
     const portfolioPreview = document.querySelector('[data-portfolio-preview]');
     if (portfolioPreview) {
-      if (data.portfolio_url) portfolioPreview.innerHTML = `<img src="${data.portfolio_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else portfolioPreview.textContent = '🖼';
+      if (data.portfolio_url) {
+        portfolioPreview.innerHTML = `<img src="${data.portfolio_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      } else {
+        portfolioPreview.textContent = '🖼';
+      }
     }
 
     const portfolioPreview2 = document.querySelector('[data-portfolio-preview-2]');
     if (portfolioPreview2) {
-      if (data.portfolio_url_2) portfolioPreview2.innerHTML = `<img src="${data.portfolio_url_2}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else portfolioPreview2.textContent = '🖼';
+      if (data.portfolio_url_2) {
+        portfolioPreview2.innerHTML = `<img src="${data.portfolio_url_2}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      } else {
+        portfolioPreview2.textContent = '🖼';
+      }
     }
 
     const toggleBtn = document.querySelector('[data-toggle-visibility]');
     if (toggleBtn) {
-      if (data.is_active === false) { toggleBtn.textContent = 'Показать анкету'; toggleBtn.dataset.active = 'false'; }
-      else { toggleBtn.textContent = 'Скрыть анкету'; toggleBtn.dataset.active = 'true'; }
+      if (data.is_active === false) {
+        toggleBtn.textContent = 'Показать анкету';
+        toggleBtn.dataset.active = 'false';
+      } else {
+        toggleBtn.textContent = 'Скрыть анкету';
+        toggleBtn.dataset.active = 'true';
+      }
     }
 
     document.querySelector('[data-edit-subject]').value = data.subject || 'math';
@@ -209,10 +271,15 @@
       avatarInput.addEventListener('change', () => {
         const file = avatarInput.files[0];
         if (!file) return;
-        if (file.size > 2 * 1024 * 1024) { alert('Фото слишком большое. Максимум 2 МБ.'); return; }
+        if (file.size > 2 * 1024 * 1024) {
+          alert('Фото слишком большое. Максимум 2 МБ.');
+          return;
+        }
         avatarFile = file;
         const reader = new FileReader();
-        reader.onload = (ev) => { if (avatarPreview) avatarPreview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`; };
+        reader.onload = (ev) => {
+          if (avatarPreview) avatarPreview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+        };
         reader.readAsDataURL(file);
       });
     }
@@ -222,10 +289,15 @@
       portfolioInput.addEventListener('change', () => {
         const file = portfolioInput.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { alert('Фото слишком большое. Максимум 5 МБ.'); return; }
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Фото слишком большое. Максимум 5 МБ.');
+          return;
+        }
         portfolioFile = file;
         const reader = new FileReader();
-        reader.onload = (ev) => { if (portfolioPreview) portfolioPreview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`; };
+        reader.onload = (ev) => {
+          if (portfolioPreview) portfolioPreview.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+        };
         reader.readAsDataURL(file);
       });
     }
@@ -235,32 +307,45 @@
       portfolioInput2.addEventListener('change', () => {
         const file = portfolioInput2.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) { alert('Фото слишком большое. Максимум 5 МБ.'); return; }
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Фото слишком большое. Максимум 5 МБ.');
+          return;
+        }
         portfolioFile2 = file;
         const reader = new FileReader();
-        reader.onload = (ev) => { if (portfolioPreview2) portfolioPreview2.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`; };
+        reader.onload = (ev) => {
+          if (portfolioPreview2) portfolioPreview2.innerHTML = `<img src="${ev.target.result}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+        };
         reader.readAsDataURL(file);
       });
     }
 
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
-        viewEl.hidden = true; editEl.hidden = false; toggleBtn.hidden = true;
+        viewEl.hidden = true;
+        editEl.hidden = false;
+        toggleBtn.hidden = true;
         editEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     }
 
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
-        viewEl.hidden = false; editEl.hidden = true; toggleBtn.hidden = false;
-        errorEl.textContent = ''; avatarFile = null; portfolioFile = null; portfolioFile2 = null;
+        viewEl.hidden = false;
+        editEl.hidden = true;
+        toggleBtn.hidden = false;
+        errorEl.textContent = '';
+        avatarFile = null;
+        portfolioFile = null;
+        portfolioFile2 = null;
       });
     }
 
     if (saveBtn) {
       saveBtn.addEventListener('click', async () => {
         errorEl.textContent = '';
-        saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
 
         let avatar_url = undefined;
         let portfolio_url = undefined;
@@ -269,8 +354,17 @@
         if (avatarFile) {
           const ext = avatarFile.name.split('.').pop();
           const path = `${currentUser.user.id}/avatar.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, avatarFile, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка загрузки аватара: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
+          const { error: uploadError } = await window.supabaseClient.storage
+            .from('avatars')
+            .upload(path, avatarFile, { upsert: true });
+
+          if (uploadError) {
+            errorEl.textContent = 'Ошибка загрузки аватара: ' + uploadError.message;
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Сохранить';
+            return;
+          }
+
           const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
           avatar_url = urlData.publicUrl + '?t=' + Date.now();
         }
@@ -278,8 +372,17 @@
         if (portfolioFile) {
           const ext = portfolioFile.name.split('.').pop();
           const path = `${currentUser.user.id}/portfolio.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка загрузки портфолио: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
+          const { error: uploadError } = await window.supabaseClient.storage
+            .from('avatars')
+            .upload(path, portfolioFile, { upsert: true });
+
+          if (uploadError) {
+            errorEl.textContent = 'Ошибка загрузки портфолио: ' + uploadError.message;
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Сохранить';
+            return;
+          }
+
           const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
           portfolio_url = urlData.publicUrl + '?t=' + Date.now();
         }
@@ -287,8 +390,17 @@
         if (portfolioFile2) {
           const ext = portfolioFile2.name.split('.').pop();
           const path = `${currentUser.user.id}/portfolio-2.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile2, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка загрузки портфолио 2: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
+          const { error: uploadError } = await window.supabaseClient.storage
+            .from('avatars')
+            .upload(path, portfolioFile2, { upsert: true });
+
+          if (uploadError) {
+            errorEl.textContent = 'Ошибка загрузки портфолио 2: ' + uploadError.message;
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Сохранить';
+            return;
+          }
+
           const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
           portfolio_url_2 = urlData.publicUrl + '?t=' + Date.now();
         }
@@ -302,30 +414,45 @@
           meeting_link: document.querySelector('[data-edit-link]').value.trim(),
           bio: document.querySelector('[data-edit-bio]').value.trim()
         };
+
         if (avatar_url !== undefined) payload.avatar_url = avatar_url;
         if (portfolio_url !== undefined) payload.portfolio_url = portfolio_url;
         if (portfolio_url_2 !== undefined) payload.portfolio_url_2 = portfolio_url_2;
 
-        const { error } = await window.supabaseClient.from('teachers').update(payload).eq('id', currentUser.user.id);
+        const { error } = await window.supabaseClient
+          .from('teachers')
+          .update(payload)
+          .eq('id', currentUser.user.id);
 
-        saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
-        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
 
-        avatarFile = null; portfolioFile = null; portfolioFile2 = null;
+        if (error) {
+          errorEl.textContent = 'Ошибка: ' + error.message;
+          return;
+        }
+
+        avatarFile = null;
+        portfolioFile = null;
+        portfolioFile2 = null;
         await loadProfile();
-        viewEl.hidden = false; editEl.hidden = true; toggleBtn.hidden = false;
+        viewEl.hidden = false;
+        editEl.hidden = true;
+        toggleBtn.hidden = false;
       });
     }
 
     if (visibilityBtn) {
       visibilityBtn.addEventListener('click', async () => {
         const isActive = visibilityBtn.dataset.active === 'true';
+
         if (isActive) {
           if (!confirm('Скрыть анкету? Вас перестанут показывать в автоподборе.')) return;
           await window.supabaseClient.from('teachers').update({ is_active: false }).eq('id', currentUser.user.id);
         } else {
           await window.supabaseClient.from('teachers').update({ is_active: true }).eq('id', currentUser.user.id);
         }
+
         await loadProfile();
       });
     }
@@ -334,29 +461,52 @@
       deleteBtn.addEventListener('click', async () => {
         if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные будут удалены. Это нельзя отменить.')) return;
         if (!confirm('Точно? Это последнее предупреждение.')) return;
-        deleteBtn.disabled = true; deleteBtn.textContent = 'Удаляем…';
+
+        deleteBtn.disabled = true;
+        deleteBtn.textContent = 'Удаляем…';
+
         const { error } = await window.supabaseClient.rpc('delete_user');
-        if (error) { alert('Ошибка удаления: ' + error.message); deleteBtn.disabled = false; deleteBtn.textContent = 'Удалить аккаунт навсегда'; return; }
+
+        if (error) {
+          alert('Ошибка удаления: ' + error.message);
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Удалить аккаунт навсегда';
+          return;
+        }
+
         alert('Аккаунт удалён. Сейчас вы выйдете.');
         await window.authAPI.signOut();
       });
     }
   }
 
+  /* РАСПИСАНИЕ */
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
+
     const { data, error } = await window.supabaseClient
-      .from('schedule_template').select('id, weekday, time, text_content, status')
+      .from('schedule_template')
+      .select('id, weekday, time, text_content, status')
       .eq('teacher_id', currentUser.user.id)
-      .order('weekday', { ascending: true }).order('time', { ascending: true });
-    if (error) { board.innerHTML = '<div class="week-board__loading">Ошибка: ' + error.message + '</div>'; return; }
+      .order('weekday', { ascending: true })
+      .order('time', { ascending: true });
+
+    if (error) {
+      board.innerHTML = '<div class="week-board__loading">Ошибка: ' + error.message + '</div>';
+      return;
+    }
 
     cellsMap = {};
     (data || []).forEach(item => {
       const key = item.weekday + '|' + item.time;
-      cellsMap[key] = { id: item.id, status: item.status || 'free', note: item.text_content || '' };
+      cellsMap[key] = {
+        id: item.id,
+        status: item.status || 'free',
+        note: item.text_content || ''
+      };
     });
+
     renderWeekBoard();
     updateSlotsStat(data ? data.length : 0);
   }
@@ -364,24 +514,34 @@
   function renderWeekBoard() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
+
     let html = '';
+
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
         .filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...cellsMap[key] }))
         .sort((a, b) => a.key.localeCompare(b.key));
+
       html += `
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
           <div class="week-day__body">
-            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">Нет ячеек</div>'}
+            ${dayCells.length
+              ? dayCells.map(c => renderCell(day, c)).join('')
+              : '<div class="week-day__empty">Нет ячеек</div>'
+            }
           </div>
         </div>
       `;
     });
+
     board.innerHTML = html;
+
     board.querySelectorAll('[data-cell-key]').forEach(el => {
-      el.addEventListener('click', () => { openCellModal(el.dataset.cellKey); });
+      el.addEventListener('click', () => {
+        openCellModal(el.dataset.cellKey);
+      });
     });
   }
 
@@ -389,6 +549,7 @@
     const time = cell.key.split('|')[1];
     const statusClass = 'week-cell--' + cell.status;
     const statusLabel = STATUS_LABELS[cell.status] || cell.status;
+
     return `
       <div class="week-cell ${statusClass}" data-cell-key="${cell.key}">
         <div class="week-cell__time">${time}</div>
@@ -406,9 +567,14 @@
   function initCellModal() {
     const modal = document.querySelector('[data-modal="cell-edit"]');
     if (!modal) return;
+
     modal.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', () => { modal.hidden = true; document.body.style.overflow = ''; });
+      el.addEventListener('click', () => {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      });
     });
+
     const saveBtn = modal.querySelector('[data-cell-save]');
     const deleteBtn = modal.querySelector('[data-cell-delete]');
     const daySelect = modal.querySelector('[data-cell-day]');
@@ -420,24 +586,51 @@
       saveBtn.addEventListener('click', async () => {
         const errorEl = modal.querySelector('[data-cell-error]');
         errorEl.textContent = '';
+
         const day = parseInt(daySelect.value, 10);
         const time = timeInput.value.trim();
         const status = statusSelect.value;
         const note = noteInput.value.trim();
-        if (!time) { errorEl.textContent = 'Укажите время'; return; }
-        saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
+
+        if (!time) {
+          errorEl.textContent = 'Укажите время';
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
+
         if (editingKey) {
           const [oldDay, oldTime] = editingKey.split('|');
-          await window.supabaseClient.from('schedule_template').delete()
+          await window.supabaseClient
+            .from('schedule_template')
+            .delete()
             .eq('teacher_id', currentUser.user.id)
-            .eq('weekday', parseInt(oldDay, 10)).eq('time', oldTime);
+            .eq('weekday', parseInt(oldDay, 10))
+            .eq('time', oldTime);
         }
-        const { error } = await window.supabaseClient.from('schedule_template').upsert({
-          teacher_id: currentUser.user.id, weekday: day, time: time, text_content: note, status: status
-        }, { onConflict: 'teacher_id,weekday,time' });
-        saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
-        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-        modal.hidden = true; document.body.style.overflow = ''; editingKey = null;
+
+        const { error } = await window.supabaseClient
+          .from('schedule_template')
+          .upsert({
+            teacher_id: currentUser.user.id,
+            weekday: day,
+            time: time,
+            text_content: note,
+            status: status
+          }, { onConflict: 'teacher_id,weekday,time' });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+
+        if (error) {
+          errorEl.textContent = 'Ошибка: ' + error.message;
+          return;
+        }
+
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        editingKey = null;
         await loadCells();
       });
     }
@@ -446,11 +639,19 @@
       deleteBtn.addEventListener('click', async () => {
         if (!editingKey) return;
         if (!confirm('Удалить эту ячейку?')) return;
+
         const [oldDay, oldTime] = editingKey.split('|');
-        await window.supabaseClient.from('schedule_template').delete()
+
+        await window.supabaseClient
+          .from('schedule_template')
+          .delete()
           .eq('teacher_id', currentUser.user.id)
-          .eq('weekday', parseInt(oldDay, 10)).eq('time', oldTime);
-        modal.hidden = true; document.body.style.overflow = ''; editingKey = null;
+          .eq('weekday', parseInt(oldDay, 10))
+          .eq('time', oldTime);
+
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        editingKey = null;
         await loadCells();
       });
     }
@@ -459,6 +660,7 @@
   function openCellModal(key) {
     const modal = document.querySelector('[data-modal="cell-edit"]');
     if (!modal) return;
+
     const title = modal.querySelector('[data-cell-title]');
     const daySelect = modal.querySelector('[data-cell-day]');
     const timeInput = modal.querySelector('[data-cell-time]');
@@ -466,28 +668,36 @@
     const noteInput = modal.querySelector('[data-cell-note]');
     const deleteBtn = modal.querySelector('[data-cell-delete]');
     const errorEl = modal.querySelector('[data-cell-error]');
+
     errorEl.textContent = '';
+
     if (key) {
       editingKey = key;
       const [day, time] = key.split('|');
       const cell = cellsMap[key] || {};
+
       if (title) title.textContent = 'Редактировать ячейку';
-      daySelect.value = day; timeInput.value = time;
+      daySelect.value = day;
+      timeInput.value = time;
       statusSelect.value = cell.status || 'free';
       noteInput.value = cell.note || '';
       if (deleteBtn) deleteBtn.hidden = false;
     } else {
       editingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      daySelect.value = '1'; timeInput.value = '18:00';
-      statusSelect.value = 'free'; noteInput.value = '';
+      daySelect.value = '1';
+      timeInput.value = '18:00';
+      statusSelect.value = 'free';
+      noteInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
+
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
+  /* ЛИЧНОЕ РАСПИСАНИЕ */
   function initPersonalBoard() {
     const toggleBtn = document.querySelector('[data-toggle-personal]');
     const wrap = document.querySelector('[data-personal-wrap]');
@@ -495,14 +705,23 @@
       toggleBtn.addEventListener('click', async () => {
         wrap.hidden = !wrap.hidden;
         toggleBtn.textContent = wrap.hidden ? 'Развернуть' : 'Свернуть';
-        if (!wrap.hidden) { await loadPersonal(); renderPersonalBoard(); }
+        if (!wrap.hidden) {
+          await loadPersonal();
+          renderPersonalBoard();
+        }
       });
     }
+
     const modal = document.querySelector('[data-modal="personal-cell"]');
     if (!modal) return;
+
     modal.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', () => { modal.hidden = true; document.body.style.overflow = ''; });
+      el.addEventListener('click', () => {
+        modal.hidden = true;
+        document.body.style.overflow = '';
+      });
     });
+
     const saveBtn = modal.querySelector('[data-personal-save]');
     const clearBtn = modal.querySelector('[data-personal-clear]');
     const textInput = modal.querySelector('[data-personal-text]');
@@ -513,15 +732,33 @@
         const errorEl = modal.querySelector('[data-personal-error]');
         const [day, time] = personalEditingKey.split('|');
         const text = textInput.value.trim();
+
         errorEl.textContent = '';
-        saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
-        const { error } = await window.supabaseClient.from('personal_schedule').upsert({
-          teacher_id: currentUser.user.id, weekday: parseInt(day, 10), time: time, text_content: text
-        }, { onConflict: 'teacher_id,weekday,time' });
-        saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
-        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-        modal.hidden = true; document.body.style.overflow = ''; personalEditingKey = null;
-        await loadPersonal(); renderPersonalBoard();
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
+
+        const { error } = await window.supabaseClient
+          .from('personal_schedule')
+          .upsert({
+            teacher_id: currentUser.user.id,
+            weekday: parseInt(day, 10),
+            time: time,
+            text_content: text
+          }, { onConflict: 'teacher_id,weekday,time' });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+
+        if (error) {
+          errorEl.textContent = 'Ошибка: ' + error.message;
+          return;
+        }
+
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        personalEditingKey = null;
+        await loadPersonal();
+        renderPersonalBoard();
       });
     }
 
@@ -529,11 +766,19 @@
       clearBtn.addEventListener('click', async () => {
         if (!personalEditingKey) return;
         const [day, time] = personalEditingKey.split('|');
-        await window.supabaseClient.from('personal_schedule').delete()
+
+        await window.supabaseClient
+          .from('personal_schedule')
+          .delete()
           .eq('teacher_id', currentUser.user.id)
-          .eq('weekday', parseInt(day, 10)).eq('time', time);
-        modal.hidden = true; document.body.style.overflow = ''; personalEditingKey = null;
-        await loadPersonal(); renderPersonalBoard();
+          .eq('weekday', parseInt(day, 10))
+          .eq('time', time);
+
+        modal.hidden = true;
+        document.body.style.overflow = '';
+        personalEditingKey = null;
+        await loadPersonal();
+        renderPersonalBoard();
       });
     }
   }
@@ -541,18 +786,27 @@
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
-      .from('personal_schedule').select('weekday, time, text_content')
+      .from('personal_schedule')
+      .select('weekday, time, text_content')
       .eq('teacher_id', currentUser.user.id);
+
     if (error) return;
-    (data || []).forEach(item => { personalMap[item.weekday + '|' + item.time] = item.text_content || ''; });
+
+    (data || []).forEach(item => {
+      personalMap[item.weekday + '|' + item.time] = item.text_content || '';
+    });
   }
 
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-board]');
     if (!board) return;
+
     let html = '<div class="schedule-table">';
     html += '<div class="schedule-table__head"></div>';
-    DAY_ORDER.forEach(d => { html += `<div class="schedule-table__head">${DAYS[d]}</div>`; });
+    DAY_ORDER.forEach(d => {
+      html += `<div class="schedule-table__head">${DAYS[d]}</div>`;
+    });
+
     HOURS.forEach(hour => {
       html += `<div class="schedule-table__time">${hour}</div>`;
       DAY_ORDER.forEach(d => {
@@ -563,8 +817,10 @@
         html += `<div class="schedule-cell ${cls}" data-day="${d}" data-time="${hour}" title="${text}">${text}</div>`;
       });
     });
+
     html += '</div>';
     board.innerHTML = html;
+
     board.querySelectorAll('.schedule-cell').forEach(cell => {
       cell.addEventListener('click', () => openPersonalCellModal(cell));
     });
@@ -573,106 +829,194 @@
   function openPersonalCellModal(cell) {
     const modal = document.querySelector('[data-modal="personal-cell"]');
     if (!modal) return;
+
     const day = parseInt(cell.dataset.day, 10);
     const time = cell.dataset.time;
     personalEditingKey = day + '|' + time;
+
     const label = modal.querySelector('[data-personal-label]');
     if (label) label.textContent = DAYS[day] + ' · ' + time;
+
     const textInput = modal.querySelector('[data-personal-text]');
     if (textInput) textInput.value = personalMap[personalEditingKey] || '';
+
     const errorEl = modal.querySelector('[data-personal-error]');
     if (errorEl) errorEl.textContent = '';
+
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     setTimeout(() => textInput && textInput.focus(), 150);
   }
 
+  /* ЗАЯВКИ — крупные карточки */
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
+
     listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
+
     const { data, error } = await window.supabaseClient
-      .from('booking_requests').select('id, status, weekday, time, student_id, created_at')
+      .from('booking_requests')
+      .select('id, status, weekday, time, student_id, created_at')
       .eq('teacher_id', currentUser.user.id)
       .order('created_at', { ascending: false });
-    if (error) { listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>'; return; }
+
+    if (error) {
+      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>';
+      return;
+    }
+
     if (!data.length) {
       listEl.innerHTML = `
         <div class="cabinet__empty">
           <div class="cabinet__empty-icon">📩</div>
           <div class="cabinet__empty-title">Заявок пока нет</div>
-          <div class="cabinet__empty-desc">Когда ученик попросит место в расписании — заявка появится здесь</div>
+          <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
         </div>
       `;
       updateBookingsStat(0);
       return;
     }
+
     const studentIds = [...new Set(data.map(b => b.student_id).filter(Boolean))];
+
     const { data: profiles } = studentIds.length
       ? await window.supabaseClient.from('profiles').select('id, name, email').in('id', studentIds)
       : { data: [] };
+
     const studentsMap = {};
     (profiles || []).forEach(p => studentsMap[p.id] = p);
+
     listEl.innerHTML = data.map(b => {
       const student = studentsMap[b.student_id] || {};
-      const statusLabel = { pending: 'Ожидает', approved: 'Одобрена', rejected: 'Отклонена', cancelled: 'Отменена' }[b.status] || b.status;
-      const canApprove = b.status === 'pending';
-      const canReject = b.status === 'pending';
+      const studentName = student.name || student.email || 'Ученик';
+
+      let statusClass, statusLabel, statusEmoji, actionHtml = '';
+
+      if (b.status === 'pending') {
+        statusClass = 'pending';
+        statusLabel = 'Ожидает';
+        statusEmoji = '⏳';
+        actionHtml = `
+          <button class="booking-card__action booking-card__action--primary" data-approve-request="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-student="${b.student_id}">Одобрить</button>
+          <button class="booking-card__action booking-card__action--danger" data-reject-request="${b.id}">Отклонить</button>
+        `;
+      } else if (b.status === 'approved') {
+        statusClass = 'approved';
+        statusLabel = 'Одобрена';
+        statusEmoji = '✅';
+        actionHtml = `<button class="booking-card__action booking-card__action--ghost" data-reject-request="${b.id}">Отменить</button>`;
+      } else if (b.status === 'rejected') {
+        statusClass = 'rejected';
+        statusLabel = 'Отклонена';
+        statusEmoji = '❌';
+      } else if (b.status === 'cancelled') {
+        statusClass = 'cancelled';
+        statusLabel = 'Отменена';
+        statusEmoji = '✕';
+      }
+
       return `
-        <div class="booking-row">
-          <div class="booking-row__date">${DAYS[b.weekday]} · ${b.time}</div>
-          <div class="booking-row__info">
-            <div class="booking-row__name">${student.name || student.email || '—'}</div>
-            <div class="booking-row__subject">Заявка на место</div>
+        <div class="booking-card">
+          <div class="booking-card__head">
+            <div class="booking-card__date">${DAYS[b.weekday]} · ${b.time}</div>
+            <div class="booking-card__info">
+              <span class="booking-card__name">${studentName}</span>
+            </div>
           </div>
-          <div class="booking-row__status booking-row__status--${b.status}">${statusLabel}</div>
-          <div class="booking-row__actions">
-            ${canApprove ? `<button class="btn btn--primary btn--sm" data-approve-request="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-student="${b.student_id}">Одобрить</button>` : ''}
-            ${canReject ? `<button class="btn btn--ghost btn--sm" data-reject-request="${b.id}">Отклонить</button>` : ''}
+          <div class="booking-card__status booking-card__status--${statusClass}">
+            ${statusEmoji} ${statusLabel}
           </div>
+          ${actionHtml}
         </div>
       `;
     }).join('');
+
     listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
       btn.addEventListener('click', () => approveRequest(
-        btn.dataset.approveRequest, parseInt(btn.dataset.weekday, 10), btn.dataset.time, btn.dataset.student
+        btn.dataset.approveRequest,
+        parseInt(btn.dataset.weekday, 10),
+        btn.dataset.time,
+        btn.dataset.student
       ));
     });
+
     listEl.querySelectorAll('[data-reject-request]').forEach(btn => {
       btn.addEventListener('click', () => rejectRequest(btn.dataset.rejectRequest));
     });
+
     updateBookingsStat(data.filter(b => b.status === 'pending' || b.status === 'approved').length);
   }
 
   async function approveRequest(id, weekday, time, studentId) {
     if (!confirm('Одобрить заявку? Место станет занятым.')) return;
-    const { error: reqError } = await window.supabaseClient.from('booking_requests').update({ status: 'approved' }).eq('id', id);
-    if (reqError) { alert('Ошибка: ' + reqError.message); return; }
-    const { data: profile } = await window.supabaseClient.from('profiles').select('name').eq('id', studentId).single();
+
+    const { error: reqError } = await window.supabaseClient
+      .from('booking_requests')
+      .update({ status: 'approved' })
+      .eq('id', id);
+
+    if (reqError) {
+      alert('Ошибка: ' + reqError.message);
+      return;
+    }
+
+    const { data: profile } = await window.supabaseClient
+      .from('profiles')
+      .select('name')
+      .eq('id', studentId)
+      .single();
+
     const studentName = (profile && profile.name) || 'Ученик';
-    await window.supabaseClient.from('schedule_template').upsert({
-      teacher_id: currentUser.user.id, weekday: weekday, time: time, text_content: studentName, status: 'busy'
-    }, { onConflict: 'teacher_id,weekday,time' });
+
+    await window.supabaseClient
+      .from('schedule_template')
+      .upsert({
+        teacher_id: currentUser.user.id,
+        weekday: weekday,
+        time: time,
+        text_content: studentName,
+        status: 'busy'
+      }, { onConflict: 'teacher_id,weekday,time' });
+
     await window.supabaseClient.from('notifications').insert({
-      user_id: studentId, type: 'booking',
-      text: 'Репетитор одобрил вашу заявку на ' + DAYS[weekday] + ' ' + time,
+      user_id: studentId,
+      type: 'booking',
+      text: 'Репетитор одобрил заявку на ' + DAYS[weekday] + ' ' + time,
       link: 'cabinet-student.html'
     });
+
     await Promise.all([loadRequests(), loadCells()]);
   }
 
   async function rejectRequest(id) {
     if (!confirm('Отклонить заявку?')) return;
-    const { data: req } = await window.supabaseClient.from('booking_requests').select('student_id, weekday, time').eq('id', id).single();
-    const { error } = await window.supabaseClient.from('booking_requests').update({ status: 'rejected' }).eq('id', id);
-    if (error) { alert('Ошибка: ' + error.message); return; }
+
+    const { data: req } = await window.supabaseClient
+      .from('booking_requests')
+      .select('student_id, weekday, time')
+      .eq('id', id)
+      .single();
+
+    const { error } = await window.supabaseClient
+      .from('booking_requests')
+      .update({ status: 'rejected' })
+      .eq('id', id);
+
+    if (error) {
+      alert('Ошибка: ' + error.message);
+      return;
+    }
+
     if (req && req.student_id) {
       await window.supabaseClient.from('notifications').insert({
-        user_id: req.student_id, type: 'booking',
+        user_id: req.student_id,
+        type: 'booking',
         text: 'Репетитор отклонил заявку на ' + DAYS[req.weekday] + ' ' + req.time,
         link: 'cabinet-student.html'
       });
     }
+
     await loadRequests();
   }
 
@@ -681,8 +1025,14 @@
     if (el) el.textContent = n;
   }
 
+  /* РЕЙТИНГ */
   async function loadRating() {
-    const { data } = await window.supabaseClient.from('teachers').select('rating').eq('id', currentUser.user.id).single();
+    const { data } = await window.supabaseClient
+      .from('teachers')
+      .select('rating')
+      .eq('id', currentUser.user.id)
+      .single();
+
     const el = document.querySelector('[data-stat="rating"]');
     if (el) el.textContent = data && data.rating ? data.rating : '—';
   }
