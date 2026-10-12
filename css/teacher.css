@@ -32,12 +32,12 @@
 
 .tp-page__inner { position: relative; z-index: 2; }
 
-/* LAYOUT: sidebar + feed */
+/* LAYOUT */
 .tp-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* CARD */
@@ -54,6 +54,12 @@
 .tp-sidebar {
   position: sticky;
   top: 100px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.tp-sidebar > .tp-card:last-child {
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
 }
@@ -130,7 +136,7 @@
   margin-bottom: 14px;
 }
 
-/* СВЯЗЬ — виджеты 2×2 */
+/* СВЯЗЬ — 2×2 */
 .tp-contacts {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -152,7 +158,6 @@
   text-align: center;
   min-height: 88px;
 }
-
 .tp-contact:hover {
   border-color: var(--accent);
   background: var(--accent-dim);
@@ -172,13 +177,11 @@
   flex-shrink: 0;
   transition: all 0.3s var(--ease);
 }
-
 .tp-contact:hover .tp-contact__icon {
   background: var(--accent);
   border-color: var(--accent);
   color: #08080A;
 }
-
 .tp-contact__icon svg { width: 18px; height: 18px; }
 
 .tp-contact__label {
@@ -321,7 +324,7 @@
 /* MOBILE */
 @media (max-width: 1024px) {
   .tp-layout { grid-template-columns: 1fr; gap: 20px; }
-  .tp-sidebar { position: static; }
+  .tp-sidebar { position: static; height: auto; }
 }
 
 @media (max-width: 768px) {
