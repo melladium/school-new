@@ -44,6 +44,7 @@
         <!-- SIDEBAR -->
         <aside class="tp-sidebar">
 
+          <!-- Профиль -->
           <div class="tp-card tp-card--profile">
             <div class="tp-sidebar__avatar" data-hero-avatar>—</div>
             <h1 class="tp-sidebar__name" data-hero-name>Загрузка…</h1>
@@ -56,6 +57,13 @@
             </div>
           </div>
 
+          <!-- О себе -->
+          <div class="tp-card" data-section-bio hidden>
+            <h2 class="tp-sidebar__title">О себе</h2>
+            <p class="tp-sidebar__bio" data-bio-text></p>
+          </div>
+
+          <!-- Связь -->
           <div class="tp-card" data-section-contacts hidden>
             <h2 class="tp-sidebar__title">Связь</h2>
             <div class="tp-contacts">
@@ -103,7 +111,7 @@
 
         </aside>
 
-        <!-- LENTA -->
+        <!-- ЛЕНТА -->
         <div class="tp-feed">
 
           <section class="tp-card" id="schedule">
@@ -113,22 +121,12 @@
             </div>
           </section>
 
-          <section class="tp-card" data-section-bio hidden>
-            <h2 class="tp-feed__title">О себе</h2>
-            <p class="tp-feed__text" data-bio-text></p>
-          </section>
-
           <section class="tp-card" data-section-portfolio hidden>
             <h2 class="tp-feed__title">Достижения</h2>
             <div class="tp-portfolio tp-portfolio--two">
               <img data-portfolio-image src="" alt="Достижение 1" loading="lazy">
               <img data-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden>
             </div>
-          </section>
-
-          <section class="tp-card" data-section-reviews hidden>
-            <h2 class="tp-feed__title">Отзывы · <span data-reviews-count>0</span></h2>
-            <div class="tp-reviews" data-reviews-list></div>
           </section>
 
         </div>
