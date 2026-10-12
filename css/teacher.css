@@ -251,7 +251,6 @@
 .tp-schedule .week-cell {
   padding: 8px 10px;
   gap: 2px;
-  height: auto;
   min-height: 44px;
 }
 .tp-schedule .week-cell__time { font-size: 12px; }
