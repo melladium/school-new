@@ -11,7 +11,6 @@
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
 
   const SUBJECT_LABELS = {
     math: 'Математика', english: 'Английский', physics: 'Физика',
@@ -55,14 +54,16 @@
     initBurger();
     initNotifications();
     initReviewModal();
+    initPersonalCellModal();
+
+    const addPersonalBtn = document.querySelector('[data-add-personal-cell]');
+    if (addPersonalBtn) addPersonalBtn.addEventListener('click', () => openPersonalCellModal(null));
 
     await Promise.all([
       loadReviewedTeachers(),
       loadBookings(),
       loadPersonal()
     ]);
-
-    renderPersonalBoard();
   }
 
   function initBurger() {
@@ -247,7 +248,7 @@
       btn.addEventListener('click', () => removeBooking(btn.dataset.actionRemove));
     });
     listEl.querySelectorAll('[data-action-add-to-schedule]').forEach(btn => {
-      btn.addEventListener('click', () => addToSchedule(btn.dataset.actionAddToSchedule, btn.dataset.time, btn.dataset.weekday, btn.dataset.teacherName));
+      btn.addEventListener('click', () => addToSchedule(btn.dataset.time, btn.dataset.weekday, btn.dataset.teacherName));
     });
 
     updateStats(upcoming.length, done.length);
@@ -265,7 +266,7 @@
       statusLabel = 'Ожидает';
       statusEmoji = '⏳';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
+        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
       `;
     } else if (b.status === 'approved' && !isDone) {
@@ -273,7 +274,7 @@
       statusLabel = 'Одобрена';
       statusEmoji = '✅';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
+        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
       `;
     } else if (b.status === 'approved' && isDone) {
@@ -342,10 +343,10 @@
   }
 
   /* ДОБАВИТЬ В РАСПИСАНИЕ */
-  async function addToSchedule(bookingId, time, weekday, teacherName) {
+  async function addToSchedule(time, weekday, teacherName) {
     const wd = parseInt(weekday, 10);
     const key = wd + '|' + time;
-    if (personalMap[key] && personalMap[key].trim() !== '') {
+    if (personalMap[key] && personalMap[key].note && personalMap[key].note.trim() !== '') {
       alert('Время занято');
       return;
     }
@@ -363,7 +364,6 @@
     if (error) { alert('Ошибка: ' + error.message); return; }
 
     await loadPersonal();
-    renderPersonalBoard();
   }
 
   /* ОТЗЫВ */
@@ -452,88 +452,108 @@
     await window.supabaseClient.from('teachers').update({ rating: avg, reviews_count: count }).eq('id', teacherId);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ (всегда видно) */
+  /* ЛИЧНОЕ РАСПИСАНИЕ (карточки по дням) */
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
       .from('personal_schedule_student')
-      .select('weekday, time, text_content')
-      .eq('student_id', currentUser.user.id);
+      .select('id, weekday, time, text_content')
+      .eq('student_id', currentUser.user.id)
+      .order('weekday', { ascending: true })
+      .order('time', { ascending: true });
+
     if (error) return;
-    (data || []).forEach(item => { personalMap[item.weekday + '|' + item.time] = item.text_content || ''; });
+
+    (data || []).forEach(item => {
+      const key = item.weekday + '|' + item.time;
+      personalMap[key] = {
+        id: item.id,
+        note: item.text_content || ''
+      };
+    });
+
+    renderPersonalBoard();
   }
 
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-student-board]');
     if (!board) return;
 
-    let html = '<div class="schedule-table">';
-    html += '<div class="schedule-table__head"></div>';
-    DAY_ORDER.forEach(d => { html += `<div class="schedule-table__head">${DAYS[d]}</div>`; });
+    let html = '';
+    DAY_ORDER.forEach(day => {
+      const dayCells = Object.keys(personalMap)
+        .filter(key => key.startsWith(day + '|'))
+        .map(key => ({ key, ...personalMap[key] }))
+        .sort((a, b) => a.key.localeCompare(b.key));
 
-    HOURS.forEach(hour => {
-      html += `<div class="schedule-table__time">${hour}</div>`;
-      DAY_ORDER.forEach(d => {
-        const key = d + '|' + hour;
-        const text = personalMap[key] || '';
-        const cls = text ? 'is-active' : '';
-        html += `<div class="schedule-cell ${cls}" data-day="${d}" data-time="${hour}" title="${text}">${text}</div>`;
-      });
+      html += `
+        <div class="week-day">
+          <div class="week-day__head">${DAYS[day]}</div>
+          <div class="week-day__body">
+            ${dayCells.length
+              ? dayCells.map(c => renderPersonalCell(day, c)).join('')
+              : '<div class="week-day__empty">Нет ячеек</div>'
+            }
+          </div>
+        </div>
+      `;
     });
-    html += '</div>';
     board.innerHTML = html;
 
-    board.querySelectorAll('.schedule-cell').forEach(cell => {
-      cell.addEventListener('click', () => openPersonalCellModal(cell));
+    board.querySelectorAll('[data-personal-cell-key]').forEach(el => {
+      el.addEventListener('click', () => openPersonalCellModal(el.dataset.personalCellKey));
     });
   }
 
-  function openPersonalCellModal(cell) {
-    const modal = document.querySelector('[data-modal="personal-student-cell"]');
-    if (!modal) return;
-    const day = parseInt(cell.dataset.day, 10);
-    const time = cell.dataset.time;
-    personalEditingKey = day + '|' + time;
-    const label = modal.querySelector('[data-personal-student-label]');
-    if (label) label.textContent = DAYS[day] + ' · ' + time;
-    const textInput = modal.querySelector('[data-personal-student-text]');
-    if (textInput) textInput.value = personalMap[personalEditingKey] || '';
-    const errorEl = modal.querySelector('[data-personal-student-error]');
-    if (errorEl) errorEl.textContent = '';
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => textInput && textInput.focus(), 150);
+  function renderPersonalCell(day, cell) {
+    const time = cell.key.split('|')[1];
+    return `
+      <div class="week-cell week-cell--personal" data-personal-cell-key="${cell.key}">
+        <div class="week-cell__time">${time}</div>
+        ${cell.note ? `<div class="week-cell__note">${cell.note}</div>` : ''}
+      </div>
+    `;
   }
 
-  function initPersonalBoard() {
-    const modal = document.querySelector('[data-modal="personal-student-cell"]');
+  function initPersonalCellModal() {
+    const modal = document.querySelector('[data-modal="personal-cell-edit"]');
     if (!modal) return;
-    modal.querySelectorAll('[data-modal-close]').forEach(el => el.addEventListener('click', () => {
-      modal.hidden = true; document.body.style.overflow = '';
-    }));
 
-    const saveBtn = modal.querySelector('[data-personal-student-save]');
-    const clearBtn = modal.querySelector('[data-personal-student-clear]');
-    const textInput = modal.querySelector('[data-personal-student-text]');
+    modal.querySelectorAll('[data-modal-close]').forEach(el => {
+      el.addEventListener('click', () => { modal.hidden = true; document.body.style.overflow = ''; });
+    });
+
+    const saveBtn = modal.querySelector('[data-personal-cell-save]');
+    const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
+    const daySelect = modal.querySelector('[data-personal-cell-day]');
+    const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const textInput = modal.querySelector('[data-personal-cell-text]');
 
     if (saveBtn) {
       saveBtn.addEventListener('click', async () => {
-        if (!personalEditingKey) return;
-        const errorEl = modal.querySelector('[data-personal-student-error]');
-        const [day, time] = personalEditingKey.split('|');
-        const text = textInput.value.trim();
+        const errorEl = modal.querySelector('[data-personal-cell-error]');
         errorEl.textContent = '';
+        const day = parseInt(daySelect.value, 10);
+        const time = timeInput.value.trim();
+        const text = textInput.value.trim();
+        if (!time) { errorEl.textContent = 'Укажите время'; return; }
         saveBtn.disabled = true;
         saveBtn.textContent = 'Сохраняем…';
 
-        const { error } = await window.supabaseClient
-          .from('personal_schedule_student')
-          .upsert({
-            student_id: currentUser.user.id,
-            weekday: parseInt(day, 10),
-            time: time,
-            text_content: text
-          }, { onConflict: 'student_id,weekday,time' });
+        if (personalEditingKey) {
+          const [oldDay, oldTime] = personalEditingKey.split('|');
+          await window.supabaseClient.from('personal_schedule_student').delete()
+            .eq('student_id', currentUser.user.id)
+            .eq('weekday', parseInt(oldDay, 10))
+            .eq('time', oldTime);
+        }
+
+        const { error } = await window.supabaseClient.from('personal_schedule_student').upsert({
+          student_id: currentUser.user.id,
+          weekday: day,
+          time: time,
+          text_content: text
+        }, { onConflict: 'student_id,weekday,time' });
 
         saveBtn.disabled = false;
         saveBtn.textContent = 'Сохранить';
@@ -542,27 +562,59 @@
         document.body.style.overflow = '';
         personalEditingKey = null;
         await loadPersonal();
-        renderPersonalBoard();
       });
     }
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', async () => {
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
         if (!personalEditingKey) return;
-        const [day, time] = personalEditingKey.split('|');
-        await window.supabaseClient
-          .from('personal_schedule_student')
-          .delete()
+        if (!confirm('Удалить эту ячейку?')) return;
+        const [oldDay, oldTime] = personalEditingKey.split('|');
+        await window.supabaseClient.from('personal_schedule_student').delete()
           .eq('student_id', currentUser.user.id)
-          .eq('weekday', parseInt(day, 10))
-          .eq('time', time);
+          .eq('weekday', parseInt(oldDay, 10))
+          .eq('time', oldTime);
         modal.hidden = true;
         document.body.style.overflow = '';
         personalEditingKey = null;
         await loadPersonal();
-        renderPersonalBoard();
       });
     }
+  }
+
+  function openPersonalCellModal(key) {
+    const modal = document.querySelector('[data-modal="personal-cell-edit"]');
+    if (!modal) return;
+    const title = modal.querySelector('[data-personal-cell-title]');
+    const daySelect = modal.querySelector('[data-personal-cell-day]');
+    const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const textInput = modal.querySelector('[data-personal-cell-text]');
+    const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
+    const errorEl = modal.querySelector('[data-personal-cell-error]');
+
+    errorEl.textContent = '';
+
+    if (key) {
+      personalEditingKey = key;
+      const [day, time] = key.split('|');
+      const cell = personalMap[key] || {};
+      if (title) title.textContent = 'Редактировать ячейку';
+      daySelect.value = day;
+      timeInput.value = time;
+      textInput.value = cell.note || '';
+      if (deleteBtn) deleteBtn.hidden = false;
+    } else {
+      personalEditingKey = null;
+      if (title) title.textContent = 'Новая ячейка';
+      daySelect.value = '1';
+      timeInput.value = '18:00';
+      textInput.value = '';
+      if (deleteBtn) deleteBtn.hidden = true;
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
   async function deleteAccount() {
@@ -574,8 +626,5 @@
     await window.authAPI.signOut();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    init();
-    setTimeout(initPersonalBoard, 100);
-  });
+  document.addEventListener('DOMContentLoaded', init);
 })();
