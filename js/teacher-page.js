@@ -37,7 +37,7 @@
   async function loadTeacher(id) {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, meeting_link, avatar_url, portfolio_url')
+      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, meeting_link, avatar_url, portfolio_url, portfolio_url_2')
       .eq('id', id)
       .eq('is_active', true)
       .single();
@@ -71,11 +71,6 @@
     setText('[data-hero-price]', teacher.price + ' ₽ / урок');
     setText('[data-hero-rating]', teacher.rating || '—');
     setText('[data-hero-reviews]', `· ${teacher.reviews_count || 0} отзывов`);
-
-    const scrollBtn = document.querySelector('[data-scroll-to-schedule]');
-    if (scrollBtn) scrollBtn.addEventListener('click', () => {
-      document.getElementById('schedule')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
   }
 
   function renderBio() {
@@ -86,11 +81,25 @@
   }
 
   function renderPortfolio() {
-    if (!teacher.portfolio_url) return;
-    const sec = document.querySelector('[data-section-portfolio]');
-    if (sec) sec.hidden = false;
-    const img = document.querySelector('[data-portfolio-image]');
-    if (img) img.src = teacher.portfolio_url;
+    const img1 = document.querySelector('[data-portfolio-image]');
+    const img2 = document.querySelector('[data-portfolio-image-2]');
+    let hasAny = false;
+
+    if (teacher.portfolio_url && img1) {
+      img1.src = teacher.portfolio_url;
+      img1.hidden = false;
+      hasAny = true;
+    }
+    if (teacher.portfolio_url_2 && img2) {
+      img2.src = teacher.portfolio_url_2;
+      img2.hidden = false;
+      hasAny = true;
+    }
+
+    if (hasAny) {
+      const sec = document.querySelector('[data-section-portfolio]');
+      if (sec) sec.hidden = false;
+    }
   }
 
   function renderContacts() {
@@ -101,8 +110,6 @@
       if (el) {
         el.hidden = false;
         el.href = 'https://t.me/' + teacher.telegram.replace('@', '');
-        const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'Telegram';
         hasAny = true;
       }
     }
@@ -112,8 +119,6 @@
       if (el) {
         el.hidden = false;
         el.href = 'https://wa.me/' + teacher.whatsapp.replace(/[^\d]/g, '');
-        const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'WhatsApp';
         hasAny = true;
       }
     }
@@ -123,8 +128,6 @@
       if (el) {
         el.hidden = false;
         el.href = 'tel:' + teacher.phone;
-        const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = teacher.phone;
         hasAny = true;
       }
     }
@@ -134,8 +137,6 @@
       if (el) {
         el.hidden = false;
         el.href = teacher.meeting_link;
-        const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'Ссылка на урок';
         hasAny = true;
       }
     }
@@ -163,7 +164,7 @@
       cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
     });
 
-    let html = '<div class="week-board week-board--compact">';
+    let html = '<div class="week-board">';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
         .filter(key => key.startsWith(day + '|'))
@@ -292,20 +293,18 @@
     document.body.style.overflow = 'hidden';
   }
 
-  /* Лайтбокс для аватара и достижений */
   function initLightboxes() {
-    // Клик по аватару
     const hero = document.querySelector('[data-hero-avatar]');
     if (hero) hero.addEventListener('click', () => {
       const img = hero.querySelector('img');
       if (img && img.src) openLightbox(img.src);
     });
 
-    // Клик по фото достижений
-    const portfolio = document.querySelector('[data-portfolio-image]');
-    if (portfolio) portfolio.addEventListener('click', () => {
-      if (portfolio.src) openLightbox(portfolio.src);
-    });
+    const p1 = document.querySelector('[data-portfolio-image]');
+    if (p1) p1.addEventListener('click', () => { if (p1.src) openLightbox(p1.src); });
+
+    const p2 = document.querySelector('[data-portfolio-image-2]');
+    if (p2) p2.addEventListener('click', () => { if (p2.src) openLightbox(p2.src); });
   }
 
   function openLightbox(src) {
