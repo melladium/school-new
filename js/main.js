@@ -399,6 +399,7 @@
   observeReveals();
   initMagnetic();
 
+  /* BURGER */
   const burger = document.querySelector('.nav__burger');
   if (burger) {
     burger.addEventListener('click', () => {
@@ -416,6 +417,55 @@
       links.style.backdropFilter = 'blur(20px)';
       links.style.borderBottom = '1px solid var(--border)';
     });
+  }
+
+  /* AUTH HEADER — имя + аватар → дропдаун */
+  async function initAuthHeader() {
+    if (!window.authAPI) return;
+
+    const current = await window.authAPI.getCurrentUser();
+    if (!current) return;
+
+    const role = current.profile.role;
+    const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+    const name = current.profile.name || current.profile.email || 'Профиль';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const actions = document.querySelector('[data-nav-actions]');
+    if (actions) actions.hidden = true;
+
+    const userMenu = document.querySelector('[data-user-menu]');
+    const nameEl = document.querySelector('[data-user-name]');
+    const avatarEl = document.querySelector('[data-user-avatar]');
+    const cabinetLink = document.querySelector('[data-user-cabinet]');
+    const logoutBtn = document.querySelector('[data-user-logout]');
+    const trigger = document.querySelector('[data-user-trigger]');
+    const dropdown = document.querySelector('[data-user-dropdown]');
+
+    if (userMenu) userMenu.hidden = false;
+    if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
+    if (avatarEl) avatarEl.textContent = initials;
+    if (cabinetLink) cabinetLink.href = cabinetHref;
+
+    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+
+    if (trigger && dropdown) {
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.hidden = !dropdown.hidden;
+      });
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+          dropdown.hidden = true;
+        }
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthHeader);
+  } else {
+    initAuthHeader();
   }
 
 })();
