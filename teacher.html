@@ -23,7 +23,6 @@
       <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
       <nav class="nav__links">
         <a href="index.html">Главная</a>
-        <a href="index.html#catalog">Репетиторы</a>
         <a href="index.html#podbor">Автоподбор</a>
       </nav>
       <div class="nav__actions">
@@ -40,7 +39,7 @@
 
     <div class="container tp-page__inner">
 
-      <!-- ПРОФИЛЬ -->
+      <!-- HERO -->
       <section class="tp-hero">
         <div class="tp-hero__avatar" data-hero-avatar>—</div>
         <div class="tp-hero__info">
@@ -66,55 +65,76 @@
         </div>
       </section>
 
-      <!-- О СЕБЕ -->
-      <section class="tp-section" data-section-bio hidden>
-        <h2 class="tp-section__title">О себе</h2>
-        <p class="tp-section__text" data-bio-text></p>
+      <!-- ДВЕ КОЛОНКИ: РАСПИСАНИЕ / О СЕБЕ + СВЯЗЬ -->
+      <section class="tp-cols">
+
+        <!-- СЛЕВА: РАСПИСАНИЕ -->
+        <div class="tp-col-main" id="schedule">
+          <h2 class="tp-section__title">Расписание</h2>
+          <div class="tp-schedule" data-schedule>
+            <div class="tp-schedule__loading">Загружаем расписание…</div>
+          </div>
+        </div>
+
+        <!-- СПРАВА: О СЕБЕ + СВЯЗЬ -->
+        <aside class="tp-col-side">
+
+          <div class="tp-side-block" data-section-bio hidden>
+            <h2 class="tp-section__title">О себе</h2>
+            <p class="tp-section__text" data-bio-text></p>
+          </div>
+
+          <div class="tp-side-block" data-section-contacts hidden>
+            <h2 class="tp-section__title">Связь</h2>
+            <div class="tp-contacts">
+              <a class="tp-contact" data-contact-telegram hidden target="_blank" rel="noopener">
+                <span class="tp-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 4L2 12l6 2 2 6 4-5 6 4V4z"/>
+                  </svg>
+                </span>
+                <span class="tp-contact__value">Telegram</span>
+              </a>
+
+              <a class="tp-contact" data-contact-whatsapp hidden target="_blank" rel="noopener">
+                <span class="tp-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.4 8.4 0 01-1.2 4.4L21 21l-5.3-1.3a8.5 8.5 0 01-12.3-7.5A8.5 8.5 0 0121 11.5z"/>
+                    <path d="M8.5 8.5c.3-.7 1-.5 1.3.1l.6 1.2c.2.4 0 .9-.4 1.1l-.6.4c.4 1 1.4 2 2.4 2.4l.4-.6c.2-.4.7-.6 1.1-.4l1.2.6c.6.3.8 1 .1 1.3-1.1.5-2.7.4-4-1-1.4-1.4-1.5-2.9-1-4z"/>
+                  </svg>
+                </span>
+                <span class="tp-contact__value">WhatsApp</span>
+              </a>
+
+              <a class="tp-contact" data-contact-phone hidden>
+                <span class="tp-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.4 2.1L8 10.2a16 16 0 006 6l1.4-1.4a2 2 0 012.1-.5c1 .3 2 .6 3 .7a2 2 0 011.7 2z"/>
+                  </svg>
+                </span>
+                <span class="tp-contact__value">Позвонить</span>
+              </a>
+
+              <a class="tp-contact" data-contact-link hidden target="_blank" rel="noopener">
+                <span class="tp-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/>
+                    <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/>
+                  </svg>
+                </span>
+                <span class="tp-contact__value">Ссылка на урок</span>
+              </a>
+            </div>
+          </div>
+
+        </aside>
       </section>
 
-      <!-- ПОРТФОЛИО -->
+      <!-- ДОСТИЖЕНИЯ -->
       <section class="tp-section" data-section-portfolio hidden>
         <h2 class="tp-section__title">Достижения</h2>
         <div class="tp-portfolio">
           <img data-portfolio-image src="" alt="Портфолио" loading="lazy">
-        </div>
-      </section>
-
-      <!-- РАСПИСАНИЕ -->
-      <section class="tp-section" id="schedule" data-section-schedule>
-        <div class="tp-section__head">
-          <h2 class="tp-section__title">Расписание</h2>
-          <div class="tp-legend">
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--free"></span>Свободно</span>
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--busy"></span>Занято</span>
-            <span class="tp-legend__item"><span class="tp-legend__dot tp-legend__dot--off"></span>Не работает</span>
-          </div>
-        </div>
-        <div class="tp-schedule" data-schedule>
-          <div class="tp-schedule__loading">Загружаем расписание…</div>
-        </div>
-      </section>
-
-      <!-- КОНТАКТЫ -->
-      <section class="tp-section" data-section-contacts hidden>
-        <h2 class="tp-section__title">Контакты</h2>
-        <div class="tp-contacts">
-          <a class="tp-contact" data-contact-phone hidden>
-            <span class="tp-contact__icon">📞</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-telegram hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">✈️</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-whatsapp hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">💬</span>
-            <span class="tp-contact__value"></span>
-          </a>
-          <a class="tp-contact" data-contact-link hidden target="_blank" rel="noopener">
-            <span class="tp-contact__icon">🔗</span>
-            <span class="tp-contact__value"></span>
-          </a>
         </div>
       </section>
 
@@ -133,20 +153,16 @@
     <div class="modal__panel">
       <div class="pay">
         <div class="pay__title">Заявка на место</div>
-
         <div class="pay__lesson">
           <div class="pay__row"><span class="pay__row-label">Репетитор</span><span class="pay__row-value" data-request-teacher>—</span></div>
           <div class="pay__row"><span class="pay__row-label">Предмет</span><span class="pay__row-value" data-request-subject>—</span></div>
           <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-time>—</span></div>
           <div class="pay__row"><span class="pay__row-label">Цена</span><span class="pay__row-value" data-request-price>—</span></div>
         </div>
-
         <div class="pay__free-note">
           Репетитор подтвердит заявку. Уведомление придёт в колокольчик.
         </div>
-
         <div class="auth-form__error" data-request-error></div>
-
         <button class="btn btn--primary btn--lg" style="width:100%;" data-request-send>
           Отправить заявку
         </button>
@@ -194,7 +210,7 @@
       </div>
       <div class="footer__bottom">
         <span>© 2026 Школа Кузнечевского</span>
-        <span>Бесплатно для всех · без комиссий</span>
+        <span>Бесплатно для всех</span>
       </div>
     </div>
   </footer>
