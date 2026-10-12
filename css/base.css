@@ -19,6 +19,7 @@
   --busy-dim: rgba(90, 58, 58, 0.15);
   --red: #F87171;
   --green: #4ADE80;
+  --yellow: #FFD34E;
 
   --font-display: 'Unbounded', sans-serif;
   --font-body: 'Manrope', system-ui, sans-serif;
@@ -373,6 +374,21 @@ img { max-width: 100%; display: block; }
 
 .icon--lg { width: 32px; height: 32px; stroke-width: 1.2; }
 .icon--sm { width: 16px; height: 16px; }
+
+/* ЦВЕТА КАБИНЕТОВ */
+/* ученик — синий */
+.page-student {
+  --cabinet-accent: #4EA8E8;
+  --cabinet-accent-dim: rgba(78, 168, 232, 0.12);
+  --cabinet-accent-glow: rgba(78, 168, 232, 0.3);
+}
+
+/* учитель — фиолетовый */
+.page-teacher {
+  --cabinet-accent: #E84EC6;
+  --cabinet-accent-dim: rgba(232, 78, 198, 0.12);
+  --cabinet-accent-glow: rgba(232, 78, 198, 0.3);
+}
 
 @media (max-width: 1024px) { .grid--3 { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 680px) {
