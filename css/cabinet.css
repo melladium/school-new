@@ -23,7 +23,7 @@
 }
 .cabinet__lead { color: var(--text-dim); font-size: 17px; }
 
-/* USER BADGE (в шапке кабинета) */
+/* USER BADGE */
 .nav__user-badge {
   display: flex; align-items: center; gap: 10px;
   padding: 6px 14px 6px 6px; border: 1px solid var(--border-strong);
@@ -226,10 +226,6 @@
   gap: 12px; background: var(--surface-1); border: 1px solid var(--border);
   border-radius: var(--radius-lg); padding: 20px;
 }
-.week-board--compact {
-  padding: 14px;
-  gap: 8px;
-}
 .week-board__loading {
   grid-column: 1 / -1; text-align: center; padding: 40px 0;
   color: var(--text-mute); font-family: var(--font-mono); font-size: 13px;
@@ -239,10 +235,6 @@
   font-family: var(--font-mono); font-size: 11px; color: var(--text-mute);
   text-transform: uppercase; letter-spacing: 0.08em; text-align: center;
   padding: 10px 0; border-bottom: 1px solid var(--border);
-}
-.week-board--compact .week-day__head {
-  padding: 6px 0;
-  font-size: 10px;
 }
 .week-day__body {
   display: flex; flex-direction: column; gap: 6px; min-height: 80px;
@@ -260,9 +252,6 @@
   display: flex; flex-direction: column; gap: 4px; min-width: 0;
   animation: weekCellIn 0.7s var(--ease-spring);
 }
-.week-board--compact .week-cell {
-  padding: 7px 9px;
-}
 .week-cell.is-clickable { cursor: pointer; }
 .week-cell.is-clickable:hover { transform: translateY(-3px); }
 @keyframes weekCellIn {
@@ -273,15 +262,9 @@
   font-family: var(--font-mono); font-size: 13px; font-weight: 600;
   color: var(--text); line-height: 1;
 }
-.week-board--compact .week-cell__time {
-  font-size: 11px;
-}
 .week-cell__status {
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em;
   font-weight: 600; font-family: var(--font-mono); color: var(--text-dim);
-}
-.week-board--compact .week-cell__status {
-  font-size: 9px;
 }
 .week-cell__note {
   font-size: 11px; color: var(--text-mute); overflow: hidden;
