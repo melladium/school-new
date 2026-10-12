@@ -72,8 +72,7 @@
   if (glow && !prefersReducedMotion && isFinePointer) {
     let gx = 0, gy = 0, tx = 0, ty = 0;
     document.addEventListener('mousemove', (e) => {
-      tx = e.clientX;
-      ty = e.clientY;
+      tx = e.clientX; ty = e.clientY;
       glow.classList.add('is-active');
     });
     document.addEventListener('mouseleave', () => glow.classList.remove('is-active'));
@@ -88,6 +87,7 @@
   function initMagnetic() {
     if (prefersReducedMotion || !isFinePointer) return;
     document.querySelectorAll('[data-magnetic]').forEach(btn => {
+      if (btn.closest('.teacher-card')) return;
       if (btn.dataset.magneticBound) return;
       btn.dataset.magneticBound = '1';
       btn.addEventListener('mousemove', (e) => {
@@ -134,7 +134,7 @@
       : `<div class="teacher-card__avatar">${initials}</div>`;
 
     return `
-      <a class="teacher-card reveal" href="teacher.html?id=${t.id}" data-teacher-id="${t.id}">
+      <a class="teacher-card reveal" href="teacher.html?id=${t.id}">
         <div class="teacher-card__head">
           ${avatarHtml}
           <div>
@@ -162,10 +162,7 @@
         .eq('is_active', true)
         .order('rating', { ascending: false });
 
-      if (error || !teacherRows || !teacherRows.length) {
-        window.TEACHERS = [];
-        return [];
-      }
+      if (error || !teacherRows || !teacherRows.length) { window.TEACHERS = []; return []; }
 
       const ids = teacherRows.map(t => t.id);
 
@@ -176,7 +173,6 @@
 
       const profilesMap = {};
       (profilesRes.data || []).forEach(p => profilesMap[p.id] = p);
-
       const slotsMap = {};
       (slotsRes.data || []).forEach(s => {
         if (!slotsMap[s.teacher_id]) slotsMap[s.teacher_id] = [];
@@ -187,7 +183,6 @@
         math: 'Математика', english: 'Английский', physics: 'Физика',
         russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
       };
-
       const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 
       const result = teacherRows.map(t => {
@@ -197,7 +192,6 @@
           time: (s.time || '').slice(0, 5),
           free: true
         }));
-
         return {
           id: t.id,
           name: profile.name || 'Репетитор',
@@ -247,9 +241,7 @@
       goalChips.innerHTML = '<span style="color:var(--text-mute);font-size:14px;">Сначала выберите предмет</span>';
       return;
     }
-    goalChips.innerHTML = goals.map(g =>
-      `<button class="chip" data-value="${g.value}">${g.label}</button>`
-    ).join('');
+    goalChips.innerHTML = goals.map(g => `<button class="chip" data-value="${g.value}">${g.label}</button>`).join('');
   }
 
   const podborRoot = document.querySelector('.podbor');
@@ -260,7 +252,6 @@
       const group = chip.closest('.chips');
       if (!group) return;
       const field = group.dataset.field;
-
       group.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
       chip.classList.add('is-active');
 
@@ -290,10 +281,7 @@
   function shakeChips(selector) {
     const chips = document.querySelectorAll(selector + ' .chip');
     if (!chips.length) return;
-    chips.forEach(c => {
-      c.classList.add('is-shake');
-      setTimeout(() => c.classList.remove('is-shake'), 400);
-    });
+    chips.forEach(c => { c.classList.add('is-shake'); setTimeout(() => c.classList.remove('is-shake'), 400); });
   }
 
   if (podborBack) {
@@ -314,23 +302,16 @@
         shakeChips('.podbor [data-field="goal"]');
         return;
       }
-      if (podborState.step < 3) {
-        podborState.step++;
-        updatePodborUI();
-      } else {
-        await runPodbor();
-      }
+      if (podborState.step < 3) { podborState.step++; updatePodborUI(); }
+      else { await runPodbor(); }
     });
   }
 
   async function runPodbor() {
     if (!podborGrid) return;
-    podborNext.disabled = true;
-    podborNext.textContent = 'Ищем…';
-
+    podborNext.disabled = true; podborNext.textContent = 'Ищем…';
     const all = await loadTeachersFromDB();
     let list = [...all];
-
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.budget && podborState.budget !== 'any') {
       const max = +podborState.budget;
@@ -350,13 +331,9 @@
         return rule.includes(s.time);
       }));
     }
-
     list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     list = list.slice(0, 3);
-
-    podborNext.disabled = false;
-    podborNext.textContent = 'Показать репетиторов';
-
+    podborNext.disabled = false; podborNext.textContent = 'Показать репетиторов';
     if (!list.length) {
       podborGrid.innerHTML = `
         <div class="empty-state">
@@ -368,7 +345,6 @@
     } else {
       podborGrid.innerHTML = list.map(teacherCard).join('');
     }
-
     podborCard.style.display = 'none';
     podborResults.hidden = false;
     podborResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -378,28 +354,19 @@
 
   if (podborReset) {
     podborReset.addEventListener('click', () => {
-      podborState.step = 1;
-      podborState.subject = null;
-      podborState.goal = null;
-      podborState.time = null;
-      podborState.budget = null;
+      podborState.step = 1; podborState.subject = null;
+      podborState.goal = null; podborState.time = null; podborState.budget = null;
       document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
       if (hintSubject) hintSubject.hidden = true;
       if (hintGoal) hintGoal.hidden = true;
-      podborCard.style.display = '';
-      podborResults.hidden = true;
-      renderGoalChips();
-      updatePodborUI();
+      podborCard.style.display = ''; podborResults.hidden = true;
+      renderGoalChips(); updatePodborUI();
       document.querySelector('#podbor').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
-  renderGoalChips();
-  updatePodborUI();
-  observeReveals();
-  initMagnetic();
+  renderGoalChips(); updatePodborUI(); observeReveals(); initMagnetic();
 
-  /* BURGER */
   const burger = document.querySelector('.nav__burger');
   if (burger) {
     burger.addEventListener('click', () => {
@@ -419,10 +386,8 @@
     });
   }
 
-  /* AUTH HEADER — имя + аватар → дропдаун */
   async function initAuthHeader() {
     if (!window.authAPI) return;
-
     const current = await window.authAPI.getCurrentUser();
     if (!current) return;
 
@@ -446,7 +411,6 @@
     if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
     if (avatarEl) avatarEl.textContent = initials;
     if (cabinetLink) cabinetLink.href = cabinetHref;
-
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
     if (trigger && dropdown) {
@@ -455,9 +419,7 @@
         dropdown.hidden = !dropdown.hidden;
       });
       document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
-          dropdown.hidden = true;
-        }
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) dropdown.hidden = true;
       });
     }
   }
