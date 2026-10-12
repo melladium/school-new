@@ -1,482 +1,340 @@
-(function () {
-  'use strict';
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Кабинет репетитора — Школа Кузнечевского</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/cabinet.css">
+  <link rel="stylesheet" href="css/mobile.css">
+</head>
+<body class="page-teacher">
 
-  let currentUser = null;
-  let selectedBooking = null;
-  let selectedRating = 0;
-  let reviewedTeacherIds = new Set();
+  <div class="cursor-glow" data-cursor-glow></div>
 
-  let personalMap = {};
-  let personalEditingKey = null;
-
-  const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-  const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
-  const HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
-
-  const SUBJECT_LABELS = {
-    math: 'Математика', english: 'Английский', physics: 'Физика',
-    russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
-  };
-  const STATUS_LABELS = {
-    pending: 'Ожидает',
-    approved: 'Одобрена',
-    rejected: 'Отклонена',
-    cancelled: 'Отменена'
-  };
-
-  function cellDateTime(weekday, time) {
-    const now = new Date();
-    const [hh, mm] = (time || '00:00').split(':').map(Number);
-    const currentDay = now.getDay();
-    let diff = weekday - currentDay;
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
-    d.setDate(d.getDate() + diff);
-    if (diff === 0 && d.getTime() < now.getTime()) d.setDate(d.getDate() + 7);
-    if (diff < 0) d.setDate(d.getDate() + 7);
-    return d;
-  }
-
-  function isPast(weekday, time) {
-    return cellDateTime(weekday, time).getTime() < Date.now();
-  }
-
-  async function init() {
-    currentUser = await window.authAPI.requireAuth('student');
-    if (!currentUser) return;
-
-    const nameEl = document.querySelector('[data-user-name]');
-    if (nameEl) nameEl.textContent = currentUser.profile.name || currentUser.profile.email;
-
-    const initials = (currentUser.profile.name || 'У')
-      .split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    const avatarEl = document.querySelector('[data-user-avatar]');
-    if (avatarEl) avatarEl.textContent = initials;
-
-    const logoutBtn = document.querySelector('[data-logout]');
-    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
-
-    const deleteBtn = document.querySelector('[data-delete-account]');
-    if (deleteBtn) deleteBtn.addEventListener('click', deleteAccount);
-
-    initBurger();
-    initNotifications();
-    initReviewModal();
-    initPersonalBoard();
-
-    await Promise.all([
-      loadReviewedTeachers(),
-      loadBookings()
-    ]);
-  }
-
-  function initBurger() {
-    const burger = document.querySelector('.nav__burger');
-    const mobileMenu = document.querySelector('[data-nav-mobile]');
-    if (burger && mobileMenu) {
-      burger.addEventListener('click', () => {
-        mobileMenu.hidden = !mobileMenu.hidden;
-        burger.classList.toggle('is-active', !mobileMenu.hidden);
-      });
-    }
-    const logoutMobile = document.querySelector('[data-logout-mobile]');
-    if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
-  }
-
-  function initNotifications() {
-    const bell = document.querySelector('[data-notif-bell]');
-    const panel = document.querySelector('[data-notif-panel]');
-    if (!bell || !panel) return;
-
-    bell.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      panel.hidden = !panel.hidden;
-      if (!panel.hidden) await renderNotifications();
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!panel.contains(e.target) && !bell.contains(e.target)) panel.hidden = true;
-    });
-
-    loadUnreadCount();
-  }
-
-  async function loadUnreadCount() {
-    const countEl = document.querySelector('[data-notif-count]');
-    if (!countEl) return;
-    const { count } = await window.supabaseClient
-      .from('notifications')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', currentUser.user.id)
-      .eq('read', false);
-    if (count && count > 0) { countEl.textContent = count; countEl.hidden = false; }
-    else { countEl.hidden = true; }
-  }
-
-  async function renderNotifications() {
-    const panel = document.querySelector('[data-notif-panel]');
-    if (!panel) return;
-    const { data } = await window.supabaseClient
-      .from('notifications')
-      .select('id, text, link, read, created_at')
-      .eq('user_id', currentUser.user.id)
-      .order('created_at', { ascending: false })
-      .limit(20);
-
-    if (!data || !data.length) { panel.innerHTML = '<div class="notif-empty">Пока нет уведомлений</div>'; return; }
-
-    panel.innerHTML = data.map(n => `
-      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link || ''}">
-        ${n.text}
-        <span class="notif-item__time">${formatTime(n.created_at)}</span>
+  <header class="nav is-scrolled">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+      <nav class="nav__links">
+        <a href="index.html">Главная</a>
+        <a href="cabinet-teacher.html" class="is-current">Кабинет</a>
+      </nav>
+      <div class="nav__actions">
+        <a href="index.html" class="btn btn--ghost">Главная</a>
       </div>
-    `).join('');
+      <div class="nav__user-badge" style="cursor:default;">
+        <span class="nav__user-avatar" data-user-avatar>?</span>
+      </div>
+      <button class="nav__burger" aria-label="Меню">
+        <span></span><span></span>
+      </button>
+    </div>
+    <nav class="nav__mobile" data-nav-mobile hidden>
+      <a href="index.html">Главная</a>
+      <a href="cabinet-teacher.html" class="is-current">Кабинет</a>
+      <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
+    </nav>
+  </header>
 
-    panel.querySelectorAll('[data-notif-id]').forEach(item => {
-      item.addEventListener('click', async () => {
-        await window.supabaseClient.from('notifications').update({ read: true }).eq('id', item.dataset.notifId);
-        if (item.dataset.link) window.location.href = item.dataset.link;
-        else await renderNotifications();
-      });
-    });
-  }
+  <main class="cabinet">
+    <div class="cabinet__grid"></div>
 
-  function formatTime(iso) {
-    const d = new Date(iso);
-    const now = new Date();
-    const diff = Math.floor((now - d) / 1000);
-    if (diff < 60) return 'только что';
-    if (diff < 3600) return Math.floor(diff / 60) + ' мин назад';
-    if (diff < 86400) return Math.floor(diff / 3600) + ' ч назад';
-    return d.getDate() + '.' + (d.getMonth() + 1);
-  }
+    <div class="container cabinet__inner">
+      <div class="cabinet__head">
+        <div class="cabinet__eyebrow">Кабинет репетитора</div>
+        <h1 class="cabinet__title">Расписание и заявки</h1>
+        <p class="cabinet__lead">Управляйте расписанием, видьте заявки, редактируйте профиль</p>
+      </div>
 
-  async function loadReviewedTeachers() {
-    const { data } = await window.supabaseClient
-      .from('reviews').select('teacher_id').eq('student_id', currentUser.user.id);
-    reviewedTeacherIds = new Set((data || []).map(r => r.teacher_id));
-  }
-
-  async function loadBookings() {
-    const listEl = document.querySelector('[data-bookings-list]');
-    if (!listEl) return;
-
-    listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
-
-    const { data, error } = await window.supabaseClient
-      .from('booking_requests')
-      .select('id, status, weekday, time, teacher_id, created_at')
-      .eq('student_id', currentUser.user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      listEl.innerHTML = `<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">${error.message}</div></div>`;
-      return;
-    }
-
-    if (!data.length) {
-      listEl.innerHTML = `
-        <div class="cabinet__empty">
-          <div class="cabinet__empty-icon">📅</div>
-          <div class="cabinet__empty-title">Пока пусто</div>
-          <div class="cabinet__empty-desc">Найдите репетитора в автоподборе и оставьте первую заявку</div>
-          <a href="index.html#podbor" class="btn btn--primary">К репетиторам</a>
+      <div class="cabinet__stats">
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="slots">0</div>
+          <div class="cabinet-stat__label">Ячеек в расписании</div>
         </div>
-      `;
-      return;
-    }
-
-    const teacherIds = [...new Set(data.map(b => b.teacher_id).filter(Boolean))];
-
-    const [profilesRes, teachersRes] = await Promise.all([
-      teacherIds.length
-        ? window.supabaseClient.from('profiles').select('id, name').in('id', teacherIds)
-        : Promise.resolve({ data: [] }),
-      teacherIds.length
-        ? window.supabaseClient.from('teachers').select('id, subject, avatar_url').in('id', teacherIds)
-        : Promise.resolve({ data: [] })
-    ]);
-
-    const profilesMap = {};
-    (profilesRes.data || []).forEach(p => profilesMap[p.id] = p);
-    const teachersMap = {};
-    (teachersRes.data || []).forEach(t => teachersMap[t.id] = t);
-
-    const rows = data.map(b => {
-      const t = teachersMap[b.teacher_id] || {};
-      const p = profilesMap[b.teacher_id] || {};
-      return {
-        ...b,
-        teacherName: p.name || 'Репетитор',
-        teacherSubject: SUBJECT_LABELS[t.subject] || t.subject || '',
-        teacherAvatar: t.avatar_url || ''
-      };
-    });
-
-    listEl.innerHTML = rows.map(b => renderBookingRow(b)).join('');
-
-    listEl.querySelectorAll('[data-review-open]').forEach(btn => {
-      btn.addEventListener('click', () => openReviewModal(btn.dataset.reviewOpen, btn.dataset.teacherName));
-    });
-
-    listEl.querySelectorAll('[data-delete-booking]').forEach(btn => {
-      btn.addEventListener('click', () => deleteBooking(btn.dataset.deleteBooking));
-    });
-  }
-
-  function renderBookingRow(b) {
-    const statusLabel = STATUS_LABELS[b.status] || b.status;
-    const dateLabel = `${DAYS[b.weekday]} · ${b.time}`;
-    const initials = (b.teacherName || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-    const avatarHtml = b.teacherAvatar
-      ? `<div class="booking-row__avatar" style="overflow:hidden;padding:0;"><img src="${b.teacherAvatar}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
-      : `<div class="booking-row__avatar">${initials}</div>`;
-
-    const isDone = b.status === 'approved' && isPast(b.weekday, b.time);
-    const canReview = isDone && !reviewedTeacherIds.has(b.teacher_id);
-
-    return `
-      <div class="booking-row">
-        ${avatarHtml}
-        <div class="booking-row__date">${dateLabel}</div>
-        <div class="booking-row__info">
-          <div class="booking-row__name">${b.teacherName}</div>
-          <div class="booking-row__subject">${b.teacherSubject || 'Заявка на место'}</div>
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="bookings">0</div>
+          <div class="cabinet-stat__label">Активных заявок</div>
         </div>
-        <div class="booking-row__status booking-row__status--${b.status}">${statusLabel}</div>
-        <div class="booking-row__actions">
-          ${canReview ? `<button class="btn btn--primary btn--sm" data-review-open="${b.teacher_id}" data-teacher-name="${b.teacherName}">Оставить отзыв</button>` : ''}
-          <button class="btn btn--ghost btn--sm booking-row__delete" data-delete-booking="${b.id}" title="Удалить заявку">✕</button>
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="rating">—</div>
+          <div class="cabinet-stat__label">Рейтинг</div>
         </div>
       </div>
-    `;
-  }
 
-  async function deleteBooking(id) {
-    if (!confirm('Удалить заявку?')) return;
-    const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
-    if (error) { alert('Ошибка: ' + error.message); return; }
-    await loadBookings();
-  }
+      <div class="cabinet__section">
+        <div class="cabinet__section-head">
+          <h2 class="cabinet__section-title">Мой профиль</h2>
+          <button class="btn btn--ghost" data-toggle-profile>Редактировать</button>
+        </div>
 
-  function initReviewModal() {
-    const modal = document.querySelector('[data-modal="review"]');
-    if (!modal) return;
-    modal.querySelectorAll('[data-modal-close]').forEach(el => el.addEventListener('click', closeReviewModal));
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeReviewModal(); });
-    modal.querySelectorAll('[data-star]').forEach(btn => {
-      btn.addEventListener('click', () => { selectedRating = parseInt(btn.dataset.star, 10); paintStars(selectedRating); });
-    });
-    const saveBtn = modal.querySelector('[data-review-save]');
-    if (saveBtn) saveBtn.addEventListener('click', submitReview);
-  }
+        <div data-profile-view class="profile-grid">
+          <div class="profile-item profile-item--full" style="flex-direction:row;align-items:center;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+            <div data-profile-avatar style="width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">—</div>
+            <div>
+              <div data-profile-name style="font-family:var(--font-display);font-size:20px;font-weight:500;margin-bottom:4px;">—</div>
+              <div data-profile-email style="color:var(--text-dim);font-size:14px;">—</div>
+            </div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Предмет</div>
+            <div class="profile-item__value" data-profile-subject>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Цена за урок</div>
+            <div class="profile-item__value" data-profile-price>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Телефон</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-phone>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Telegram</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-telegram>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">WhatsApp</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-whatsapp>—</div>
+          </div>
+          <div class="profile-item">
+            <div class="profile-item__label">Ссылка на урок</div>
+            <div class="profile-item__value profile-item__value--dim" data-profile-link>—</div>
+          </div>
+          <div class="profile-item profile-item--full" style="padding-top:14px;border-top:1px solid var(--border);">
+            <div class="profile-item__label">О себе</div>
+            <div class="profile-item__value" data-profile-bio>—</div>
+          </div>
+        </div>
 
-  function paintStars(n) {
-    document.querySelectorAll('[data-star]').forEach(btn => {
-      const val = parseInt(btn.dataset.star, 10);
-      btn.style.color = val <= n ? 'var(--accent)' : 'var(--text-mute)';
-      btn.style.borderColor = val <= n ? 'var(--accent)' : 'var(--border-strong)';
-    });
-  }
+        <div data-profile-edit hidden style="background:var(--surface-1);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;margin-top:16px;">
+          <div class="field" style="margin-bottom:14px;">
+            <label>Главное фото (аватар)</label>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div data-avatar-preview style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">👤</div>
+              <div>
+                <input type="file" accept="image/*" data-avatar-input style="display:none;">
+                <button type="button" class="btn btn--ghost" data-avatar-button>Загрузить фото</button>
+                <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 2 МБ.</div>
+              </div>
+            </div>
+          </div>
 
-  function openReviewModal(teacherId, teacherName) {
-    const modal = document.querySelector('[data-modal="review"]');
-    if (!modal) return;
-    selectedBooking = { teacherId, teacherName };
-    selectedRating = 0;
-    paintStars(0);
-    const textEl = modal.querySelector('[data-review-text]');
-    if (textEl) textEl.value = '';
-    const errEl = modal.querySelector('[data-review-error]');
-    if (errEl) errEl.textContent = '';
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-  }
+          <div class="field" style="margin-bottom:14px;">
+            <label>Фото достижений (портфолио)</label>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div data-portfolio-preview style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">🖼</div>
+              <div>
+                <input type="file" accept="image/*" data-portfolio-input style="display:none;">
+                <button type="button" class="btn btn--ghost" data-portfolio-button>Загрузить фото</button>
+                <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
+              </div>
+            </div>
+          </div>
 
-  function closeReviewModal() {
-    const modal = document.querySelector('[data-modal="review"]');
-    if (!modal) return;
-    modal.hidden = true;
-    document.body.style.overflow = '';
-    selectedBooking = null;
-    selectedRating = 0;
-  }
+          <div class="field" style="margin-bottom:14px;">
+            <label>Предмет</label>
+            <select data-edit-subject>
+              <option value="math">Математика</option>
+              <option value="english">Английский</option>
+              <option value="physics">Физика</option>
+              <option value="russian">Русский</option>
+              <option value="chemistry">Химия</option>
+              <option value="it">Информатика</option>
+            </select>
+          </div>
 
-  async function submitReview() {
-    const modal = document.querySelector('[data-modal="review"]');
-    if (!modal || !selectedBooking) return;
-    const errEl = modal.querySelector('[data-review-error]');
-    const saveBtn = modal.querySelector('[data-review-save]');
-    const textEl = modal.querySelector('[data-review-text]');
-    errEl.textContent = '';
-    if (selectedRating < 1 || selectedRating > 5) { errEl.textContent = 'Поставьте оценку от 1 до 5'; return; }
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Отправляем…';
-    const text = (textEl.value || '').trim();
+          <div class="field" style="margin-bottom:14px;">
+            <label>Цена за урок (₽)</label>
+            <input type="number" min="0" step="100" data-edit-price placeholder="1000">
+          </div>
 
-    const { error } = await window.supabaseClient.from('reviews').insert({
-      teacher_id: selectedBooking.teacherId,
-      student_id: currentUser.user.id,
-      rating: selectedRating,
-      text: text
-    });
+          <div class="field" style="margin-bottom:14px;">
+            <label>Телефон</label>
+            <input type="tel" data-edit-phone placeholder="+7 999 123-45-67">
+          </div>
 
-    if (error) { errEl.textContent = 'Ошибка: ' + error.message; saveBtn.disabled = false; saveBtn.textContent = 'Отправить отзыв'; return; }
+          <div class="field" style="margin-bottom:14px;">
+            <label>Telegram</label>
+            <input type="text" data-edit-telegram placeholder="@username">
+          </div>
 
-    await window.supabaseClient.from('notifications').insert({
-      user_id: selectedBooking.teacherId,
-      type: 'review',
-      text: 'Новый отзыв: ★ ' + selectedRating,
-      link: 'cabinet-teacher.html'
-    });
+          <div class="field" style="margin-bottom:14px;">
+            <label>WhatsApp</label>
+            <input type="tel" data-edit-whatsapp placeholder="+7 999 123-45-67">
+          </div>
 
-    await recalcTeacherRating(selectedBooking.teacherId);
-    saveBtn.disabled = false;
-    saveBtn.textContent = 'Отправить отзыв';
-    closeReviewModal();
-    reviewedTeacherIds.add(selectedBooking.teacherId);
-    await loadBookings();
-  }
+          <div class="field" style="margin-bottom:14px;">
+            <label>Ссылка на урок (Телемост / Zoom / Meet)</label>
+            <input type="url" data-edit-link placeholder="https://telemost.yandex.ru/j/...">
+          </div>
 
-  async function recalcTeacherRating(teacherId) {
-    const { data } = await window.supabaseClient.from('reviews').select('rating').eq('teacher_id', teacherId);
-    const list = data || [];
-    const count = list.length;
-    const avg = count ? Math.round((list.reduce((s, r) => s + (r.rating || 0), 0) / count) * 10) / 10 : 0;
-    await window.supabaseClient.from('teachers').update({ rating: avg, reviews_count: count }).eq('id', teacherId);
-  }
+          <div class="field" style="margin-bottom:14px;">
+            <label>О себе</label>
+            <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат. 8 лет готовлю к ОГЭ и ЕГЭ..."></textarea>
+          </div>
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ УЧЕНИКА */
-  function initPersonalBoard() {
-    const toggleBtn = document.querySelector('[data-toggle-personal-student]');
-    const wrap = document.querySelector('[data-personal-student-wrap]');
-    if (toggleBtn && wrap) {
-      toggleBtn.addEventListener('click', async () => {
-        wrap.hidden = !wrap.hidden;
-        toggleBtn.textContent = wrap.hidden ? 'Развернуть' : 'Свернуть';
-        if (!wrap.hidden) { await loadPersonal(); renderPersonalBoard(); }
-      });
-    }
+          <div class="auth-form__error" data-profile-error></div>
 
-    const modal = document.querySelector('[data-modal="personal-student-cell"]');
-    if (!modal) return;
-    modal.querySelectorAll('[data-modal-close]').forEach(el => el.addEventListener('click', () => {
-      modal.hidden = true; document.body.style.overflow = '';
-    }));
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--primary" data-profile-save>Сохранить</button>
+            <button class="btn btn--ghost" data-profile-cancel>Отмена</button>
+          </div>
+        </div>
+      </div>
 
-    const saveBtn = modal.querySelector('[data-personal-student-save]');
-    const clearBtn = modal.querySelector('[data-personal-student-clear]');
-    const textInput = modal.querySelector('[data-personal-student-text]');
+      <div class="cabinet__section">
+        <div class="cabinet__section-head">
+          <h2 class="cabinet__section-title">Расписание для учеников</h2>
+          <button class="btn btn--primary" data-add-cell>+ Добавить ячейку</button>
+        </div>
 
-    if (saveBtn) {
-      saveBtn.addEventListener('click', async () => {
-        if (!personalEditingKey) return;
-        const errorEl = modal.querySelector('[data-personal-student-error]');
-        const [day, time] = personalEditingKey.split('|');
-        const text = textInput.value.trim();
-        errorEl.textContent = '';
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Сохраняем…';
+        <div class="info-panel">
+          <div class="info-panel__title">Что это и как работает</div>
+          <ul class="info-panel__list">
+            <li>Эти ячейки <strong>видят ученики</strong> в вашей анкете.</li>
+            <li><span class="dot dot--free"></span> <strong>Свободно</strong> — ученик может нажать и оставить заявку.</li>
+            <li><span class="dot dot--busy"></span> <strong>Занято</strong> — время забронировано, ученик заявку не оставит.</li>
+            <li><span class="dot dot--off"></span> <strong>Не работает</strong> — вы в это время недоступны.</li>
+            <li>Нажмите <strong>«+ Добавить ячейку»</strong>, выберите день, время и статус.</li>
+            <li>Нажмите на <strong>готовую ячейку</strong>, чтобы изменить её или удалить.</li>
+          </ul>
+        </div>
 
-        const { error } = await window.supabaseClient
-          .from('personal_schedule_student')
-          .upsert({
-            student_id: currentUser.user.id,
-            weekday: parseInt(day, 10),
-            time: time,
-            text_content: text
-          }, { onConflict: 'student_id,weekday,time' });
+        <div class="week-board" data-week-board>
+          <div class="week-board__loading">Загружаем…</div>
+        </div>
+      </div>
 
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Сохранить';
-        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        personalEditingKey = null;
-        await loadPersonal();
-        renderPersonalBoard();
-      });
-    }
+      <div class="cabinet__section">
+        <div class="cabinet__section-head">
+          <h2 class="cabinet__section-title">Моё личное расписание</h2>
+          <button class="btn btn--ghost" data-toggle-personal>Развернуть</button>
+        </div>
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', async () => {
-        if (!personalEditingKey) return;
-        const [day, time] = personalEditingKey.split('|');
-        await window.supabaseClient
-          .from('personal_schedule_student')
-          .delete()
-          .eq('student_id', currentUser.user.id)
-          .eq('weekday', parseInt(day, 10))
-          .eq('time', time);
-        modal.hidden = true;
-        document.body.style.overflow = '';
-        personalEditingKey = null;
-        await loadPersonal();
-        renderPersonalBoard();
-      });
-    }
-  }
+        <div class="info-panel">
+          <div class="info-panel__title">Что это и как работает</div>
+          <ul class="info-panel__list">
+            <li>Это <strong>только для вас</strong>. Ученики этого не видят.</li>
+            <li>Большая таблица Пн–Вс × 09:00–21:00 — как ежедневник.</li>
+            <li>Кликните по любой клетке и впишите до 70 символов: имя ученика, ссылку на звонок, заметку.</li>
+            <li>Чтобы стереть — откройте клетку и нажмите «Очистить».</li>
+          </ul>
+        </div>
 
-  async function loadPersonal() {
-    personalMap = {};
-    const { data, error } = await window.supabaseClient
-      .from('personal_schedule_student')
-      .select('weekday, time, text_content')
-      .eq('student_id', currentUser.user.id);
-    if (error) return;
-    (data || []).forEach(item => { personalMap[item.weekday + '|' + item.time] = item.text_content || ''; });
-  }
+        <div class="personal-board-wrap" data-personal-wrap hidden>
+          <div class="personal-board" data-personal-board>
+            <div class="schedule-grid__loading">Загружаем…</div>
+          </div>
+        </div>
+      </div>
 
-  function renderPersonalBoard() {
-    const board = document.querySelector('[data-personal-student-board]');
-    if (!board) return;
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Заявки на место</h2>
+        <div class="cabinet__list" data-bookings-list>
+          <div class="cabinet__empty">
+            <div class="cabinet__empty-icon">📩</div>
+            <div class="cabinet__empty-title">Заявок пока нет</div>
+            <div class="cabinet__empty-desc">Когда ученик попросит место в расписании — заявка появится здесь</div>
+          </div>
+        </div>
+      </div>
 
-    let html = '<div class="schedule-table">';
-    html += '<div class="schedule-table__head"></div>';
-    DAY_ORDER.forEach(d => { html += `<div class="schedule-table__head">${DAYS[d]}</div>`; });
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Опасная зона</h2>
+        <div class="danger-zone">
+          <p class="danger-zone__text">
+            Скрытие анкеты убирает вас из автоподбора. Ученики перестанут вас видеть, но история сохранится.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--ghost" data-toggle-visibility>Скрыть анкету</button>
+            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
+            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-    HOURS.forEach(hour => {
-      html += `<div class="schedule-table__time">${hour}</div>`;
-      DAY_ORDER.forEach(d => {
-        const key = d + '|' + hour;
-        const text = personalMap[key] || '';
-        const cls = text ? 'is-active' : '';
-        html += `<div class="schedule-cell ${cls}" data-day="${d}" data-time="${hour}" title="${text}">${text}</div>`;
-      });
-    });
-    html += '</div>';
-    board.innerHTML = html;
+  <div class="modal" data-modal="cell-edit" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__title" data-cell-title>Новая ячейка</div>
 
-    board.querySelectorAll('.schedule-cell').forEach(cell => {
-      cell.addEventListener('click', () => openPersonalCellModal(cell));
-    });
-  }
+        <div class="field" style="margin-bottom:14px;">
+          <label>День недели</label>
+          <select data-cell-day>
+            <option value="1">Понедельник</option>
+            <option value="2">Вторник</option>
+            <option value="3">Среда</option>
+            <option value="4">Четверг</option>
+            <option value="5">Пятница</option>
+            <option value="6">Суббота</option>
+            <option value="0">Воскресенье</option>
+          </select>
+        </div>
 
-  function openPersonalCellModal(cell) {
-    const modal = document.querySelector('[data-modal="personal-student-cell"]');
-    if (!modal) return;
-    const day = parseInt(cell.dataset.day, 10);
-    const time = cell.dataset.time;
-    personalEditingKey = day + '|' + time;
-    const label = modal.querySelector('[data-personal-student-label]');
-    if (label) label.textContent = DAYS[day] + ' · ' + time;
-    const textInput = modal.querySelector('[data-personal-student-text]');
-    if (textInput) textInput.value = personalMap[personalEditingKey] || '';
-    const errorEl = modal.querySelector('[data-personal-student-error]');
-    if (errorEl) errorEl.textContent = '';
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => textInput && textInput.focus(), 150);
-  }
+        <div class="field" style="margin-bottom:14px;">
+          <label>Время</label>
+          <input type="time" data-cell-time>
+        </div>
 
-  async function deleteAccount() {
-    if (!confirm('Удалить аккаунт НАВСЕГДА? Все данные будут удалены. Это нельзя отменить.')) return;
-    if (!confirm('Точно? Это последнее предупреждение.')) return;
-    const { error } = await window.supabaseClient.rpc('delete_user');
-    if (error) { alert('Ошибка удаления: ' + error.message); return; }
-    alert('Аккаунт удалён. Сейчас вы выйдете.');
-    await window.authAPI.signOut();
-  }
+        <div class="field" style="margin-bottom:14px;">
+          <label>Статус</label>
+          <select data-cell-status>
+            <option value="free">Свободно — ученик может оставить заявку</option>
+            <option value="busy">Занято — время забронировано</option>
+            <option value="off">Не работает — вы недоступны</option>
+          </select>
+        </div>
 
-  document.addEventListener('DOMContentLoaded', init);
-})();
+        <div class="field" style="margin-bottom:14px;">
+          <label>Заметка для себя (необязательно)</label>
+          <input type="text" maxlength="70" data-cell-note placeholder="Например: Андрей, ссылка на звонок">
+          <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">Ученикам показывается только статус.</div>
+        </div>
+
+        <div class="auth-form__error" data-cell-error></div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn--primary" style="flex:1;" data-cell-save>Сохранить</button>
+          <button class="btn btn--ghost" data-cell-delete hidden>Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" data-modal="personal-cell" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__title">Личная заметка</div>
+
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);margin-bottom:16px;" data-personal-label>—</div>
+
+        <div class="field" style="margin-bottom:16px;">
+          <label>Текст (до 70 символов)</label>
+          <input type="text" maxlength="70" data-personal-text placeholder="Андрей, meet.google.com/abc">
+          <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">Видно только вам.</div>
+        </div>
+
+        <div class="auth-form__error" data-personal-error></div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn--primary" style="flex:1;" data-personal-save>Сохранить</button>
+          <button class="btn btn--ghost" data-personal-clear>Очистить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/libs/supabase.js"></script>
+  <script src="js/supabase-client.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cabinet-teacher.js"></script>
+</body>
+</html>
