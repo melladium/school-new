@@ -257,6 +257,19 @@
 .student-col-main { min-width: 0; }
 .student-col-side { min-width: 0; }
 
+/* Заголовки колонок на одной линии */
+.student-col-main .cabinet__section-head,
+.student-col-side .cabinet__section-head {
+  min-height: 40px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+.student-col-main .cabinet__section-title,
+.student-col-side .cabinet__section-title {
+  margin-bottom: 0;
+  font-size: 22px;
+}
+
 /* ============================================= */
 /* WEEK BOARD (публичное и личное у учителя)      */
 /* ============================================= */
@@ -347,7 +360,7 @@
 .week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
 
 /* ============================================= */
-/* ЛИЧНОЕ РАСПИСАНИЕ (таблица Пн–Вс × часы)       */
+/* ЛИЧНОЕ РАСПИСАНИЕ — таблица Пн–Вс × часы       */
 /* ============================================= */
 .personal-board-wrap {
   background: var(--surface-1); border: 1px solid var(--border);
