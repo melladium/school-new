@@ -40,7 +40,7 @@
   align-items: start;
 }
 
-/* CARD — общий контейнер */
+/* CARD */
 .tp-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -58,9 +58,7 @@
   flex-direction: column;
 }
 
-.tp-card--profile {
-  text-align: center;
-}
+.tp-card--profile { text-align: center; }
 
 .tp-sidebar__avatar {
   width: 128px;
@@ -244,7 +242,7 @@
 .tp-schedule .week-cell__time { font-size: 12px; }
 .tp-schedule .week-cell__status { font-size: 9px; }
 
-/* ДОСТИЖЕНИЯ — 2 фото в 2 колонки */
+/* ДОСТИЖЕНИЯ — 2 фото */
 .tp-portfolio {
   display: grid;
   gap: 12px;
