@@ -419,7 +419,7 @@
     });
   }
 
-  /* AUTH HEADER — имя + аватар → дропдаун */
+  /* AUTH HEADER — имя + аватар (клик → кабинет) + колокольчик */
   async function initAuthHeader() {
     if (!window.authAPI) return;
 
@@ -431,35 +431,93 @@
     const name = current.profile.name || current.profile.email || 'Профиль';
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
+    // Скрываем кнопки "Войти / Регистрация"
     const actions = document.querySelector('[data-nav-actions]');
     if (actions) actions.hidden = true;
 
+    // Показываем блок с именем/аватаром + колокольчиком
     const userMenu = document.querySelector('[data-user-menu]');
+    const link = document.querySelector('[data-user-link]');
     const nameEl = document.querySelector('[data-user-name]');
     const avatarEl = document.querySelector('[data-user-avatar]');
-    const cabinetLink = document.querySelector('[data-user-cabinet]');
-    const logoutBtn = document.querySelector('[data-user-logout]');
-    const trigger = document.querySelector('[data-user-trigger]');
-    const dropdown = document.querySelector('[data-user-dropdown]');
 
     if (userMenu) userMenu.hidden = false;
+    if (link) link.href = cabinetHref;
     if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
     if (avatarEl) avatarEl.textContent = initials;
-    if (cabinetLink) cabinetLink.href = cabinetHref;
 
-    if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
+    // Колокольчик
+    initNotifications(current.user.id);
+  }
 
-    if (trigger && dropdown) {
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.hidden = !dropdown.hidden;
-      });
-      document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
-          dropdown.hidden = true;
-        }
-      });
+  /* УВЕДОМЛЕНИЯ */
+  function initNotifications(userId) {
+    const bell = document.querySelector('[data-notif-bell]');
+    const panel = document.querySelector('[data-notif-panel]');
+    if (!bell || !panel) return;
+
+    bell.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) await renderNotifications(userId, panel);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!panel.contains(e.target) && !bell.contains(e.target)) panel.hidden = true;
+    });
+
+    loadUnreadCount(userId);
+  }
+
+  async function loadUnreadCount(userId) {
+    const countEl = document.querySelector('[data-notif-count]');
+    if (!countEl) return;
+    const { count } = await window.supabaseClient
+      .from('notifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('read', false);
+    if (count && count > 0) { countEl.textContent = count; countEl.hidden = false; }
+    else { countEl.hidden = true; }
+  }
+
+  async function renderNotifications(userId, panel) {
+    const { data } = await window.supabaseClient
+      .from('notifications')
+      .select('id, text, link, read, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+
+    if (!data || !data.length) {
+      panel.innerHTML = '<div class="notif-empty">Пока нет уведомлений</div>';
+      return;
     }
+
+    panel.innerHTML = data.map(n => `
+      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link || ''}">
+        ${n.text}
+        <span class="notif-item__time">${formatTime(n.created_at)}</span>
+      </div>
+    `).join('');
+
+    panel.querySelectorAll('[data-notif-id]').forEach(item => {
+      item.addEventListener('click', async () => {
+        await window.supabaseClient.from('notifications').update({ read: true }).eq('id', item.dataset.notifId);
+        if (item.dataset.link) window.location.href = item.dataset.link;
+        else await renderNotifications(userId, panel);
+      });
+    });
+  }
+
+  function formatTime(iso) {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return 'только что';
+    if (diff < 3600) return Math.floor(diff / 60) + ' мин назад';
+    if (diff < 86400) return Math.floor(diff / 3600) + ' ч назад';
+    return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
   if (document.readyState === 'loading') {
