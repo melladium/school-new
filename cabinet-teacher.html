@@ -74,7 +74,7 @@
 
         <div data-profile-view class="profile-grid">
           <div class="profile-item profile-item--full" style="flex-direction:row;align-items:center;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
-            <div data-profile-avatar style="width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">—</div>
+            <div data-profile-avatar style="width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--text);overflow:hidden;flex-shrink:0;">—</div>
             <div>
               <div data-profile-name style="font-family:var(--font-display);font-size:20px;font-weight:500;margin-bottom:4px;">—</div>
               <div data-profile-email style="color:var(--text-dim);font-size:14px;">—</div>
@@ -114,7 +114,7 @@
           <div class="field" style="margin-bottom:14px;">
             <label>Главное фото (аватар)</label>
             <div style="display:flex;align-items:center;gap:16px;">
-              <div data-avatar-preview style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">👤</div>
+              <div data-avatar-preview style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text);overflow:hidden;flex-shrink:0;">👤</div>
               <div>
                 <input type="file" accept="image/*" data-avatar-input style="display:none;">
                 <button type="button" class="btn btn--ghost" data-avatar-button>Загрузить фото</button>
@@ -124,12 +124,24 @@
           </div>
 
           <div class="field" style="margin-bottom:14px;">
-            <label>Фото достижений (портфолио)</label>
+            <label>Фото достижений — 1</label>
             <div style="display:flex;align-items:center;gap:16px;">
-              <div data-portfolio-preview style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--magenta);overflow:hidden;flex-shrink:0;">🖼</div>
+              <div data-portfolio-preview style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text);overflow:hidden;flex-shrink:0;">🖼</div>
               <div>
                 <input type="file" accept="image/*" data-portfolio-input style="display:none;">
                 <button type="button" class="btn btn--ghost" data-portfolio-button>Загрузить фото</button>
+                <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field" style="margin-bottom:14px;">
+            <label>Фото достижений — 2</label>
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div data-portfolio-preview-2 style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--text);overflow:hidden;flex-shrink:0;">🖼</div>
+              <div>
+                <input type="file" accept="image/*" data-portfolio-input-2 style="display:none;">
+                <button type="button" class="btn btn--ghost" data-portfolio-button-2>Загрузить фото</button>
                 <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
               </div>
             </div>
@@ -200,7 +212,6 @@
             <li><span class="dot dot--busy"></span> <strong>Занято</strong> — время забронировано, ученик заявку не оставит.</li>
             <li><span class="dot dot--off"></span> <strong>Не работает</strong> — вы в это время недоступны.</li>
             <li>Нажмите <strong>«+ Добавить ячейку»</strong>, выберите день, время и статус.</li>
-            <li>Нажмите на <strong>готовую ячейку</strong>, чтобы изменить её или удалить.</li>
           </ul>
         </div>
 
@@ -221,7 +232,6 @@
             <li>Это <strong>только для вас</strong>. Ученики этого не видят.</li>
             <li>Большая таблица Пн–Вс × 09:00–21:00 — как ежедневник.</li>
             <li>Кликните по любой клетке и впишите до 70 символов: имя ученика, ссылку на звонок, заметку.</li>
-            <li>Чтобы стереть — откройте клетку и нажмите «Очистить».</li>
           </ul>
         </div>
 
@@ -264,7 +274,6 @@
     <div class="modal__panel">
       <div class="pay">
         <div class="pay__title" data-cell-title>Новая ячейка</div>
-
         <div class="field" style="margin-bottom:14px;">
           <label>День недели</label>
           <select data-cell-day>
@@ -277,12 +286,10 @@
             <option value="0">Воскресенье</option>
           </select>
         </div>
-
         <div class="field" style="margin-bottom:14px;">
           <label>Время</label>
           <input type="time" data-cell-time>
         </div>
-
         <div class="field" style="margin-bottom:14px;">
           <label>Статус</label>
           <select data-cell-status>
@@ -291,15 +298,11 @@
             <option value="off">Не работает — вы недоступны</option>
           </select>
         </div>
-
         <div class="field" style="margin-bottom:14px;">
           <label>Заметка для себя (необязательно)</label>
           <input type="text" maxlength="70" data-cell-note placeholder="Например: Андрей, ссылка на звонок">
-          <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">Ученикам показывается только статус.</div>
         </div>
-
         <div class="auth-form__error" data-cell-error></div>
-
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn--primary" style="flex:1;" data-cell-save>Сохранить</button>
           <button class="btn btn--ghost" data-cell-delete hidden>Удалить</button>
@@ -313,17 +316,12 @@
     <div class="modal__panel">
       <div class="pay">
         <div class="pay__title">Личная заметка</div>
-
         <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);margin-bottom:16px;" data-personal-label>—</div>
-
         <div class="field" style="margin-bottom:16px;">
           <label>Текст (до 70 символов)</label>
           <input type="text" maxlength="70" data-personal-text placeholder="Андрей, meet.google.com/abc">
-          <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">Видно только вам.</div>
         </div>
-
         <div class="auth-form__error" data-personal-error></div>
-
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
           <button class="btn btn--primary" style="flex:1;" data-personal-save>Сохранить</button>
           <button class="btn btn--ghost" data-personal-clear>Очистить</button>
