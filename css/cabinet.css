@@ -11,83 +11,83 @@
   opacity: 0.3; pointer-events: none;
 }
 .cabinet__inner { position: relative; z-index: 2; }
-.cabinet__head { margin-bottom: 40px; max-width: 640px; }
+.cabinet__head { margin-bottom: 32px; max-width: 640px; }
 .cabinet__eyebrow {
   font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
   letter-spacing: 0.12em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 14px;
 }
 .cabinet__title {
-  font-family: var(--font-display); font-size: clamp(28px, 4vw, 44px);
-  font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 12px;
+  font-family: var(--font-display); font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 8px;
 }
-.cabinet__lead { color: var(--text-dim); font-size: 17px; }
+.cabinet__lead { color: var(--text-dim); font-size: 15px; }
 
 /* STATS — маленькие плашки в ряд */
 .cabinet__stats {
   display: flex;
-  gap: 10px;
-  margin-bottom: 40px;
+  gap: 8px;
+  margin-bottom: 28px;
   flex-wrap: wrap;
 }
 
 .cabinet-stat {
-  padding: 14px 20px;
+  padding: 10px 16px;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: baseline;
-  gap: 10px;
-  min-width: 160px;
-  transition: border-color 0.35s var(--ease);
+  gap: 8px;
+  min-width: 0;
+  transition: border-color 0.3s var(--ease);
 }
 .cabinet-stat:hover { border-color: var(--border-strong); }
 
 .cabinet-stat__num {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--cabinet-accent, var(--accent));
   line-height: 1;
 }
 
 .cabinet-stat__label {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
 /* SECTIONS */
-.cabinet__section { margin-bottom: 48px; }
+.cabinet__section { margin-bottom: 40px; }
 .cabinet__section-head {
   display: flex; justify-content: space-between; align-items: center;
-  gap: 16px; margin-bottom: 20px; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
 }
 .cabinet__section-title {
-  font-family: var(--font-display); font-size: 22px; font-weight: 400;
-  letter-spacing: -0.02em; margin-bottom: 16px;
+  font-family: var(--font-display); font-size: 18px; font-weight: 400;
+  letter-spacing: -0.02em; margin-bottom: 14px;
 }
 .cabinet__section-head .cabinet__section-title { margin-bottom: 0; }
-.cabinet__list { display: flex; flex-direction: column; gap: 12px; }
+.cabinet__list { display: flex; flex-direction: column; gap: 10px; }
 
 /* INFO PANEL */
 .info-panel {
   background: var(--surface-1); border: 1px solid var(--border);
   border-left: 3px solid var(--cabinet-accent, var(--accent));
   border-radius: var(--radius);
-  padding: 16px 20px; margin-bottom: 18px;
+  padding: 12px 16px; margin-bottom: 14px;
 }
 .info-panel__title {
-  font-family: var(--font-mono); font-size: 11px; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 8px;
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 6px;
 }
 .info-panel__list {
   list-style: none; padding: 0; margin: 0;
-  display: flex; flex-direction: column; gap: 5px;
-  font-size: 13px; color: var(--text-dim); line-height: 1.5;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12.5px; color: var(--text-dim); line-height: 1.5;
 }
 .info-panel__list strong { color: var(--text); font-weight: 600; }
 .info-panel__list .dot {
-  display: inline-block; width: 9px; height: 9px; border-radius: 3px;
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
   margin-right: 6px; vertical-align: middle; border: 1px solid var(--border-strong);
 }
 .dot--free { background: var(--accent); border-color: var(--accent); }
@@ -96,57 +96,57 @@
 
 /* EMPTY */
 .cabinet__empty {
-  padding: 48px 32px; background: var(--surface-1);
+  padding: 40px 24px; background: var(--surface-1);
   border: 1px dashed var(--border-strong); border-radius: var(--radius-lg);
   text-align: center;
 }
 .cabinet__empty-icon {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 64px; height: 64px; border-radius: 50%;
+  width: 56px; height: 56px; border-radius: 50%;
   background: var(--surface-2); border: 1px solid var(--border-strong);
-  color: var(--text-mute); font-size: 28px; margin-bottom: 20px;
+  color: var(--text-mute); font-size: 24px; margin-bottom: 16px;
 }
 .cabinet__empty-title {
-  font-family: var(--font-display); font-size: 20px; font-weight: 400;
-  letter-spacing: -0.02em; margin-bottom: 10px;
+  font-family: var(--font-display); font-size: 17px; font-weight: 400;
+  letter-spacing: -0.02em; margin-bottom: 6px;
 }
 .cabinet__empty-desc {
-  color: var(--text-dim); font-size: 15px; margin-bottom: 24px;
-  max-width: 40ch; margin-left: auto; margin-right: auto;
+  color: var(--text-dim); font-size: 14px; margin-bottom: 18px;
+  max-width: 36ch; margin-left: auto; margin-right: auto;
 }
 
 /* ============================================= */
-/* БОЛЬШАЯ КАРТОЧКА ЗАЯВКИ (для "дауна")          */
+/* КАРТОЧКА ЗАЯВКИ                               */
 /* ============================================= */
 .booking-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  transition: border-color 0.4s var(--ease);
+  gap: 10px;
+  transition: border-color 0.3s var(--ease);
 }
 .booking-card:hover { border-color: var(--border-strong); }
 
 .booking-card__head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 3px;
 }
 
 .booking-card__date {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 .booking-card__info {
-  font-size: 16px;
+  font-size: 13.5px;
   color: var(--text-dim);
 }
 
@@ -158,11 +158,11 @@
 .booking-card__status {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -172,17 +172,13 @@
 .booking-card__status--pending {
   background: rgba(255, 211, 78, 0.12);
   border: 1px solid rgba(255, 211, 78, 0.5);
-  color: var(--yellow);
+  color: var(--yellow, #FFD34E);
 }
-.booking-card__status--approved {
-  background: rgba(74, 222, 128, 0.12);
-  border: 1px solid rgba(74, 222, 128, 0.5);
-  color: var(--green);
-}
+.booking-card__status--approved,
 .booking-card__status--done {
   background: rgba(74, 222, 128, 0.12);
   border: 1px solid rgba(74, 222, 128, 0.5);
-  color: var(--green);
+  color: var(--green, #4ADE80);
 }
 .booking-card__status--rejected,
 .booking-card__status--cancelled {
@@ -191,20 +187,26 @@
   color: var(--text-mute);
 }
 
+.booking-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .booking-card__action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px 24px;
+  gap: 6px;
+  padding: 8px 14px;
   border-radius: var(--radius);
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s var(--ease);
-  width: 100%;
+  transition: all 0.25s var(--ease);
   border: 1px solid transparent;
   font-family: var(--font-body);
+  background: none;
 }
 
 .booking-card__action--primary {
@@ -212,10 +214,7 @@
   color: #08080A;
   border-color: var(--cabinet-accent, var(--accent));
 }
-.booking-card__action--primary:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
-}
+.booking-card__action--primary:hover { filter: brightness(1.1); }
 
 .booking-card__action--ghost {
   background: transparent;
@@ -237,171 +236,94 @@
   border-color: var(--red);
 }
 
-/* Кнопка "Удалить заявку" маленькая */
 .booking-card__action--remove {
   background: transparent;
   border: none;
   color: var(--text-mute);
-  font-size: 13px;
-  padding: 6px;
-  align-self: flex-start;
-  width: auto;
+  font-size: 12px;
+  padding: 8px 6px;
 }
 .booking-card__action--remove:hover { color: var(--red); }
 
-/* Старая .booking-row — оставляем для совместимости */
-.booking-row {
-  display: flex; align-items: center; gap: 20px;
-  padding: 18px 22px; background: var(--surface-1);
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  transition: border-color 0.5s var(--ease);
-  flex-wrap: wrap;
+/* ============================================= */
+/* РАСКЛАДКА УЧЕНИКА — 2 КОЛОНКИ                  */
+/* ============================================= */
+.student-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+  align-items: start;
 }
-.booking-row:hover { border-color: var(--border-strong); }
-.booking-row__avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: var(--surface-2); border: 1px solid var(--border-strong);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 14px;
-  color: var(--cabinet-accent, var(--accent));
-  flex-shrink: 0; overflow: hidden;
-}
-.booking-row__date {
-  font-family: var(--font-mono); font-size: 14px;
-  color: var(--cabinet-accent, var(--accent));
-  min-width: 130px; font-weight: 500;
-}
-.booking-row__info { flex: 1; min-width: 150px; }
-.booking-row__name { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
-.booking-row__subject { font-size: 13px; color: var(--text-dim); }
-.booking-row__status {
-  font-family: var(--font-mono); font-size: 11px; padding: 5px 12px;
-  border-radius: 999px; border: 1px solid var(--border-strong);
-  color: var(--text-dim); background: var(--surface-2);
-  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500;
-}
-.booking-row__status--pending {
-  border-color: rgba(255, 211, 78, 0.5); color: var(--yellow);
-  background: rgba(255, 211, 78, 0.08);
-}
-.booking-row__status--approved,
-.booking-row__status--confirmed {
-  border-color: rgba(74, 222, 128, 0.5); color: var(--green);
-  background: rgba(74, 222, 128, 0.08);
-}
-.booking-row__status--rejected,
-.booking-row__status--cancelled {
-  border-color: var(--busy); color: var(--busy); background: var(--busy-dim);
-}
-.booking-row__actions {
-  display: flex; gap: 8px; align-items: center;
-  margin-left: auto; flex-wrap: wrap;
-}
-.booking-row__delete {
-  width: 32px; height: 32px; padding: 0;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--text-mute);
-  border-color: var(--border);
-}
-.booking-row__delete:hover {
-  color: var(--red); border-color: var(--red);
-  background: rgba(248, 113, 113, 0.08);
-}
+.student-col-main { min-width: 0; }
+.student-col-side { min-width: 0; }
 
-/* LOADING */
-.cabinet__loading {
-  text-align: center; padding: 48px 0; color: var(--text-mute);
-  font-family: var(--font-mono); font-size: 13px;
-}
-
-/* PROFILE GRID */
-.profile-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-  background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 24px;
-}
-.profile-item { display: flex; flex-direction: column; gap: 4px; }
-.profile-item--full { grid-column: 1 / -1; }
-.profile-item__label {
-  font-family: var(--font-mono); font-size: 11px; color: var(--text-mute);
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.profile-item__value { font-size: 15px; color: var(--text); word-break: break-word; }
-.profile-item__value--dim { color: var(--text-dim); }
-
-/* DANGER ZONE */
-.danger-zone {
-  background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 24px;
-}
-.danger-zone__text {
-  color: var(--text-dim); font-size: 14px; margin-bottom: 16px; max-width: 60ch;
-}
-
-/* WEEK BOARD */
+/* ============================================= */
+/* WEEK BOARD (публичное и личное у учителя)      */
+/* ============================================= */
 .week-board {
   display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 10px; background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 16px;
+  gap: 8px; background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px;
+}
+.week-board--personal {
+  border-style: dashed;
+  opacity: 0.9;
 }
 .week-board__loading {
-  grid-column: 1 / -1; text-align: center; padding: 40px 0;
-  color: var(--text-mute); font-family: var(--font-mono); font-size: 13px;
+  grid-column: 1 / -1; text-align: center; padding: 32px 0;
+  color: var(--text-mute); font-family: var(--font-mono); font-size: 12px;
 }
 .week-day { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .week-day__head {
-  font-family: var(--font-mono); font-size: 11px; color: var(--text-mute);
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-mute);
   text-transform: uppercase; letter-spacing: 0.08em; text-align: center;
-  padding: 8px 0; border-bottom: 1px solid var(--border);
+  padding: 6px 0; border-bottom: 1px solid var(--border);
 }
 .week-day__body {
-  display: flex; flex-direction: column; gap: 6px; min-height: 60px;
+  display: flex; flex-direction: column; gap: 5px; min-height: 50px;
 }
 .week-day__empty {
   display: flex; align-items: center; justify-content: center;
-  height: 44px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
-  font-size: 11px; color: var(--text-mute); font-family: var(--font-mono);
+  height: 40px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  font-size: 10px; color: var(--text-mute); font-family: var(--font-mono);
 }
 
 .week-cell {
-  padding: 8px 10px;
+  padding: 7px 9px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
   background: var(--surface-2);
-  transition: border-color 0.5s var(--ease), background 0.5s var(--ease), transform 0.3s var(--ease);
-  display: flex; flex-direction: column; gap: 3px;
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease), transform 0.25s var(--ease);
+  display: flex; flex-direction: column; gap: 2px;
   min-width: 0;
-  height: 48px;
-  animation: weekCellIn 0.5s var(--ease-spring);
+  min-height: 42px;
+  animation: weekCellIn 0.4s var(--ease-spring);
+  cursor: pointer;
 }
-.week-cell.is-clickable { cursor: pointer; }
 .week-cell.is-clickable:hover { transform: translateY(-2px); }
 @keyframes weekCellIn {
-  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  from { opacity: 0; transform: translateY(5px) scale(0.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .week-cell__time {
-  font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
   color: var(--text); line-height: 1;
 }
 .week-cell__status {
-  font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em;
   font-weight: 600; font-family: var(--font-mono); color: var(--text-dim);
 }
 .week-cell__note {
   font-size: 10px; color: var(--text-mute); overflow: hidden;
-  text-overflow: ellipsis; white-space: nowrap; margin-top: 2px;
+  text-overflow: ellipsis; white-space: nowrap; margin-top: 1px;
 }
 
+/* Публичные ячейки */
 .week-cell--free {
   background: var(--accent-dim);
   border-color: var(--accent);
 }
 .week-cell--free .week-cell__status { color: var(--accent); }
-.week-cell--free.is-clickable:hover {
-  background: rgba(78, 232, 232, 0.18);
-  border-color: var(--accent);
-}
 
 .week-cell--busy {
   background: rgba(248, 113, 113, 0.08);
@@ -416,53 +338,57 @@
 }
 .week-cell--off .week-cell__status { color: var(--text-mute); }
 
-/* PERSONAL BOARD */
+/* Личная ячейка учителя */
+.week-cell--personal {
+  background: var(--cabinet-accent-dim, var(--magenta-dim));
+  border-color: var(--cabinet-accent, var(--magenta));
+  border-style: dashed;
+}
+.week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
+
+/* ============================================= */
+/* ЛИЧНОЕ РАСПИСАНИЕ (таблица Пн–Вс × часы)       */
+/* ============================================= */
 .personal-board-wrap {
   background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 14px; overflow-x: auto;
-  animation: personalIn 0.6s var(--ease-spring);
+  border-radius: var(--radius-lg); padding: 12px; overflow-x: auto;
 }
-@keyframes personalIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.personal-board { min-width: 600px; }
 
 .schedule-grid__loading {
-  text-align: center; padding: 40px;
-  color: var(--text-mute); font-family: var(--font-mono); font-size: 13px;
+  text-align: center; padding: 32px;
+  color: var(--text-mute); font-family: var(--font-mono); font-size: 12px;
 }
 
 .schedule-table {
   display: grid;
-  grid-template-columns: 60px repeat(7, 1fr);
+  grid-template-columns: 52px repeat(7, 1fr);
   gap: 2px;
 }
 
 .schedule-table__head {
-  font-family: var(--font-mono); font-size: 10px;
+  font-family: var(--font-mono); font-size: 9.5px;
   color: var(--text-mute); text-transform: uppercase;
-  letter-spacing: 0.06em; text-align: center; padding: 4px 6px;
+  letter-spacing: 0.05em; text-align: center; padding: 3px 4px;
 }
 
 .schedule-table__time {
-  font-family: var(--font-mono); font-size: 10px;
-  color: var(--text-mute); padding: 4px 6px 4px 0;
+  font-family: var(--font-mono); font-size: 9.5px;
+  color: var(--text-mute); padding: 3px 4px 3px 0;
   text-align: right;
 }
 
 .schedule-cell {
-  height: 32px;
+  height: 26px;
   border-radius: 4px;
   border: 1px solid var(--border-strong);
   background: var(--surface-2);
   cursor: pointer;
-  transition: border-color 0.4s var(--ease), background 0.4s var(--ease);
-  font-size: 9.5px;
+  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
+  font-size: 9px;
   font-family: var(--font-mono);
   color: var(--text-dim);
   display: flex; align-items: center; justify-content: center;
-  padding: 0 4px;
+  padding: 0 3px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   text-align: center;
 }
@@ -474,33 +400,61 @@
   font-weight: 500;
 }
 
+/* LOADING */
+.cabinet__loading {
+  text-align: center; padding: 40px 0; color: var(--text-mute);
+  font-family: var(--font-mono); font-size: 12px;
+}
+
+/* PROFILE GRID */
+.profile-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.profile-item { display: flex; flex-direction: column; gap: 3px; }
+.profile-item--full { grid-column: 1 / -1; }
+.profile-item__label {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-mute);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.profile-item__value { font-size: 14px; color: var(--text); word-break: break-word; }
+.profile-item__value--dim { color: var(--text-dim); }
+
+/* DANGER ZONE */
+.danger-zone {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.danger-zone__text {
+  color: var(--text-dim); font-size: 13px; margin-bottom: 14px; max-width: 60ch;
+}
+
 /* NOTIFICATIONS */
 .notif-bell {
   position: relative;
-  width: 40px; height: 40px;
+  width: 38px; height: 38px;
   border-radius: var(--radius);
   border: 1px solid var(--border-strong);
   background: var(--surface-1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   transition: all 0.3s var(--ease);
   color: var(--text-dim);
   flex-shrink: 0;
 }
 .notif-bell:hover { border-color: var(--cabinet-accent, var(--accent)); color: var(--cabinet-accent, var(--accent)); }
-.notif-bell svg { width: 18px; height: 18px; }
+.notif-bell svg { width: 17px; height: 17px; }
 
 .notif-bell__count {
   position: absolute;
-  top: -6px; right: -6px;
-  min-width: 18px; height: 18px;
-  padding: 0 5px;
+  top: -5px; right: -5px;
+  min-width: 17px; height: 17px;
+  padding: 0 4px;
   border-radius: 999px;
   background: var(--red);
   color: #fff;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-mono);
@@ -511,29 +465,30 @@
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: 340px;
+  width: 320px;
   max-height: 400px;
   overflow-y: auto;
   background: var(--surface-1);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
   z-index: 50;
-  padding: 8px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
-  animation: notifIn 0.4s var(--ease-spring);
+  padding: 6px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  animation: notifIn 0.3s var(--ease-spring);
 }
 @keyframes notifIn {
-  from { opacity: 0; transform: translateY(-6px); }
+  from { opacity: 0; transform: translateY(-5px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .notif-panel[hidden] { display: none; }
 
 .notif-item {
-  padding: 12px 14px;
+  position: relative;
+  padding: 10px 32px 10px 12px;
   border-radius: var(--radius);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-dim);
-  transition: background 0.3s var(--ease), color 0.3s var(--ease);
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
   cursor: pointer;
   line-height: 1.4;
 }
@@ -542,18 +497,34 @@
   background: var(--cabinet-accent-dim, var(--accent-dim));
   color: var(--text);
 }
+.notif-item__text { display: block; }
 .notif-item__time {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-mute);
   font-family: var(--font-mono);
-  margin-top: 4px;
+  margin-top: 3px;
 }
+.notif-item__del {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  color: var(--text-mute);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s var(--ease);
+}
+.notif-item__del:hover { background: rgba(248, 113, 113, 0.1); color: var(--red); }
+
 .notif-empty {
-  padding: 24px;
+  padding: 20px;
   text-align: center;
   color: var(--text-mute);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 /* AVATAR LIGHTBOX */
@@ -579,55 +550,36 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* NAV USER BADGE (старый, оставляем для совместимости) */
-.nav__user-badge {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 14px 6px 6px; border: 1px solid var(--border-strong);
-  border-radius: 999px; background: var(--surface-1);
-}
-.nav__user-badge .nav__user-avatar {
-  width: 32px; height: 32px; border-radius: 50%;
-  background: var(--cabinet-accent-dim, var(--accent-dim));
-  border: 1px solid var(--border-strong);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-size: 13px;
-  color: var(--cabinet-accent, var(--accent));
-  flex-shrink: 0; overflow: hidden;
-}
-.nav__user-badge .nav__user-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
 /* MOBILE */
 @media (max-width: 1024px) {
   .week-board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .student-layout { grid-template-columns: 1fr; gap: 20px; }
 }
 
 @media (max-width: 768px) {
   .cabinet { padding: 120px 0 60px; }
-  .cabinet__stats { gap: 8px; margin-bottom: 32px; }
-  .cabinet-stat { padding: 12px 16px; min-width: 130px; }
-  .cabinet-stat__num { font-size: 18px; }
-  .cabinet__section { margin-bottom: 36px; }
+  .cabinet__stats { gap: 6px; margin-bottom: 24px; }
+  .cabinet-stat { padding: 8px 12px; }
+  .cabinet-stat__num { font-size: 16px; }
+  .cabinet__section { margin-bottom: 32px; }
   .cabinet__section-head { flex-direction: column; align-items: stretch; }
-  .booking-card { padding: 20px; }
-  .booking-card__date { font-size: 20px; }
-  .booking-card__action { padding: 12px 20px; font-size: 14px; }
-  .booking-row { flex-wrap: wrap; gap: 12px; padding: 16px; }
-  .booking-row__date { min-width: auto; width: 100%; }
-  .booking-row__actions { margin-left: 0; width: 100%; }
-  .booking-row__actions .btn { flex: 1; }
+  .booking-card { padding: 14px 16px; }
+  .booking-card__date { font-size: 15px; }
+  .booking-card__action { padding: 7px 12px; font-size: 12px; }
+  .booking-card__actions .booking-card__action { flex: 1; }
   .nav__user-name { display: none; }
-  .nav__user-badge { padding: 4px; }
-  .nav__user-trigger { padding: 4px; }
   .notif-panel { width: 280px; right: -8px; }
   .profile-grid { grid-template-columns: 1fr; }
-  .schedule-cell { height: 28px; font-size: 9px; }
+  .schedule-cell { height: 24px; font-size: 8.5px; }
+  .schedule-table { grid-template-columns: 44px repeat(7, 1fr); }
   .week-board {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 12px;
+    padding: 10px;
     gap: 6px;
   }
-  .week-cell { height: 44px; padding: 6px 8px; }
-  .info-panel { padding: 14px 16px; }
+  .week-cell { min-height: 38px; padding: 6px 8px; }
+  .week-cell__time { font-size: 10px; }
+  .info-panel { padding: 10px 14px; }
 }
 
 @media (max-width: 480px) {
