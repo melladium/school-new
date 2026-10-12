@@ -32,7 +32,7 @@
 
 .tp-page__inner { position: relative; z-index: 2; }
 
-/* LAYOUT */
+/* LAYOUT: sidebar + feed */
 .tp-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -58,11 +58,7 @@
   flex-direction: column;
   height: 100%;
 }
-.tp-sidebar > .tp-card:last-child {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-}
+.tp-sidebar > .tp-card:last-child { flex: 1 1 auto; }
 
 .tp-card--profile { text-align: center; }
 
@@ -136,7 +132,14 @@
   margin-bottom: 14px;
 }
 
-/* СВЯЗЬ — 2×2 */
+/* О СЕБЕ в sidebar */
+.tp-sidebar__bio {
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+/* СВЯЗЬ — виджеты 2×2 */
 .tp-contacts {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -158,6 +161,7 @@
   text-align: center;
   min-height: 88px;
 }
+
 .tp-contact:hover {
   border-color: var(--accent);
   background: var(--accent-dim);
@@ -177,11 +181,13 @@
   flex-shrink: 0;
   transition: all 0.3s var(--ease);
 }
+
 .tp-contact:hover .tp-contact__icon {
   background: var(--accent);
   border-color: var(--accent);
   color: #08080A;
 }
+
 .tp-contact__icon svg { width: 18px; height: 18px; }
 
 .tp-contact__label {
@@ -193,7 +199,11 @@
 }
 
 /* FEED */
-.tp-feed { display: flex; flex-direction: column; gap: 20px; }
+.tp-feed {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
 
 .tp-feed__title {
   font-family: var(--font-display);
@@ -241,6 +251,8 @@
 .tp-schedule .week-cell {
   padding: 8px 10px;
   gap: 2px;
+  height: auto;
+  min-height: 44px;
 }
 .tp-schedule .week-cell__time { font-size: 12px; }
 .tp-schedule .week-cell__status { font-size: 9px; }
@@ -266,33 +278,6 @@
 }
 .tp-portfolio img:hover { transform: scale(1.02); }
 .tp-portfolio img[hidden] { display: none; }
-
-/* ОТЗЫВЫ */
-.tp-reviews {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.tp-reviews .review {
-  padding: 16px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-
-.tp-reviews .review__head {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 13px;
-}
-.tp-reviews .review__name { font-weight: 600; }
-.tp-reviews .review__rating { font-family: var(--font-mono); color: var(--accent); }
-.tp-reviews .review__text { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
-
-/* LEGACY */
-.tp-legend { display: none; }
 
 /* LIGHTBOX */
 .avatar-lightbox {
@@ -320,6 +305,9 @@
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* LEGACY */
+.tp-legend { display: none; }
 
 /* MOBILE */
 @media (max-width: 1024px) {
