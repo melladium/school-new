@@ -78,7 +78,6 @@
 
         <!-- СЛЕВА: ЗАЯВКИ -->
         <div class="student-col-main">
-          <h2 class="cabinet__section-title">Мои заявки</h2>
           <div class="cabinet__list" data-bookings-list>
             <div class="cabinet__empty">
               <div class="cabinet__empty-icon">📅</div>
@@ -91,21 +90,22 @@
 
         <!-- СПРАВА: ЛИЧНОЕ РАСПИСАНИЕ -->
         <aside class="student-col-side">
-          <h2 class="cabinet__section-title">Моё расписание</h2>
+          <div class="cabinet__section-head">
+            <h2 class="cabinet__title">Моё расписание</h2>
+            <button class="btn btn--primary" data-add-personal-cell>+ Добавить ячейку</button>
+          </div>
 
           <div class="info-panel">
             <div class="info-panel__title">Как пользоваться</div>
             <ul class="info-panel__list">
               <li>Это <strong>только для вас</strong>. Никто не видит.</li>
-              <li>Кликните по клетке — впишите заметку.</li>
-              <li>Или нажмите <strong>«Добавить в расписание»</strong> у заявки — время подставится само.</li>
+              <li>Нажмите <strong>«+ Добавить ячейку»</strong> — выберите день, время, текст.</li>
+              <li>Или у заявки — <strong>«Добавить в расписание»</strong>.</li>
             </ul>
           </div>
 
-          <div class="personal-board-wrap">
-            <div class="personal-board" data-personal-student-board>
-              <div class="schedule-grid__loading">Загружаем…</div>
-            </div>
+          <div class="week-board week-board--personal" data-personal-student-board>
+            <div class="week-board__loading">Загружаем…</div>
           </div>
         </aside>
 
@@ -148,22 +148,36 @@
     </div>
   </div>
 
-  <!-- МОДАЛКА ЛИЧНОЙ ЗАМЕТКИ -->
-  <div class="modal" data-modal="personal-student-cell" hidden>
+  <!-- МОДАЛКА ЛИЧНОЙ ЯЧЕЙКИ -->
+  <div class="modal" data-modal="personal-cell-edit" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
       <div class="pay">
-        <div class="pay__title">Личная заметка</div>
-        <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);margin-bottom:16px;" data-personal-student-label>—</div>
-        <div class="field" style="margin-bottom:16px;">
-          <label>Текст (до 70 символов)</label>
-          <input type="text" maxlength="70" data-personal-student-text placeholder="Заметка…">
-          <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">Видно только вам.</div>
+        <div class="pay__title" data-personal-cell-title>Новая ячейка</div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>День недели</label>
+          <select data-personal-cell-day>
+            <option value="1">Понедельник</option>
+            <option value="2">Вторник</option>
+            <option value="3">Среда</option>
+            <option value="4">Четверг</option>
+            <option value="5">Пятница</option>
+            <option value="6">Суббота</option>
+            <option value="0">Воскресенье</option>
+          </select>
         </div>
-        <div class="auth-form__error" data-personal-student-error></div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Время</label>
+          <input type="time" data-personal-cell-time>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Текст (до 70 символов)</label>
+          <input type="text" maxlength="70" data-personal-cell-text placeholder="Урок с Иваном">
+        </div>
+        <div class="auth-form__error" data-personal-cell-error></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn--primary" style="flex:1;" data-personal-student-save>Сохранить</button>
-          <button class="btn btn--ghost" data-personal-student-clear>Очистить</button>
+          <button class="btn btn--primary" style="flex:1;" data-personal-cell-save>Сохранить</button>
+          <button class="btn btn--ghost" data-personal-cell-delete hidden>Удалить</button>
         </div>
       </div>
     </div>
