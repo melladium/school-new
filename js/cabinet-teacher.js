@@ -848,7 +848,7 @@
     setTimeout(() => textInput && textInput.focus(), 150);
   }
 
-  /* ЗАЯВКИ — крупные карточки */
+  /* ЗАЯВКИ */
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
