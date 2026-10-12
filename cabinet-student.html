@@ -73,37 +73,42 @@
         </div>
       </div>
 
-      <div class="cabinet__section">
-        <div class="cabinet__list" data-bookings-list>
-          <div class="cabinet__empty">
-            <div class="cabinet__empty-icon">📅</div>
-            <div class="cabinet__empty-title">Пока пусто</div>
-            <div class="cabinet__empty-desc">Найдите репетитора и оставьте первую заявку</div>
-            <a href="index.html#podbor" class="btn btn--primary btn--lg">Найти репетитора</a>
+      <!-- ДВЕ КОЛОНКИ: заявки слева, расписание справа -->
+      <div class="student-layout">
+
+        <!-- СЛЕВА: ЗАЯВКИ -->
+        <div class="student-col-main">
+          <h2 class="cabinet__section-title">Мои заявки</h2>
+          <div class="cabinet__list" data-bookings-list>
+            <div class="cabinet__empty">
+              <div class="cabinet__empty-icon">📅</div>
+              <div class="cabinet__empty-title">Пока пусто</div>
+              <div class="cabinet__empty-desc">Найдите репетитора и оставьте первую заявку</div>
+              <a href="index.html#podbor" class="btn btn--primary btn--lg">Найти репетитора</a>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="cabinet__section">
-        <div class="cabinet__section-head">
-          <h2 class="cabinet__section-title">Моё личное расписание</h2>
-          <button class="btn btn--ghost" data-toggle-personal-student>Развернуть</button>
-        </div>
+        <!-- СПРАВА: ЛИЧНОЕ РАСПИСАНИЕ -->
+        <aside class="student-col-side">
+          <h2 class="cabinet__section-title">Моё расписание</h2>
 
-        <div class="info-panel">
-          <div class="info-panel__title">Что это и как работает</div>
-          <ul class="info-panel__list">
-            <li>Это <strong>только для вас</strong>. Никто, кроме вас, этого не видит.</li>
-            <li>Личный ежедневник: Пн–Вс × 09:00–21:00.</li>
-            <li>Кликните по клетке и впишите заметку до 70 символов.</li>
-          </ul>
-        </div>
-
-        <div class="personal-board-wrap" data-personal-student-wrap hidden>
-          <div class="personal-board" data-personal-student-board>
-            <div class="schedule-grid__loading">Загружаем…</div>
+          <div class="info-panel">
+            <div class="info-panel__title">Как пользоваться</div>
+            <ul class="info-panel__list">
+              <li>Это <strong>только для вас</strong>. Никто не видит.</li>
+              <li>Кликните по клетке — впишите заметку.</li>
+              <li>Или нажмите <strong>«Добавить в расписание»</strong> у заявки — время подставится само.</li>
+            </ul>
           </div>
-        </div>
+
+          <div class="personal-board-wrap">
+            <div class="personal-board" data-personal-student-board>
+              <div class="schedule-grid__loading">Загружаем…</div>
+            </div>
+          </div>
+        </aside>
+
       </div>
 
       <div class="cabinet__section">
