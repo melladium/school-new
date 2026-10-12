@@ -27,11 +27,11 @@
     await renderSchedule(id);
     renderBio();
     renderContacts();
-    await renderReviews(id);
     renderPortfolio();
+    await renderReviews(id);
 
     initModals();
-    initAvatarLightbox();
+    initLightboxes();
   }
 
   async function loadTeacher(id) {
@@ -60,7 +60,7 @@
     const avatarEl = document.querySelector('[data-hero-avatar]');
     if (avatarEl) {
       if (teacher.avatar_url) {
-        avatarEl.innerHTML = `<img src="${teacher.avatar_url}" alt="" data-avatar-full="${teacher.avatar_url}">`;
+        avatarEl.innerHTML = `<img src="${teacher.avatar_url}" alt="">`;
       } else {
         avatarEl.textContent = initials;
       }
@@ -72,16 +72,9 @@
     setText('[data-hero-rating]', teacher.rating || '—');
     setText('[data-hero-reviews]', `· ${teacher.reviews_count || 0} отзывов`);
 
-    const tgBtn = document.querySelector('[data-hero-telegram]');
-    if (tgBtn && teacher.telegram) {
-      tgBtn.href = 'https://t.me/' + teacher.telegram.replace('@', '');
-      tgBtn.hidden = false;
-    }
-
     const scrollBtn = document.querySelector('[data-scroll-to-schedule]');
     if (scrollBtn) scrollBtn.addEventListener('click', () => {
-      const s = document.getElementById('schedule');
-      if (s) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('schedule')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
 
@@ -109,7 +102,7 @@
         el.hidden = false;
         el.href = 'https://t.me/' + teacher.telegram.replace('@', '');
         const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'Написать в Telegram';
+        if (v) v.textContent = 'Telegram';
         hasAny = true;
       }
     }
@@ -120,7 +113,7 @@
         el.hidden = false;
         el.href = 'https://wa.me/' + teacher.whatsapp.replace(/[^\d]/g, '');
         const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'Написать в WhatsApp';
+        if (v) v.textContent = 'WhatsApp';
         hasAny = true;
       }
     }
@@ -131,7 +124,7 @@
         el.hidden = false;
         el.href = 'tel:' + teacher.phone;
         const v = el.querySelector('.tp-contact__value');
-        if (v) v.textContent = 'Позвонить · ' + teacher.phone;
+        if (v) v.textContent = teacher.phone;
         hasAny = true;
       }
     }
@@ -170,7 +163,7 @@
       cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
     });
 
-    let html = '<div class="week-board">';
+    let html = '<div class="week-board week-board--compact">';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
         .filter(key => key.startsWith(day + '|'))
@@ -181,7 +174,7 @@
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
           <div class="week-day__body">
-            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">Нет занятий</div>'}
+            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">—</div>'}
           </div>
         </div>
       `;
@@ -212,7 +205,6 @@
       .eq('teacher_id', teacherId)
       .order('created_at', { ascending: false })
       .limit(20);
-
     if (!data || !data.length) return;
 
     const sec = document.querySelector('[data-section-reviews]');
@@ -234,12 +226,8 @@
   }
 
   function initModals() {
-    document.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', closeAllModals);
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeAllModals();
-    });
+    document.querySelectorAll('[data-modal-close]').forEach(el => el.addEventListener('click', closeAllModals));
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllModals(); });
     const sendBtn = document.querySelector('[data-request-send]');
     if (sendBtn) sendBtn.addEventListener('click', sendRequest);
   }
@@ -278,8 +266,7 @@
     btn.textContent = 'Отправляем…';
 
     const { data: existing } = await window.supabaseClient
-      .from('booking_requests')
-      .select('id')
+      .from('booking_requests').select('id')
       .eq('student_id', currentUser.user.id)
       .eq('teacher_id', teacher.id)
       .eq('weekday', selectedCell.day)
@@ -287,12 +274,7 @@
       .in('status', ['pending', 'approved'])
       .maybeSingle();
 
-    if (existing) {
-      errEl.textContent = 'У вас уже есть заявка на это время.';
-      btn.disabled = false;
-      btn.textContent = 'Отправить заявку';
-      return;
-    }
+    if (existing) { errEl.textContent = 'У вас уже есть заявка на это время.'; btn.disabled = false; btn.textContent = 'Отправить заявку'; return; }
 
     const { error } = await window.supabaseClient.from('booking_requests').insert({
       student_id: currentUser.user.id,
@@ -301,10 +283,8 @@
       time: selectedCell.time,
       status: 'pending'
     });
-
     btn.disabled = false;
     btn.textContent = 'Отправить заявку';
-
     if (error) { errEl.textContent = 'Ошибка: ' + error.message; return; }
 
     closeAllModals();
@@ -312,27 +292,31 @@
     document.body.style.overflow = 'hidden';
   }
 
-  function initAvatarLightbox() {
-    const avatar = document.querySelector('[data-hero-avatar]');
-    if (!avatar) return;
+  /* Лайтбокс для аватара и достижений */
+  function initLightboxes() {
+    // Клик по аватару
+    const hero = document.querySelector('[data-hero-avatar]');
+    if (hero) hero.addEventListener('click', () => {
+      const img = hero.querySelector('img');
+      if (img && img.src) openLightbox(img.src);
+    });
 
-    avatar.style.cursor = 'zoom-in';
+    // Клик по фото достижений
+    const portfolio = document.querySelector('[data-portfolio-image]');
+    if (portfolio) portfolio.addEventListener('click', () => {
+      if (portfolio.src) openLightbox(portfolio.src);
+    });
+  }
 
-    avatar.addEventListener('click', () => {
-      const img = avatar.querySelector('img');
-      const src = img && img.src;
-      if (!src) return;
-
-      const lightbox = document.createElement('div');
-      lightbox.className = 'avatar-lightbox';
-      lightbox.innerHTML = `<img src="${src}" alt="">`;
-      document.body.appendChild(lightbox);
-      document.body.style.overflow = 'hidden';
-
-      lightbox.addEventListener('click', () => {
-        lightbox.remove();
-        document.body.style.overflow = '';
-      });
+  function openLightbox(src) {
+    const lb = document.createElement('div');
+    lb.className = 'avatar-lightbox';
+    lb.innerHTML = `<img src="${src}" alt="">`;
+    document.body.appendChild(lb);
+    document.body.style.overflow = 'hidden';
+    lb.addEventListener('click', () => {
+      lb.remove();
+      document.body.style.overflow = '';
     });
   }
 
