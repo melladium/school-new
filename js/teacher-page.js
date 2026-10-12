@@ -28,7 +28,6 @@
     renderBio();
     renderContacts();
     renderPortfolio();
-    await renderReviews(id);
 
     initModals();
     initLightboxes();
@@ -197,33 +196,6 @@
         <div class="week-cell__status">${STATUS_LABELS[cell.status] || cell.status}</div>
       </div>
     `;
-  }
-
-  async function renderReviews(teacherId) {
-    const { data } = await window.supabaseClient
-      .from('reviews')
-      .select('rating, text, created_at')
-      .eq('teacher_id', teacherId)
-      .order('created_at', { ascending: false })
-      .limit(20);
-    if (!data || !data.length) return;
-
-    const sec = document.querySelector('[data-section-reviews]');
-    if (sec) sec.hidden = false;
-    setText('[data-reviews-count]', data.length);
-
-    const list = document.querySelector('[data-reviews-list]');
-    if (list) {
-      list.innerHTML = data.map(r => `
-        <div class="review">
-          <div class="review__head">
-            <span class="review__name">Ученик</span>
-            <span class="review__rating">★ ${r.rating}</span>
-          </div>
-          <div class="review__text">${r.text || 'Без комментария'}</div>
-        </div>
-      `).join('');
-    }
   }
 
   function initModals() {
