@@ -34,20 +34,31 @@
         <a href="#how">Как это работает</a>
         <a href="#repetitoram">Репетиторам</a>
       </nav>
+
+      <!-- НЕ залогинен -->
       <div class="nav__actions" data-nav-actions>
         <a href="login.html" class="btn btn--ghost">Войти</a>
         <a href="register.html" class="btn btn--primary">Регистрация</a>
       </div>
+
+      <!-- Залогинен: имя + аватар + колокольчик -->
       <div class="nav__user-menu" data-user-menu hidden>
-        <button class="nav__user-trigger" data-user-trigger>
+        <a href="#" class="nav__user-trigger" data-user-link>
           <span class="nav__user-name" data-user-name>…</span>
           <span class="nav__user-avatar" data-user-avatar>?</span>
-        </button>
-        <div class="nav__user-dropdown" data-user-dropdown hidden>
-          <a href="#" data-user-cabinet>Кабинет</a>
-          <button data-user-logout>Выйти</button>
+        </a>
+        <div style="position:relative;">
+          <button class="notif-bell" data-notif-bell aria-label="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.7 21a2 2 0 01-3.4 0"/>
+            </svg>
+            <span class="notif-bell__count" data-notif-count hidden>0</span>
+          </button>
+          <div class="notif-panel" data-notif-panel hidden></div>
         </div>
       </div>
+
       <button class="nav__burger" aria-label="Меню">
         <span></span><span></span>
       </button>
