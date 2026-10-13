@@ -1,191 +1,550 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Кабинет ученика — Школа Кузнечевского</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/cabinet.css">
-  <link rel="stylesheet" href="css/mobile.css">
-</head>
-<body class="page-student">
+/* CABINET */
+.cabinet { min-height: 100vh; padding: 140px 0 80px; position: relative; overflow: hidden; }
+.cabinet__grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 0%, transparent 70%);
+  opacity: 0.3; pointer-events: none;
+}
+.cabinet__inner { position: relative; z-index: 2; }
+.cabinet__head { margin-bottom: 24px; max-width: 640px; }
+.cabinet__eyebrow {
+  font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 8px;
+}
+.cabinet__title {
+  font-family: var(--font-display); font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 8px;
+}
+.cabinet__title--col {
+  margin-bottom: 0;
+  line-height: 1.15;
+}
+.cabinet__lead { color: var(--text-dim); font-size: 15px; }
 
-  <div class="cursor-glow" data-cursor-glow></div>
+/* Заголовок колонки + кнопка справа */
+.cabinet__col-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  min-height: 48px;
+}
 
-  <header class="nav is-scrolled">
-    <div class="nav__inner">
-      <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
-      <nav class="nav__links">
-        <a href="index.html">Главная</a>
-        <a href="cabinet-student.html" class="is-current">Кабинет</a>
-      </nav>
+/* STATS */
+.cabinet__stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
 
-      <div class="nav__user-menu" data-user-menu>
-        <a href="cabinet-student.html" class="nav__user-trigger">
-          <span class="nav__user-name" data-user-name>…</span>
-          <span class="nav__user-avatar" data-user-avatar>?</span>
-        </a>
-        <div style="position:relative;">
-          <button class="notif-bell" data-notif-bell aria-label="Уведомления">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.7 21a2 2 0 01-3.4 0"/>
-            </svg>
-            <span class="notif-bell__count" data-notif-count hidden>0</span>
-          </button>
-          <div class="notif-panel" data-notif-panel hidden></div>
-        </div>
-      </div>
+.cabinet-stat {
+  padding: 10px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  transition: border-color 0.3s var(--ease);
+}
+.cabinet-stat:hover { border-color: var(--border-strong); }
 
-      <button class="nav__burger" aria-label="Меню">
-        <span></span><span></span>
-      </button>
-    </div>
-    <nav class="nav__mobile" data-nav-mobile hidden>
-      <a href="index.html">Главная</a>
-      <a href="cabinet-student.html" class="is-current">Кабинет</a>
-      <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
-    </nav>
-  </header>
+.cabinet-stat__num {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--cabinet-accent, var(--accent));
+  line-height: 1;
+}
 
-  <main class="cabinet">
-    <div class="cabinet__grid"></div>
+.cabinet-stat__label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
 
-    <div class="container cabinet__inner">
-      <div class="cabinet__head">
-        <div class="cabinet__eyebrow">Кабинет ученика</div>
-        <h1 class="cabinet__title">Мои заявки</h1>
-      </div>
+/* SECTIONS */
+.cabinet__section { margin-bottom: 40px; }
+.cabinet__section-head {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.cabinet__section-title {
+  font-family: var(--font-display); font-size: 18px; font-weight: 400;
+  letter-spacing: -0.02em; margin-bottom: 14px;
+}
+.cabinet__section-head .cabinet__section-title { margin-bottom: 0; }
+.cabinet__list { display: flex; flex-direction: column; gap: 10px; }
 
-      <div class="cabinet__stats">
-        <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="upcoming">0</div>
-          <div class="cabinet-stat__label">Предстоит</div>
-        </div>
-        <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="done">0</div>
-          <div class="cabinet-stat__label">Проведено</div>
-        </div>
-      </div>
+/* INFO PANEL */
+.info-panel {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-left: 3px solid var(--cabinet-accent, var(--accent));
+  border-radius: var(--radius);
+  padding: 12px 16px; margin-bottom: 14px;
+}
+.info-panel__title {
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 6px;
+}
+.info-panel__list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; flex-direction: column; gap: 4px;
+  font-size: 12.5px; color: var(--text-dim); line-height: 1.5;
+}
+.info-panel__list strong { color: var(--text); font-weight: 600; }
+.info-panel__list .dot {
+  display: inline-block; width: 8px; height: 8px; border-radius: 2px;
+  margin-right: 6px; vertical-align: middle; border: 1px solid var(--border-strong);
+}
+.dot--free { background: var(--accent); border-color: var(--accent); }
+.dot--busy { background: var(--red); border-color: var(--red); }
+.dot--off { background: var(--text-mute); border-color: var(--text-mute); }
 
-      <!-- ДВЕ КОЛОНКИ -->
-      <div class="student-layout">
+/* EMPTY */
+.cabinet__empty {
+  padding: 40px 24px; background: var(--surface-1);
+  border: 1px dashed var(--border-strong); border-radius: var(--radius-lg);
+  text-align: center;
+}
+.cabinet__empty-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--border-strong);
+  color: var(--text-mute); font-size: 24px; margin-bottom: 16px;
+}
+.cabinet__empty-title {
+  font-family: var(--font-display); font-size: 17px; font-weight: 400;
+  letter-spacing: -0.02em; margin-bottom: 6px;
+}
+.cabinet__empty-desc {
+  color: var(--text-dim); font-size: 14px; margin-bottom: 18px;
+  max-width: 36ch; margin-left: auto; margin-right: auto;
+}
 
-        <!-- СЛЕВА: ЗАЯВКИ -->
-        <div class="student-col-main">
-          <div class="cabinet__list" data-bookings-list>
-            <div class="cabinet__empty">
-              <div class="cabinet__empty-icon">📅</div>
-              <div class="cabinet__empty-title">Пока пусто</div>
-              <div class="cabinet__empty-desc">Найдите репетитора и оставьте первую заявку</div>
-              <a href="index.html#podbor" class="btn btn--primary btn--lg">Найти репетитора</a>
-            </div>
-          </div>
-        </div>
+/* ============================================= */
+/* КАРТОЧКА ЗАЯВКИ                               */
+/* ============================================= */
+.booking-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.3s var(--ease);
+}
+.booking-card:hover { border-color: var(--border-strong); }
 
-        <!-- СПРАВА: ЛИЧНОЕ РАСПИСАНИЕ -->
-        <aside class="student-col-side">
-          <div class="cabinet__section-head">
-            <h2 class="cabinet__title cabinet__title--small">Моё расписание</h2>
-            <button class="btn btn--primary btn--sm" data-add-personal-cell>+ Ячейка</button>
-          </div>
+.booking-card__head {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
 
-          <div class="info-panel">
-            <div class="info-panel__title">Как пользоваться</div>
-            <ul class="info-panel__list">
-              <li>Это <strong>только для вас</strong>. Никто не видит.</li>
-              <li>Нажмите <strong>«+ Ячейка»</strong> — день, время, текст.</li>
-              <li>Или у заявки — <strong>«Добавить в расписание»</strong>.</li>
-            </ul>
-          </div>
+.booking-card__date {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
 
-          <div class="week-board week-board--personal" data-personal-student-board>
-            <div class="week-board__loading">Загружаем…</div>
-          </div>
-        </aside>
+.booking-card__info {
+  font-size: 13.5px;
+  color: var(--text-dim);
+}
 
-      </div>
+.booking-card__name {
+  color: var(--text);
+  font-weight: 600;
+}
 
-      <div class="cabinet__section">
-        <h2 class="cabinet__section-title">Опасная зона</h2>
-        <div class="danger-zone">
-          <p class="danger-zone__text">
-            Удаление аккаунта необратимо. Все заявки и профиль будут удалены навсегда.
-          </p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
-            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
+.booking-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  width: fit-content;
+}
 
-  <!-- МОДАЛКА ОТЗЫВА -->
-  <div class="modal" data-modal="review" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel">
-      <div class="pay">
-        <div class="pay__title">Оцените урок</div>
-        <div class="field" style="margin-bottom:16px;">
-          <label>Оценка</label>
-          <div style="display:flex;gap:8px;" data-rating-stars>
-            <button type="button" class="btn btn--icon" data-star="1">★</button>
-            <button type="button" class="btn btn--icon" data-star="2">★</button>
-            <button type="button" class="btn btn--icon" data-star="3">★</button>
-            <button type="button" class="btn btn--icon" data-star="4">★</button>
-            <button type="button" class="btn btn--icon" data-star="5">★</button>
-          </div>
-        </div>
-        <div class="auth-form__error" data-review-error></div>
-        <button class="btn btn--primary btn--lg" style="width:100%;" data-review-save>Отправить оценку</button>
-      </div>
-    </div>
-  </div>
+.booking-card__status--pending {
+  background: rgba(255, 211, 78, 0.12);
+  border: 1px solid rgba(255, 211, 78, 0.5);
+  color: var(--yellow, #FFD34E);
+}
+.booking-card__status--approved,
+.booking-card__status--done {
+  background: rgba(74, 222, 128, 0.12);
+  border: 1px solid rgba(74, 222, 128, 0.5);
+  color: var(--green, #4ADE80);
+}
+.booking-card__status--rejected,
+.booking-card__status--cancelled {
+  background: var(--busy-dim);
+  border: 1px solid var(--busy);
+  color: var(--text-mute);
+}
 
-  <!-- МОДАЛКА ЛИЧНОЙ ЯЧЕЙКИ -->
-  <div class="modal" data-modal="personal-cell-edit" hidden>
-    <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel">
-      <div class="pay">
-        <div class="pay__title" data-personal-cell-title>Новая ячейка</div>
-        <div class="field" style="margin-bottom:14px;">
-          <label>День недели</label>
-          <select data-personal-cell-day>
-            <option value="1">Понедельник</option>
-            <option value="2">Вторник</option>
-            <option value="3">Среда</option>
-            <option value="4">Четверг</option>
-            <option value="5">Пятница</option>
-            <option value="6">Суббота</option>
-            <option value="0">Воскресенье</option>
-          </select>
-        </div>
-        <div class="field" style="margin-bottom:14px;">
-          <label>Время</label>
-          <input type="time" data-personal-cell-time>
-        </div>
-        <div class="field" style="margin-bottom:14px;">
-          <label>Текст (до 70 символов)</label>
-          <input type="text" maxlength="70" data-personal-cell-text placeholder="Урок с Иваном">
-        </div>
-        <div class="auth-form__error" data-personal-cell-error></div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn--primary" style="flex:1;" data-personal-cell-save>Сохранить</button>
-          <button class="btn btn--ghost" data-personal-cell-delete hidden>Удалить</button>
-        </div>
-      </div>
-    </div>
-  </div>
+.booking-card__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
 
-  <script src="js/libs/supabase.js"></script>
-  <script src="js/supabase-client.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/cabinet-student.js"></script>
-</body>
-</html>
+.booking-card__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  background: none;
+}
+
+.booking-card__action--primary {
+  background: var(--cabinet-accent, var(--accent));
+  color: #08080A;
+  border-color: var(--cabinet-accent, var(--accent));
+}
+.booking-card__action--primary:hover { filter: brightness(1.1); }
+
+.booking-card__action--ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.booking-card__action--ghost:hover {
+  border-color: var(--text);
+  background: var(--surface-2);
+}
+
+.booking-card__action--danger {
+  background: transparent;
+  border-color: rgba(248, 113, 113, 0.4);
+  color: var(--red);
+}
+.booking-card__action--danger:hover {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: var(--red);
+}
+
+.booking-card__action--remove {
+  background: transparent;
+  border: none;
+  color: var(--text-mute);
+  font-size: 12px;
+  padding: 8px 6px;
+}
+.booking-card__action--remove:hover { color: var(--red); }
+
+/* ============================================= */
+/* РАСКЛАДКА УЧЕНИКА — 2 КОЛОНКИ                  */
+/* ============================================= */
+.student-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.student-col-main { min-width: 0; }
+.student-col-side { min-width: 0; }
+
+/* Заголовок колонки слева */
+.student-col-main > .cabinet__title--col {
+  margin-bottom: 16px;
+}
+
+/* ============================================= */
+/* WEEK BOARD (публичное и личное)                */
+/* ============================================= */
+.week-board {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px; background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 14px;
+}
+.week-board--personal {
+  border-style: dashed;
+  opacity: 0.9;
+}
+.week-board__loading {
+  grid-column: 1 / -1; text-align: center; padding: 32px 0;
+  color: var(--text-mute); font-family: var(--font-mono); font-size: 12px;
+}
+.week-day { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.week-day__head {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-mute);
+  text-transform: uppercase; letter-spacing: 0.08em; text-align: center;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+}
+.week-day__body {
+  display: flex; flex-direction: column; gap: 5px; min-height: 50px;
+}
+.week-day__empty {
+  display: flex; align-items: center; justify-content: center;
+  height: 40px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
+  font-size: 10px; color: var(--text-mute); font-family: var(--font-mono);
+}
+
+.week-cell {
+  padding: 7px 9px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  transition: border-color 0.4s var(--ease), background 0.4s var(--ease), transform 0.25s var(--ease);
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0;
+  min-height: 42px;
+  animation: weekCellIn 0.4s var(--ease-spring);
+  cursor: pointer;
+}
+.week-cell.is-clickable:hover { transform: translateY(-2px); }
+@keyframes weekCellIn {
+  from { opacity: 0; transform: translateY(5px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.week-cell__time {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  color: var(--text); line-height: 1;
+}
+.week-cell__status {
+  font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.06em;
+  font-weight: 600; font-family: var(--font-mono); color: var(--text-dim);
+}
+.week-cell__note {
+  font-size: 10px; color: var(--text-mute); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; margin-top: 1px;
+}
+
+.week-cell--free {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+.week-cell--free .week-cell__status { color: var(--accent); }
+
+.week-cell--busy {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.4);
+}
+.week-cell--busy .week-cell__status { color: var(--red); }
+
+.week-cell--off {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  opacity: 0.7;
+}
+.week-cell--off .week-cell__status { color: var(--text-mute); }
+
+.week-cell--personal {
+  background: var(--cabinet-accent-dim, var(--magenta-dim));
+  border-color: var(--cabinet-accent, var(--magenta));
+  border-style: dashed;
+}
+.week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
+
+/* LOADING */
+.cabinet__loading {
+  text-align: center; padding: 40px 0; color: var(--text-mute);
+  font-family: var(--font-mono); font-size: 12px;
+}
+
+/* PROFILE GRID */
+.profile-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.profile-item { display: flex; flex-direction: column; gap: 3px; }
+.profile-item--full { grid-column: 1 / -1; }
+.profile-item__label {
+  font-family: var(--font-mono); font-size: 10px; color: var(--text-mute);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.profile-item__value { font-size: 14px; color: var(--text); word-break: break-word; }
+.profile-item__value--dim { color: var(--text-dim); }
+
+/* DANGER ZONE */
+.danger-zone {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+}
+.danger-zone__text {
+  color: var(--text-dim); font-size: 13px; margin-bottom: 14px; max-width: 60ch;
+}
+
+/* NOTIFICATIONS */
+.notif-bell {
+  position: relative;
+  width: 38px; height: 38px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s var(--ease);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.notif-bell:hover { border-color: var(--cabinet-accent, var(--accent)); color: var(--cabinet-accent, var(--accent)); }
+.notif-bell svg { width: 17px; height: 17px; }
+
+.notif-bell__count {
+  position: absolute;
+  top: -5px; right: -5px;
+  min-width: 17px; height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+}
+.notif-bell__count[hidden] { display: none; }
+
+.notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--surface-1);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  z-index: 50;
+  padding: 6px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  animation: notifIn 0.3s var(--ease-spring);
+}
+@keyframes notifIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.notif-panel[hidden] { display: none; }
+
+.notif-item {
+  position: relative;
+  padding: 10px 32px 10px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+  cursor: pointer;
+  line-height: 1.4;
+}
+.notif-item:hover { background: var(--surface-2); color: var(--text); }
+.notif-item.is-unread {
+  background: var(--cabinet-accent-dim, var(--accent-dim));
+  color: var(--text);
+}
+.notif-item__text { display: block; }
+.notif-item__time {
+  display: block;
+  font-size: 10px;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  margin-top: 3px;
+}
+.notif-item__del {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: none;
+  border: none;
+  color: var(--text-mute);
+  font-size: 12px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s var(--ease);
+}
+.notif-item__del:hover { background: rgba(248, 113, 113, 0.1); color: var(--red); }
+
+.notif-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-mute);
+  font-size: 12px;
+}
+
+/* AVATAR LIGHTBOX */
+.avatar-lightbox {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+  cursor: zoom-out;
+  animation: fadeIn 0.3s var(--ease);
+}
+.avatar-lightbox img {
+  max-width: 90vw; max-height: 90vh;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+  animation: lbIn 0.4s var(--ease-spring);
+}
+@keyframes lbIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* MOBILE */
+@media (max-width: 1024px) {
+  .week-board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .student-layout { grid-template-columns: 1fr; gap: 20px; }
+}
+
+@media (max-width: 768px) {
+  .cabinet { padding: 120px 0 60px; }
+  .cabinet__stats { gap: 6px; margin-bottom: 24px; }
+  .cabinet-stat { padding: 8px 12px; }
+  .cabinet-stat__num { font-size: 16px; }
+  .cabinet__section { margin-bottom: 32px; }
+  .cabinet__section-head { flex-direction: column; align-items: stretch; }
+  .cabinet__col-head { flex-wrap: wrap; }
+  .booking-card { padding: 14px 16px; }
+  .booking-card__date { font-size: 15px; }
+  .booking-card__action { padding: 7px 12px; font-size: 12px; }
+  .booking-card__actions .booking-card__action { flex: 1; }
+  .nav__user-name { display: none; }
+  .notif-panel { width: 280px; right: -8px; }
+  .profile-grid { grid-template-columns: 1fr; }
+  .week-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 10px;
+    gap: 6px;
+  }
+  .week-cell { min-height: 38px; padding: 6px 8px; }
+  .week-cell__time { font-size: 10px; }
+  .info-panel { padding: 10px 14px; }
+}
+
+@media (max-width: 480px) {
+  .week-board { grid-template-columns: 1fr; }
+}
