@@ -11,27 +11,37 @@
   opacity: 0.3; pointer-events: none;
 }
 .cabinet__inner { position: relative; z-index: 2; }
-.cabinet__head { margin-bottom: 32px; max-width: 640px; }
+.cabinet__head { margin-bottom: 24px; max-width: 640px; }
 .cabinet__eyebrow {
   font-family: var(--font-mono); font-size: 12px; text-transform: uppercase;
-  letter-spacing: 0.12em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 14px;
+  letter-spacing: 0.12em; color: var(--cabinet-accent, var(--accent)); margin-bottom: 8px;
 }
 .cabinet__title {
   font-family: var(--font-display); font-size: clamp(26px, 3.6vw, 40px);
   font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 8px;
 }
-.cabinet__title--small {
-  font-size: clamp(22px, 3vw, 34px);
+.cabinet__title--col {
   margin-bottom: 0;
   line-height: 1.15;
 }
 .cabinet__lead { color: var(--text-dim); font-size: 15px; }
 
-/* STATS — маленькие плашки в ряд */
+/* Заголовок колонки + кнопка справа */
+.cabinet__col-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: nowrap;
+  min-height: 48px;
+}
+
+/* STATS */
 .cabinet__stats {
   display: flex;
   gap: 8px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
@@ -262,17 +272,13 @@
 .student-col-main { min-width: 0; }
 .student-col-side { min-width: 0; }
 
-/* Заголовок справа — на уровне левого */
-.student-col-side .cabinet__section-head {
-  min-height: 0;
-  margin-bottom: 18px;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: nowrap;
+/* Заголовок колонки слева */
+.student-col-main > .cabinet__title--col {
+  margin-bottom: 16px;
 }
 
 /* ============================================= */
-/* WEEK BOARD (публичное и личное у учителя)      */
+/* WEEK BOARD (публичное и личное)                */
 /* ============================================= */
 .week-board {
   display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -332,7 +338,6 @@
   text-overflow: ellipsis; white-space: nowrap; margin-top: 1px;
 }
 
-/* Публичные ячейки */
 .week-cell--free {
   background: var(--accent-dim);
   border-color: var(--accent);
@@ -352,67 +357,12 @@
 }
 .week-cell--off .week-cell__status { color: var(--text-mute); }
 
-/* Личная ячейка */
 .week-cell--personal {
   background: var(--cabinet-accent-dim, var(--magenta-dim));
   border-color: var(--cabinet-accent, var(--magenta));
   border-style: dashed;
 }
 .week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
-
-/* ============================================= */
-/* ЛИЧНОЕ РАСПИСАНИЕ — таблица (устаревшее)      */
-/* ============================================= */
-.personal-board-wrap {
-  background: var(--surface-1); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 12px; overflow-x: auto;
-}
-
-.schedule-grid__loading {
-  text-align: center; padding: 32px;
-  color: var(--text-mute); font-family: var(--font-mono); font-size: 12px;
-}
-
-.schedule-table {
-  display: grid;
-  grid-template-columns: 52px repeat(7, 1fr);
-  gap: 2px;
-}
-
-.schedule-table__head {
-  font-family: var(--font-mono); font-size: 9.5px;
-  color: var(--text-mute); text-transform: uppercase;
-  letter-spacing: 0.05em; text-align: center; padding: 3px 4px;
-}
-
-.schedule-table__time {
-  font-family: var(--font-mono); font-size: 9.5px;
-  color: var(--text-mute); padding: 3px 4px 3px 0;
-  text-align: right;
-}
-
-.schedule-cell {
-  height: 26px;
-  border-radius: 4px;
-  border: 1px solid var(--border-strong);
-  background: var(--surface-2);
-  cursor: pointer;
-  transition: border-color 0.3s var(--ease), background 0.3s var(--ease);
-  font-size: 9px;
-  font-family: var(--font-mono);
-  color: var(--text-dim);
-  display: flex; align-items: center; justify-content: center;
-  padding: 0 3px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  text-align: center;
-}
-.schedule-cell:hover { border-color: var(--text); color: var(--text); }
-.schedule-cell.is-active {
-  background: var(--cabinet-accent-dim, var(--accent-dim));
-  border-color: var(--cabinet-accent, var(--accent));
-  color: var(--cabinet-accent, var(--accent));
-  font-weight: 500;
-}
 
 /* LOADING */
 .cabinet__loading {
@@ -577,7 +527,7 @@
   .cabinet-stat__num { font-size: 16px; }
   .cabinet__section { margin-bottom: 32px; }
   .cabinet__section-head { flex-direction: column; align-items: stretch; }
-  .student-col-side .cabinet__section-head { flex-wrap: wrap; }
+  .cabinet__col-head { flex-wrap: wrap; }
   .booking-card { padding: 14px 16px; }
   .booking-card__date { font-size: 15px; }
   .booking-card__action { padding: 7px 12px; font-size: 12px; }
@@ -585,8 +535,6 @@
   .nav__user-name { display: none; }
   .notif-panel { width: 280px; right: -8px; }
   .profile-grid { grid-template-columns: 1fr; }
-  .schedule-cell { height: 24px; font-size: 8.5px; }
-  .schedule-table { grid-template-columns: 44px repeat(7, 1fr); }
   .week-board {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding: 10px;
