@@ -8,6 +8,7 @@
 
   let personalMap = {};
   let personalEditingKey = null;
+  let personalExpanded = false;
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -55,6 +56,7 @@
     initNotifications();
     initReviewModal();
     initPersonalCellModal();
+    initTogglePersonal();
 
     const addPersonalBtn = document.querySelector('[data-add-personal-cell]');
     if (addPersonalBtn) addPersonalBtn.addEventListener('click', () => openPersonalCellModal(null));
@@ -77,6 +79,16 @@
     }
     const logoutMobile = document.querySelector('[data-logout-mobile]');
     if (logoutMobile) logoutMobile.addEventListener('click', window.authAPI.signOut);
+  }
+
+  function initTogglePersonal() {
+    const btn = document.querySelector('[data-toggle-personal-board]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      personalExpanded = !personalExpanded;
+      btn.textContent = personalExpanded ? 'Свернуть' : 'Развернуть';
+      renderPersonalBoard();
+    });
   }
 
   /* УВЕДОМЛЕНИЯ */
@@ -342,7 +354,6 @@
     await loadBookings();
   }
 
-  /* ДОБАВИТЬ В РАСПИСАНИЕ */
   async function addToSchedule(time, weekday, teacherName) {
     const wd = parseInt(weekday, 10);
     const key = wd + '|' + time;
@@ -452,7 +463,7 @@
     await window.supabaseClient.from('teachers').update({ rating: avg, reviews_count: count }).eq('id', teacherId);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ (карточки по дням) */
+  /* ЛИЧНОЕ РАСПИСАНИЕ */
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
@@ -477,28 +488,44 @@
 
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-student-board]');
+    const toggleBtn = document.querySelector('[data-toggle-personal-board]');
     if (!board) return;
 
+    let maxPerDay = 0;
     let html = '';
+
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(personalMap)
         .filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...personalMap[key] }))
         .sort((a, b) => a.key.localeCompare(b.key));
 
+      if (dayCells.length > maxPerDay) maxPerDay = dayCells.length;
+
+      const limited = personalExpanded ? dayCells : dayCells.slice(0, 1);
+      const moreCount = dayCells.length - limited.length;
+
       html += `
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
           <div class="week-day__body">
-            ${dayCells.length
-              ? dayCells.map(c => renderPersonalCell(day, c)).join('')
+            ${limited.length
+              ? limited.map(c => renderPersonalCell(day, c)).join('')
               : '<div class="week-day__empty">Нет ячеек</div>'
             }
+            ${(!personalExpanded && moreCount > 0) ? `<div class="week-day__more">+${moreCount}</div>` : ''}
           </div>
         </div>
       `;
     });
     board.innerHTML = html;
+
+    if (maxPerDay > 1) {
+      if (toggleBtn) toggleBtn.hidden = false;
+    } else {
+      if (toggleBtn) toggleBtn.hidden = true;
+      personalExpanded = false;
+    }
 
     board.querySelectorAll('[data-personal-cell-key]').forEach(el => {
       el.addEventListener('click', () => openPersonalCellModal(el.dataset.personalCellKey));
