@@ -273,16 +273,17 @@
 
     let statusClass, statusLabel, statusEmoji, actionHtml = '';
 
+    // PENDING — Ожидает: только «Отменить». Никаких «Добавить в расписание» и «Удалить»
     if (b.status === 'pending') {
       statusClass = 'pending';
       statusLabel = 'Ожидает';
       statusEmoji = '⏳';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
-        <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
       `;
-    } else if (b.status === 'approved' && !isDone) {
+    }
+    // APPROVED + время в будущем: «Добавить в расписание» + «Отменить» + «Удалить»
+    else if (b.status === 'approved' && !isDone) {
       statusClass = 'approved';
       statusLabel = 'Одобрена';
       statusEmoji = '✅';
@@ -291,7 +292,9 @@
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
         <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
       `;
-    } else if (b.status === 'approved' && isDone) {
+    }
+    // APPROVED + время прошло (done): «Оценить» (если можно) + «Удалить»
+    else if (b.status === 'approved' && isDone) {
       statusClass = 'done';
       statusLabel = 'Проведено';
       statusEmoji = '✅';
@@ -303,12 +306,16 @@
       } else {
         actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
       }
-    } else if (b.status === 'rejected') {
+    }
+    // REJECTED: только «Удалить»
+    else if (b.status === 'rejected') {
       statusClass = 'rejected';
       statusLabel = 'Отклонена';
       statusEmoji = '❌';
       actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
-    } else if (b.status === 'cancelled') {
+    }
+    // CANCELLED: только «Удалить»
+    else if (b.status === 'cancelled') {
       statusClass = 'cancelled';
       statusLabel = 'Отменена';
       statusEmoji = '✕';
