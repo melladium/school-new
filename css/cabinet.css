@@ -26,7 +26,7 @@
 }
 .cabinet__lead { color: var(--text-dim); font-size: 15px; }
 
-/* Заголовок колонки + кнопка справа */
+/* Заголовок колонки + кнопки */
 .cabinet__col-head {
   display: flex;
   justify-content: space-between;
@@ -34,7 +34,13 @@
   gap: 16px;
   margin-bottom: 16px;
   flex-wrap: nowrap;
-  min-height: 48px;
+  min-height: 40px;
+}
+.cabinet__col-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 /* STATS */
@@ -130,9 +136,7 @@
   max-width: 36ch; margin-left: auto; margin-right: auto;
 }
 
-/* ============================================= */
-/* КАРТОЧКА ЗАЯВКИ                               */
-/* ============================================= */
+/* BOOKING CARD */
 .booking-card {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -145,11 +149,7 @@
 }
 .booking-card:hover { border-color: var(--border-strong); }
 
-.booking-card__head {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
+.booking-card__head { display: flex; flex-direction: column; gap: 3px; }
 
 .booking-card__date {
   font-family: var(--font-mono);
@@ -160,15 +160,8 @@
   line-height: 1.15;
 }
 
-.booking-card__info {
-  font-size: 13.5px;
-  color: var(--text-dim);
-}
-
-.booking-card__name {
-  color: var(--text);
-  font-weight: 600;
-}
+.booking-card__info { font-size: 13.5px; color: var(--text-dim); }
+.booking-card__name { color: var(--text); font-weight: 600; }
 
 .booking-card__status {
   display: inline-flex;
@@ -202,11 +195,7 @@
   color: var(--text-mute);
 }
 
-.booking-card__actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+.booking-card__actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .booking-card__action {
   display: inline-flex;
@@ -260,9 +249,7 @@
 }
 .booking-card__action--remove:hover { color: var(--red); }
 
-/* ============================================= */
-/* РАСКЛАДКА УЧЕНИКА — 2 КОЛОНКИ                  */
-/* ============================================= */
+/* РАСКЛАДКА УЧЕНИКА */
 .student-layout {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -272,14 +259,11 @@
 .student-col-main { min-width: 0; }
 .student-col-side { min-width: 0; }
 
-/* Заголовок колонки слева */
 .student-col-main > .cabinet__title--col {
   margin-bottom: 16px;
 }
 
-/* ============================================= */
-/* WEEK BOARD (публичное и личное)                */
-/* ============================================= */
+/* WEEK BOARD */
 .week-board {
   display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px; background: var(--surface-1); border: 1px solid var(--border);
@@ -306,6 +290,14 @@
   display: flex; align-items: center; justify-content: center;
   height: 40px; border: 1px dashed var(--border); border-radius: var(--radius-sm);
   font-size: 10px; color: var(--text-mute); font-family: var(--font-mono);
+}
+.week-day__more {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--cabinet-accent, var(--accent));
+  text-align: center;
+  padding: 3px 0;
+  opacity: 0.8;
 }
 
 .week-cell {
