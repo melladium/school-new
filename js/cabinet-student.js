@@ -280,6 +280,7 @@
       actionHtml = `
         <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
       `;
     } else if (b.status === 'approved' && !isDone) {
       statusClass = 'approved';
@@ -288,26 +289,30 @@
       actionHtml = `
         <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
       `;
     } else if (b.status === 'approved' && isDone) {
       statusClass = 'done';
       statusLabel = 'Проведено';
       statusEmoji = '✅';
       if (canReview) {
-        actionHtml = `<button class="booking-card__action booking-card__action--primary" data-action-review="${b.teacher_id}" data-teacher-name="${b.teacherName}">Оценить урок</button>`;
+        actionHtml = `
+          <button class="booking-card__action booking-card__action--primary" data-action-review="${b.teacher_id}" data-teacher-name="${b.teacherName}">Оценить урок</button>
+          <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
+        `;
       } else {
-        actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Убрать из списка</button>`;
+        actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
       }
     } else if (b.status === 'rejected') {
       statusClass = 'rejected';
       statusLabel = 'Отклонена';
       statusEmoji = '❌';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Убрать из списка</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
     } else if (b.status === 'cancelled') {
       statusClass = 'cancelled';
       statusLabel = 'Отменена';
       statusEmoji = '✕';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Убрать из списка</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
     }
 
     return `
@@ -345,7 +350,7 @@
   }
 
   async function removeBooking(id) {
-    if (!confirm('Убрать из списка?')) return;
+    if (!confirm('Удалить заявку навсегда?')) return;
     const { error } = await window.supabaseClient
       .from('booking_requests')
       .delete()
