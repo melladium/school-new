@@ -20,6 +20,11 @@
   font-family: var(--font-display); font-size: clamp(26px, 3.6vw, 40px);
   font-weight: 400; line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 8px;
 }
+.cabinet__title--small {
+  font-size: clamp(22px, 3vw, 34px);
+  margin-bottom: 0;
+  line-height: 1.15;
+}
 .cabinet__lead { color: var(--text-dim); font-size: 15px; }
 
 /* STATS — маленькие плашки в ряд */
@@ -257,17 +262,13 @@
 .student-col-main { min-width: 0; }
 .student-col-side { min-width: 0; }
 
-/* Заголовки колонок на одной линии */
-.student-col-main .cabinet__section-head,
+/* Заголовок справа — на уровне левого */
 .student-col-side .cabinet__section-head {
-  min-height: 40px;
-  margin-bottom: 14px;
+  min-height: 0;
+  margin-bottom: 18px;
   align-items: center;
-}
-.student-col-main .cabinet__section-title,
-.student-col-side .cabinet__section-title {
-  margin-bottom: 0;
-  font-size: 22px;
+  justify-content: space-between;
+  flex-wrap: nowrap;
 }
 
 /* ============================================= */
@@ -351,7 +352,7 @@
 }
 .week-cell--off .week-cell__status { color: var(--text-mute); }
 
-/* Личная ячейка учителя */
+/* Личная ячейка */
 .week-cell--personal {
   background: var(--cabinet-accent-dim, var(--magenta-dim));
   border-color: var(--cabinet-accent, var(--magenta));
@@ -360,7 +361,7 @@
 .week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
 
 /* ============================================= */
-/* ЛИЧНОЕ РАСПИСАНИЕ — таблица Пн–Вс × часы       */
+/* ЛИЧНОЕ РАСПИСАНИЕ — таблица (устаревшее)      */
 /* ============================================= */
 .personal-board-wrap {
   background: var(--surface-1); border: 1px solid var(--border);
@@ -576,6 +577,7 @@
   .cabinet-stat__num { font-size: 16px; }
   .cabinet__section { margin-bottom: 32px; }
   .cabinet__section-head { flex-direction: column; align-items: stretch; }
+  .student-col-side .cabinet__section-head { flex-wrap: wrap; }
   .booking-card { padding: 14px 16px; }
   .booking-card__date { font-size: 15px; }
   .booking-card__action { padding: 7px 12px; font-size: 12px; }
