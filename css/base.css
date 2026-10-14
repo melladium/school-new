@@ -376,14 +376,12 @@ img { max-width: 100%; display: block; }
 .icon--sm { width: 16px; height: 16px; }
 
 /* ЦВЕТА КАБИНЕТОВ */
-/* ученик — синий */
 .page-student {
   --cabinet-accent: #4EA8E8;
   --cabinet-accent-dim: rgba(78, 168, 232, 0.12);
   --cabinet-accent-glow: rgba(78, 168, 232, 0.3);
 }
 
-/* учитель — фиолетовый */
 .page-teacher {
   --cabinet-accent: #E84EC6;
   --cabinet-accent-dim: rgba(232, 78, 198, 0.12);
