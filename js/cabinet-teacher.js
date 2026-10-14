@@ -773,4 +773,150 @@
 
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
-    setTimeout(() => timeInput
+    setTimeout(() => timeInput && timeInput.focus(), 150);
+  }
+
+  /* ЗАЯВКИ */
+  async function loadRequests() {
+    const listEl = document.querySelector('[data-bookings-list]');
+    if (!listEl) return;
+
+    listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
+
+    const { data, error } = await window.supabaseClient
+      .from('booking_requests')
+      .select('id, status, weekday, time, student_id, created_at')
+      .eq('teacher_id', currentUser.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>';
+      return;
+    }
+
+    if (!data.length) {
+      listEl.innerHTML = `
+        <div class="cabinet__empty">
+          <div class="cabinet__empty-icon">📩</div>
+          <div class="cabinet__empty-title">Заявок пока нет</div>
+          <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
+        </div>
+      `;
+      updateStats(0, 0);
+      return;
+    }
+
+    const studentIds = [...new Set(data.map(b => b.student_id).filter(Boolean))];
+    const { data: profiles } = studentIds.length
+      ? await window.supabaseClient.from('profiles').select('id, name, email').in('id', studentIds)
+      : { data: [] };
+
+    const studentsMap = {};
+    (profiles || []).forEach(p => studentsMap[p.id] = p);
+
+    const upcoming = [];
+    const done = [];
+
+    const rows = data.map(b => {
+      const s = studentsMap[b.student_id] || {};
+      const item = { ...b, studentName: s.name || s.email || 'Ученик' };
+      if (b.status === 'approved' && isPast(b.weekday, b.time)) done.push(item);
+      else if (b.status === 'pending' || b.status === 'approved') upcoming.push(item);
+      return item;
+    });
+
+    listEl.innerHTML = rows.map(b => renderBookingCard(b)).join('');
+
+    listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
+      btn.addEventListener('click', () => approveRequest(
+        btn.dataset.approveRequest,
+        parseInt(btn.dataset.weekday, 10),
+        btn.dataset.time,
+        btn.dataset.student
+      ));
+    });
+    listEl.querySelectorAll('[data-reject-request]').forEach(btn => {
+      btn.addEventListener('click', () => rejectRequest(btn.dataset.rejectRequest));
+    });
+    listEl.querySelectorAll('[data-delete-request]').forEach(btn => {
+      btn.addEventListener('click', () => deleteRequest(btn.dataset.deleteRequest));
+    });
+
+    updateStats(upcoming.length, done.length);
+  }
+
+  function renderBookingCard(b) {
+    const dateLabel = `${DAYS[b.weekday]} · ${b.time}`;
+    let statusClass, statusLabel, statusEmoji, actionHtml = '';
+
+    if (b.status === 'pending') {
+      statusClass = 'pending'; statusLabel = 'Ожидает'; statusEmoji = '⏳';
+      actionHtml = `
+        <button class="booking-card__action booking-card__action--primary" data-approve-request="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-student="${b.student_id}">Одобрить</button>
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${b.id}">Отклонить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>
+      `;
+    } else if (b.status === 'approved') {
+      statusClass = 'approved'; statusLabel = 'Одобрена'; statusEmoji = '✅';
+      actionHtml = `
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${b.id}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>
+      `;
+    } else if (b.status === 'rejected') {
+      statusClass = 'rejected'; statusLabel = 'Отклонена'; statusEmoji = '❌';
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>`;
+    } else if (b.status === 'cancelled') {
+      statusClass = 'cancelled'; statusLabel = 'Отменена'; statusEmoji = '✕';
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>`;
+    }
+
+    return `
+      <div class="booking-card">
+        <div class="booking-card__head">
+          <div class="booking-card__date">${dateLabel}</div>
+          <div class="booking-card__info"><span class="booking-card__name">${b.studentName}</span></div>
+        </div>
+        <div class="booking-card__status booking-card__status--${statusClass}">${statusEmoji} ${statusLabel}</div>
+        <div class="booking-card__actions">${actionHtml}</div>
+      </div>
+    `;
+  }
+
+  function updateStats(upcoming, done) {
+    const uEl = document.querySelector('[data-stat="upcoming"]');
+    const dEl = document.querySelector('[data-stat="done"]');
+    if (uEl) uEl.textContent = upcoming;
+    if (dEl) dEl.textContent = done;
+  }
+
+  async function approveRequest(id, weekday, time, studentId) {
+    if (!confirm('Одобрить заявку? Место станет занятым.')) return;
+    const { error: reqError } = await window.supabaseClient.from('booking_requests').update({ status: 'approved' }).eq('id', id);
+    if (reqError) { alert('Ошибка: ' + reqError.message); return; }
+
+    const { data: profile } = await window.supabaseClient.from('profiles').select('name').eq('id', studentId).single();
+    const studentName = (profile && profile.name) || 'Ученик';
+
+    await window.supabaseClient.from('schedule_template').upsert({
+      teacher_id: currentUser.user.id, weekday: weekday, time: time, text_content: studentName, status: 'busy'
+    }, { onConflict: 'teacher_id,weekday,time' });
+
+    await Promise.all([loadRequests(), loadCells()]);
+  }
+
+  async function rejectRequest(id) {
+    if (!confirm('Отклонить заявку?')) return;
+    const { error } = await window.supabaseClient.from('booking_requests').update({ status: 'rejected' }).eq('id', id);
+    if (error) { alert('Ошибка: ' + error.message); return; }
+    await loadRequests();
+  }
+
+  async function deleteRequest(id) {
+    if (!confirm('Удалить заявку навсегда?')) return;
+    const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
+    if (error) { alert('Ошибка: ' + error.message); return; }
+    await loadRequests();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
