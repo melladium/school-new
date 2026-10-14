@@ -59,32 +59,174 @@
     <div class="container cabinet__inner">
       <div class="cabinet__head">
         <div class="cabinet__eyebrow">Кабинет репетитора</div>
+      </div>
+
+      <div class="cabinet__head-row">
         <h1 class="cabinet__title">Расписание и заявки</h1>
-        <p class="cabinet__lead">Управляйте расписанием, видьте заявки, редактируйте профиль</p>
+        <button class="btn btn--ghost" data-open-profile>Мой профиль</button>
       </div>
 
       <div class="cabinet__stats">
         <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="slots">0</div>
-          <div class="cabinet-stat__label">Ячеек</div>
+          <div class="cabinet-stat__num" data-stat="upcoming">0</div>
+          <div class="cabinet-stat__label">Предстоит</div>
         </div>
         <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="bookings">0</div>
-          <div class="cabinet-stat__label">Заявок</div>
-        </div>
-        <div class="cabinet-stat">
-          <div class="cabinet-stat__num" data-stat="rating">—</div>
-          <div class="cabinet-stat__label">Рейтинг</div>
+          <div class="cabinet-stat__num" data-stat="done">0</div>
+          <div class="cabinet-stat__label">Проведено</div>
         </div>
       </div>
 
-      <!-- ПРОФИЛЬ -->
-      <div class="cabinet__section">
-        <div class="cabinet__section-head">
-          <h2 class="cabinet__section-title">Мой профиль</h2>
-          <button class="btn btn--ghost" data-toggle-profile>Редактировать</button>
+      <!-- ДВЕ КОЛОНКИ -->
+      <div class="teacher-layout">
+
+        <!-- СЛЕВА: ЗАЯВКИ -->
+        <div class="teacher-col-main">
+          <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
+          <div class="cabinet__list" data-bookings-list>
+            <div class="cabinet__empty">
+              <div class="cabinet__empty-icon">📩</div>
+              <div class="cabinet__empty-title">Заявок пока нет</div>
+              <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
+            </div>
+          </div>
         </div>
 
+        <!-- СПРАВА: ВКЛАДКИ -->
+        <aside class="teacher-col-side">
+          <div class="teacher-tabs">
+            <button class="teacher-tab is-active" data-tab="public">Публичное</button>
+            <button class="teacher-tab" data-tab="personal">Личное</button>
+            <button class="teacher-tab" data-tab="anketa">Моя анкета</button>
+          </div>
+
+          <!-- ПУБЛИЧНОЕ -->
+          <div class="teacher-tab-panel is-active" data-tab-panel="public">
+            <div class="cabinet__section-head">
+              <div></div>
+              <button class="btn btn--primary btn--sm" data-add-cell>+ Ячейка</button>
+            </div>
+            <div class="info-panel">
+              <div class="info-panel__title">Что это</div>
+              <ul class="info-panel__list">
+                <li>Эти ячейки <strong>видят ученики</strong>.</li>
+                <li><span class="dot dot--free"></span> Свободно — можно оставить заявку.</li>
+                <li><span class="dot dot--busy"></span> Занято — время забронировано.</li>
+                <li><span class="dot dot--off"></span> Не работает — вы недоступны.</li>
+              </ul>
+            </div>
+            <div class="week-board" data-week-board>
+              <div class="week-board__loading">Загружаем…</div>
+            </div>
+          </div>
+
+          <!-- ЛИЧНОЕ -->
+          <div class="teacher-tab-panel" data-tab-panel="personal">
+            <div class="cabinet__section-head">
+              <div></div>
+              <button class="btn btn--primary btn--sm" data-add-personal-cell>+ Ячейка</button>
+            </div>
+            <div class="info-panel">
+              <div class="info-panel__title">Что это</div>
+              <ul class="info-panel__list">
+                <li>Это <strong>только для вас</strong>.</li>
+                <li>Ученики не видят.</li>
+                <li>Заметки для себя: имя, ссылка.</li>
+              </ul>
+            </div>
+            <div class="week-board week-board--personal" data-personal-board>
+              <div class="week-board__loading">Загружаем…</div>
+            </div>
+          </div>
+
+          <!-- АНКЕТА -->
+          <div class="teacher-tab-panel" data-tab-panel="anketa">
+            <div class="anketa-preview">
+              <div class="anketa-preview__avatar" data-hero-avatar>—</div>
+              <div class="anketa-preview__name" data-hero-name>—</div>
+              <div class="anketa-preview__meta">
+                <span data-hero-subject>—</span>
+                <span>·</span>
+                <span data-hero-price>—</span>
+              </div>
+              <div class="anketa-preview__rating">
+                <span class="tp-sidebar__star">★</span>
+                <span data-hero-rating>—</span>
+                <span data-hero-reviews>· 0 отзывов</span>
+              </div>
+
+              <div class="anketa-preview__bio" data-bio-text>—</div>
+
+              <div class="anketa-preview__contacts">
+                <div class="anketa-preview__contact" data-preview-telegram hidden>
+                  <span class="tp-contact__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 4L2 12l6 2 2 6 4-5 6 4V4z"/>
+                    </svg>
+                  </span>
+                  <span>Telegram</span>
+                </div>
+                <div class="anketa-preview__contact" data-preview-whatsapp hidden>
+                  <span class="tp-contact__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 11.5a8.4 8.4 0 01-1.2 4.4L21 21l-5.3-1.3a8.5 8.5 0 01-12.3-7.5A8.5 8.5 0 0121 11.5z"/>
+                    </svg>
+                  </span>
+                  <span>WhatsApp</span>
+                </div>
+                <div class="anketa-preview__contact" data-preview-phone hidden>
+                  <span class="tp-contact__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.4 2.1L8 10.2a16 16 0 006 6l1.4-1.4a2 2 0 012.1-.5c1 .3 2 .6 3 .7a2 2 0 011.7 2z"/>
+                    </svg>
+                  </span>
+                  <span>Позвонить</span>
+                </div>
+                <div class="anketa-preview__contact" data-preview-link hidden>
+                  <span class="tp-contact__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/>
+                      <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/>
+                    </svg>
+                  </span>
+                  <span>Ссылка на урок</span>
+                </div>
+              </div>
+
+              <div class="anketa-preview__actions">
+                <button class="btn btn--ghost" data-open-profile>Редактировать</button>
+                <a href="#" class="btn btn--primary" data-open-public-page target="_blank" rel="noopener">Открыть страницу</a>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Опасная зона</h2>
+        <div class="danger-zone">
+          <p class="danger-zone__text">
+            Скрытие анкеты убирает вас из автоподбора. Ученики перестанут вас видеть.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--ghost" data-toggle-visibility>Скрыть анкету</button>
+            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
+            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- МОДАЛКА ПРОФИЛЯ -->
+  <div class="modal" data-modal="profile" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel" style="max-width: 680px;">
+      <div class="pay">
+        <div class="pay__title">Мой профиль</div>
+
+        <!-- ПРОСМОТР -->
         <div data-profile-view class="profile-grid">
           <div class="profile-item profile-item--full" style="flex-direction:row;align-items:center;gap:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">
             <div data-profile-avatar style="width:80px;height:80px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:24px;color:var(--cabinet-accent,var(--magenta));overflow:hidden;flex-shrink:0;">—</div>
@@ -123,7 +265,8 @@
           </div>
         </div>
 
-        <div data-profile-edit hidden style="background:var(--surface-1);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:24px;margin-top:16px;">
+        <!-- РЕДАКТИРОВАНИЕ -->
+        <div data-profile-edit hidden>
           <div class="field" style="margin-bottom:14px;">
             <label>Главное фото (аватар)</label>
             <div style="display:flex;align-items:center;gap:16px;">
@@ -193,13 +336,13 @@
           </div>
 
           <div class="field" style="margin-bottom:14px;">
-            <label>Ссылка на урок (Телемост / Zoom / Meet)</label>
-            <input type="url" data-edit-link placeholder="https://telemost.yandex.ru/j/...">
+            <label>Ссылка на урок</label>
+            <input type="url" data-edit-link placeholder="https://...">
           </div>
 
           <div class="field" style="margin-bottom:14px;">
             <label>О себе</label>
-            <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат. 8 лет готовлю к ОГЭ и ЕГЭ..."></textarea>
+            <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат..."></textarea>
           </div>
 
           <div class="auth-form__error" data-profile-error></div>
@@ -209,81 +352,15 @@
             <button class="btn btn--ghost" data-profile-cancel>Отмена</button>
           </div>
         </div>
-      </div>
 
-      <!-- РАСПИСАНИЕ ДЛЯ УЧЕНИКОВ -->
-      <div class="cabinet__section">
-        <div class="cabinet__section-head">
-          <h2 class="cabinet__section-title">Расписание для учеников</h2>
-          <button class="btn btn--primary" data-add-cell>+ Добавить ячейку</button>
-        </div>
-
-        <div class="info-panel">
-          <div class="info-panel__title">Что это и как работает</div>
-          <ul class="info-panel__list">
-            <li>Эти ячейки <strong>видят ученики</strong>.</li>
-            <li><span class="dot dot--free"></span> <strong>Свободно</strong> — ученик может оставить заявку.</li>
-            <li><span class="dot dot--busy"></span> <strong>Занято</strong> — время забронировано.</li>
-            <li><span class="dot dot--off"></span> <strong>Не работает</strong> — вы недоступны.</li>
-          </ul>
-        </div>
-
-        <div class="week-board" data-week-board>
-          <div class="week-board__loading">Загружаем…</div>
-        </div>
-      </div>
-
-      <!-- ЛИЧНОЕ РАСПИСАНИЕ -->
-      <div class="cabinet__section">
-        <div class="cabinet__section-head">
-          <h2 class="cabinet__section-title">Моё личное расписание</h2>
-          <button class="btn btn--primary" data-add-personal-cell>+ Добавить ячейку</button>
-        </div>
-
-        <div class="info-panel">
-          <div class="info-panel__title">Что это и как работает</div>
-          <ul class="info-panel__list">
-            <li>Это <strong>только для вас</strong>. Ученики не видят.</li>
-            <li>Кликните по ячейке — изменить или удалить.</li>
-            <li>Такое же, как публичное, только для вас.</li>
-          </ul>
-        </div>
-
-        <div class="week-board week-board--personal" data-personal-board>
-          <div class="week-board__loading">Загружаем…</div>
-        </div>
-      </div>
-
-      <!-- ЗАЯВКИ -->
-      <div class="cabinet__section">
-        <h2 class="cabinet__section-title">Заявки на место</h2>
-        <div class="cabinet__list" data-bookings-list>
-          <div class="cabinet__empty">
-            <div class="cabinet__empty-icon">📩</div>
-            <div class="cabinet__empty-title">Заявок пока нет</div>
-            <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ОПАСНАЯ ЗОНА -->
-      <div class="cabinet__section">
-        <h2 class="cabinet__section-title">Опасная зона</h2>
-        <div class="danger-zone">
-          <p class="danger-zone__text">
-            Скрытие анкеты убирает вас из автоподбора. Ученики перестанут вас видеть.
-          </p>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn--ghost" data-toggle-visibility>Скрыть анкету</button>
-            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
-            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
-          </div>
+        <div style="margin-top:16px;text-align:right;">
+          <button class="btn btn--ghost" data-modal-close>Закрыть</button>
         </div>
       </div>
     </div>
-  </main>
+  </div>
 
-  <!-- МОДАЛКА ЯЧЕЙКИ (публичной) -->
+  <!-- МОДАЛКА ЯЧЕЙКИ -->
   <div class="modal" data-modal="cell-edit" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
@@ -308,14 +385,14 @@
         <div class="field" style="margin-bottom:14px;">
           <label>Статус</label>
           <select data-cell-status>
-            <option value="free">Свободно — ученик может оставить заявку</option>
-            <option value="busy">Занято — время забронировано</option>
-            <option value="off">Не работает — вы недоступны</option>
+            <option value="free">Свободно</option>
+            <option value="busy">Занято</option>
+            <option value="off">Не работает</option>
           </select>
         </div>
         <div class="field" style="margin-bottom:14px;">
-          <label>Заметка для себя (необязательно)</label>
-          <input type="text" maxlength="70" data-cell-note placeholder="Например: Андрей, ссылка на звонок">
+          <label>Заметка (до 70 символов)</label>
+          <input type="text" maxlength="70" data-cell-note placeholder="Андрей, ссылка на звонок">
         </div>
         <div class="auth-form__error" data-cell-error></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -350,7 +427,7 @@
         </div>
         <div class="field" style="margin-bottom:14px;">
           <label>Текст (до 70 символов)</label>
-          <input type="text" maxlength="70" data-personal-cell-text placeholder="Андрей, meet.google.com/abc">
+          <input type="text" maxlength="70" data-personal-cell-text placeholder="Заметка">
         </div>
         <div class="auth-form__error" data-personal-cell-error></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
