@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Школа Кузнечевского — репетиторы без курсов</title>
-  <meta name="description" content="Онлайн-школа репетиторов. Живое расписание, реальные анкеты, бесплатно для всех.">
+  <title>Школа Кузнечевского — площадка репетиторов</title>
+  <meta name="description" content="Площадка репетиторов без курсов и методологий. Живое расписание, реальные анкеты, бесплатно для всех.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
 
   <header class="nav">
     <div class="nav__inner">
-      <a href="index.html" class="nav__logo" data-logo>
+      <a href="index.html" class="nav__logo" data-logo aria-label="Школа Кузнечевского — на главную">
         <span>Ш</span><span>к</span><span>о</span><span>л</span><span>а</span>
         <span class="nav__logo-space"> </span>
         <span>К</span><span>у</span><span>з</span><span>н</span><span>е</span><span>ч</span><span>е</span><span>в</span><span>с</span><span>к</span><span>о</span><span>г</span><span>о</span>
@@ -61,6 +61,16 @@
         <span></span><span></span>
       </button>
     </div>
+
+    <nav class="nav__mobile" data-nav-mobile hidden>
+      <a href="#podbor">Автоподбор</a>
+      <a href="#how">Как это работает</a>
+      <a href="#repetitoram">Репетиторам</a>
+      <div class="nav__mobile-auth" data-nav-mobile-auth>
+        <a href="login.html" class="btn btn--ghost">Войти</a>
+        <a href="register.html" class="btn btn--primary">Регистрация</a>
+      </div>
+    </nav>
   </header>
 
   <main>
@@ -72,8 +82,15 @@
       </div>
       <div class="hero__inner">
         <h1 class="hero__title" data-hero-el>
-          Школа, где репетитор <em>главное</em>
+          Школа, где репетитор <em>— главное</em>
         </h1>
+        <p class="hero__sub" data-hero-el>
+          Найдите репетитора по предмету, задаче и бюджету. Бесплатно, без курсов и комиссий.
+        </p>
+        <div class="hero__cta" data-hero-el>
+          <a href="#podbor" class="btn btn--primary btn--lg">Подобрать репетитора</a>
+          <a href="#how" class="btn btn--ghost btn--lg">Как это работает</a>
+        </div>
       </div>
     </section>
 
@@ -96,11 +113,15 @@
               <h3 class="podbor__question">Какой предмет?</h3>
               <div class="chips" data-field="subject" data-chips>
                 <button class="chip" data-value="math">Математика</button>
-                <button class="chip" data-value="english">Английский</button>
-                <button class="chip" data-value="physics">Физика</button>
                 <button class="chip" data-value="russian">Русский</button>
+                <button class="chip" data-value="physics">Физика</button>
                 <button class="chip" data-value="chemistry">Химия</button>
+                <button class="chip" data-value="biology">Биология</button>
                 <button class="chip" data-value="it">Информатика</button>
+                <button class="chip" data-value="english">Английский</button>
+                <button class="chip" data-value="history">История</button>
+                <button class="chip" data-value="social">Обществознание</button>
+                <button class="chip" data-value="geography">География</button>
               </div>
               <div class="podbor__hint" data-hint="subject" hidden>Выберите предмет</div>
             </div>
@@ -114,26 +135,12 @@
 
             <div class="podbor__step" data-step="3">
               <div class="podbor__step-label">Шаг 3 из 3</div>
-              <h3 class="podbor__question">Когда удобно и какой бюджет?</h3>
-              <div class="podbor__row">
-                <div class="field">
-                  <label>Время</label>
-                  <div class="chips" data-field="time" data-chips>
-                    <button class="chip" data-value="morning">Утро</button>
-                    <button class="chip" data-value="day">День</button>
-                    <button class="chip" data-value="evening">Вечер</button>
-                    <button class="chip" data-value="weekend">Выходные</button>
-                  </div>
-                </div>
-                <div class="field">
-                  <label>Бюджет за урок</label>
-                  <div class="chips" data-field="budget" data-chips>
-                    <button class="chip" data-value="1000">до 1000 ₽</button>
-                    <button class="chip" data-value="1500">до 1500 ₽</button>
-                    <button class="chip" data-value="2500">до 2500 ₽</button>
-                    <button class="chip" data-value="any">Не важно</button>
-                  </div>
-                </div>
+              <h3 class="podbor__question">Какой бюджет за урок?</h3>
+              <div class="chips" data-field="budget" data-chips>
+                <button class="chip" data-value="1000">до 1000 ₽</button>
+                <button class="chip" data-value="1500">до 1500 ₽</button>
+                <button class="chip" data-value="2500">до 2500 ₽</button>
+                <button class="chip" data-value="any">Не важно</button>
               </div>
             </div>
           </div>
@@ -161,13 +168,13 @@
       <div class="container">
         <div class="section-head reveal">
           <div class="section-head__eyebrow">Как это работает</div>
-          <h2 class="section-head__title">Без курсов, без методологий</h2>
+          <h2 class="section-head__title">Без курсов и методологий — только вы и репетитор</h2>
         </div>
         <div class="grid grid--3">
           <div class="how__card reveal">
             <div class="how__num">01</div>
-            <h3>Отвечаете</h3>
-            <p>Три вопроса: предмет, задача, удобное время. Без регистрации.</p>
+            <h3>Отвечаете на три вопроса</h3>
+            <p>Предмет, задача, бюджет. Регистрация не нужна — просто выберите.</p>
           </div>
           <div class="how__card reveal">
             <div class="how__num">02</div>
@@ -237,7 +244,7 @@
     <div class="container">
       <div class="footer__inner">
         <div class="footer__col">
-          <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+          <a href="index.html" class="nav__logo" aria-label="Школа Кузнечевского — на главную">Школа Кузнечевского<span>.</span></a>
           <p class="footer__desc">Площадка репетиторов без курсов и методологий. Бесплатно для всех.</p>
         </div>
         <div class="footer__col">
