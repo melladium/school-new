@@ -74,10 +74,9 @@
       btn.addEventListener('click', openProfileModal);
     });
 
-    const previewLink = document.querySelector('[data-preview-link]');
-    if (previewLink) {
-      previewLink.href = 'teacher.html?id=' + currentUser.user.id + '&preview=1';
-    }
+    document.querySelectorAll('[data-open-preview]').forEach(btn => {
+      btn.addEventListener('click', openPreview);
+    });
 
     await Promise.all([
       loadProfile(),
@@ -112,7 +111,7 @@
     });
   }
 
-  /* ─────────── МОДАЛКИ (общее закрытие) ─────────── */
+  /* ─────────── МОДАЛКИ ─────────── */
 
   function initModals() {
     document.querySelectorAll('[data-modal-close]').forEach(el => {
@@ -282,6 +281,12 @@
     setVal('[data-edit-whatsapp]', data.whatsapp || '');
     setVal('[data-edit-link]', data.meeting_link || '');
     setVal('[data-edit-bio]', data.bio || '');
+
+    // если превью уже открыто — обновим его тоже
+    const previewModal = document.querySelector('[data-modal="preview"]');
+    if (previewModal && !previewModal.hidden) {
+      renderPreviewFromData(data);
+    }
   }
 
   function initProfileSection() {
@@ -444,6 +449,137 @@
       });
     }
   }
+
+  /* ─────────── ПРЕДПРОСМОТР АНКЕТЫ ─────────── */
+
+  async function openPreview() {
+    openModal('preview');
+    await loadPreview();
+  }
+
+  async function loadPreview() {
+    const { data, error } = await window.supabaseClient
+      .from('teachers')
+      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, rating, reviews_count, avatar_url, portfolio_url, portfolio_url_2')
+      .eq('id', currentUser.user.id)
+      .single();
+    if (error || !data) return;
+
+    renderPreviewFromData(data);
+    await renderPreviewSchedule();
+  }
+
+  function renderPreviewFromData(data) {
+    const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const setText = (sel, val) => {
+      const el = document.querySelector(sel);
+      if (el) el.textContent = val || '—';
+    };
+
+    const avEl = document.querySelector('[data-preview-avatar]');
+    if (avEl) {
+      if (data.avatar_url) avEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      else avEl.textContent = initials;
+    }
+
+    setText('[data-preview-name]', currentUser.profile.name || 'Репетитор');
+    setText('[data-preview-subject]', SUBJECT_LABELS[data.subject] || data.subject || '—');
+    setText('[data-preview-price]', data.price ? data.price + ' ₽ / урок' : '—');
+    setText('[data-preview-rating]', data.rating || '—');
+    setText('[data-preview-reviews]', `· ${data.reviews_count || 0} отзывов`);
+
+    const bioBlock = document.querySelector('[data-preview-bio-block]');
+    const bioEl = document.querySelector('[data-preview-bio]');
+    if (data.bio && bioEl) {
+      bioEl.textContent = data.bio;
+      if (bioBlock) bioBlock.hidden = false;
+    } else if (bioBlock) {
+      bioBlock.hidden = true;
+    }
+
+    // Контакты — показываем/скрываем иконки
+    const contactsBlock = document.querySelector('[data-preview-contacts-block]');
+    const cTg = document.querySelector('[data-preview-contact="telegram"]');
+    const cWa = document.querySelector('[data-preview-contact="whatsapp"]');
+    const cPh = document.querySelector('[data-preview-contact="phone"]');
+    const cLk = document.querySelector('[data-preview-contact="link"]');
+
+    let hasContacts = false;
+    if (cTg) { cTg.hidden = !data.telegram; if (data.telegram) hasContacts = true; }
+    if (cWa) { cWa.hidden = !data.whatsapp; if (data.whatsapp) hasContacts = true; }
+    if (cPh) { cPh.hidden = !data.phone; if (data.phone) hasContacts = true; }
+    if (cLk) { cLk.hidden = !data.meeting_link; if (data.meeting_link) hasContacts = true; }
+    if (contactsBlock) contactsBlock.hidden = !hasContacts;
+
+    // Портфолио
+    const portfolioBlock = document.querySelector('[data-preview-portfolio-block]');
+    const pImg1 = document.querySelector('[data-preview-portfolio-image]');
+    const pImg2 = document.querySelector('[data-preview-portfolio-image-2]');
+    let hasPortfolio = false;
+    if (pImg1) {
+      if (data.portfolio_url) { pImg1.src = data.portfolio_url; pImg1.hidden = false; hasPortfolio = true; }
+      else pImg1.hidden = true;
+    }
+    if (pImg2) {
+      if (data.portfolio_url_2) { pImg2.src = data.portfolio_url_2; pImg2.hidden = false; hasPortfolio = true; }
+      else pImg2.hidden = true;
+    }
+    if (portfolioBlock) portfolioBlock.hidden = !hasPortfolio;
+  }
+
+  async function renderPreviewSchedule() {
+    const el = document.querySelector('[data-preview-schedule]');
+    if (!el) return;
+
+    const { data, error } = await window.supabaseClient
+      .from('schedule_template')
+      .select('weekday, time, status')
+      .eq('teacher_id', currentUser.user.id)
+      .order('weekday', { ascending: true })
+      .order('time', { ascending: true });
+
+    if (error) { el.innerHTML = '<div class="preview-schedule__loading">Ошибка загрузки</div>'; return; }
+    if (!data || !data.length) { el.innerHTML = '<div class="preview-schedule__loading">Расписание пока пустое</div>'; return; }
+
+    const map = {};
+    data.forEach(item => { map[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time }; });
+
+    let html = '<div class="week-board">';
+    DAY_ORDER.forEach(day => {
+      const dayCells = Object.keys(map)
+        .filter(k => k.startsWith(day + '|'))
+        .map(k => ({ key: k, ...map[k] }))
+        .sort((a, b) => a.time.localeCompare(b.time));
+
+      html += `
+        <div class="week-day">
+          <div class="week-day__head">${DAYS[day]}</div>
+          <div class="week-day__body">
+            ${dayCells.length
+              ? dayCells.map(c => `
+                <div class="week-cell week-cell--${c.status} week-cell--preview">
+                  <div class="week-cell__time">${c.time}</div>
+                  <div class="week-cell__status">${STATUS_LABELS[c.status] || c.status}</div>
+                </div>
+              `).join('')
+              : '<div class="week-day__empty">—</div>'}
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // Кнопка «Редактировать профиль» внутри превью
+  document.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('[data-preview-edit]');
+    if (editBtn) {
+      closeModal('preview');
+      openProfileModal();
+    }
+  });
 
   /* ─────────── ПУБЛИЧНОЕ РАСПИСАНИЕ ─────────── */
 
