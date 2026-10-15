@@ -16,8 +16,89 @@
   };
 
   const SUBJECT_LABELS = {
-    math: 'Математика', english: 'Английский', physics: 'Физика',
-    russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
+    math: 'Математика',
+    russian: 'Русский',
+    physics: 'Физика',
+    chemistry: 'Химия',
+    biology: 'Биология',
+    it: 'Информатика',
+    english: 'Английский',
+    history: 'История',
+    social: 'Обществознание',
+    geography: 'География'
+  };
+
+  const SUBJECT_GOALS = {
+    math: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    russian: [
+      { value: 'school',   label: 'Подтянуть школу' },
+      { value: 'oge',      label: 'ОГЭ' },
+      { value: 'ege',      label: 'ЕГЭ' },
+      { value: 'essay',    label: 'Сочинение / изложение' },
+      { value: 'literacy', label: 'Грамотность' }
+    ],
+    physics: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    chemistry: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'med',     label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    biology: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'med',     label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    it: [
+      { value: 'school',  label: 'Школьная информатика' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'python',  label: 'Python' },
+      { value: 'web',     label: 'Веб-разработка' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    english: [
+      { value: 'school',       label: 'Школьная программа' },
+      { value: 'oge',          label: 'ОГЭ' },
+      { value: 'ege',          label: 'ЕГЭ' },
+      { value: 'conversation', label: 'Разговорный' },
+      { value: 'business',     label: 'Бизнес-английский' },
+      { value: 'ielts',        label: 'IELTS / TOEFL' }
+    ],
+    history: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    social: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    geography: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ]
   };
 
   let cellsMap = {};
@@ -26,7 +107,24 @@
   let personalMap = {};
   let personalEditingKey = null;
 
-  /* ─────────── ДАТА/ВРЕМЯ ─────────── */
+  let currentGoals = [];
+
+  /* ─────────── УТИЛИТЫ ─────────── */
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function isValidHttps(url) {
+    if (!url) return true;
+    return /^https:\/\/.+/i.test(url.trim());
+  }
 
   function cellDateTime(weekday, time) {
     const now = new Date();
@@ -192,10 +290,10 @@
     }
 
     panel.innerHTML = data.map(n => `
-      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link || ''}">
-        <span class="notif-item__text">${n.text}</span>
-        <span class="notif-item__time">${formatTime(n.created_at)}</span>
-        <button class="notif-item__del" data-notif-del="${n.id}" title="Удалить">✕</button>
+      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${escapeHtml(n.id)}" data-link="${escapeHtml(n.link || '')}">
+        <span class="notif-item__text">${escapeHtml(n.text)}</span>
+        <span class="notif-item__time">${escapeHtml(formatTime(n.created_at))}</span>
+        <button class="notif-item__del" data-notif-del="${escapeHtml(n.id)}" title="Удалить">✕</button>
       </div>
     `).join('');
 
@@ -233,34 +331,36 @@
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, is_active, avatar_url, portfolio_url, portfolio_url_2')
+      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, is_active, avatar_url, portfolio_url, portfolio_url_2, goals, rating, reviews_count')
       .eq('id', currentUser.user.id)
       .single();
     if (error || !data) return;
+
+    currentGoals = Array.isArray(data.goals) ? data.goals.slice() : [];
 
     const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
     const avatarPreview = document.querySelector('[data-avatar-preview]');
     if (avatarPreview) {
-      if (data.avatar_url) avatarPreview.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      if (data.avatar_url) avatarPreview.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       else avatarPreview.textContent = '👤';
     }
 
     const portfolioPreview = document.querySelector('[data-portfolio-preview]');
     if (portfolioPreview) {
-      if (data.portfolio_url) portfolioPreview.innerHTML = `<img src="${data.portfolio_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      if (data.portfolio_url) portfolioPreview.innerHTML = `<img src="${escapeHtml(data.portfolio_url)}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       else portfolioPreview.textContent = '🖼';
     }
 
     const portfolioPreview2 = document.querySelector('[data-portfolio-preview-2]');
     if (portfolioPreview2) {
-      if (data.portfolio_url_2) portfolioPreview2.innerHTML = `<img src="${data.portfolio_url_2}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      if (data.portfolio_url_2) portfolioPreview2.innerHTML = `<img src="${escapeHtml(data.portfolio_url_2)}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       else portfolioPreview2.textContent = '🖼';
     }
 
     const navAvatar = document.querySelector('[data-user-avatar]');
     if (navAvatar) {
-      if (data.avatar_url) navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
+      if (data.avatar_url) navAvatar.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" alt="">`;
       else navAvatar.textContent = initials;
     }
 
@@ -282,11 +382,35 @@
     setVal('[data-edit-link]', data.meeting_link || '');
     setVal('[data-edit-bio]', data.bio || '');
 
-    // если превью уже открыто — обновим его тоже
+    renderGoalsCheckboxes(data.subject || 'math', currentGoals);
+
     const previewModal = document.querySelector('[data-modal="preview"]');
     if (previewModal && !previewModal.hidden) {
       renderPreviewFromData(data);
     }
+  }
+
+  function renderGoalsCheckboxes(subject, selected) {
+    const container = document.querySelector('[data-goals-list]');
+    if (!container) return;
+    const goals = SUBJECT_GOALS[subject] || [];
+    if (!goals.length) {
+      container.innerHTML = '<div class="profile-goals__loading">Для этого предмета целей нет</div>';
+      return;
+    }
+
+    container.innerHTML = goals.map(g => `
+      <label class="profile-goal">
+        <input type="checkbox" value="${escapeHtml(g.value)}" ${selected.includes(g.value) ? 'checked' : ''}>
+        <span>${escapeHtml(g.label)}</span>
+      </label>
+    `).join('');
+  }
+
+  function collectSelectedGoals() {
+    const container = document.querySelector('[data-goals-list]');
+    if (!container) return [];
+    return Array.from(container.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
   }
 
   function initProfileSection() {
@@ -296,6 +420,7 @@
     const visibilityBtn = document.querySelector('[data-toggle-visibility]');
     const deleteBtn = document.querySelector('[data-delete-account]');
 
+    const subjectSelect = document.querySelector('[data-edit-subject]');
     const avatarInput = document.querySelector('[data-avatar-input]');
     const avatarButton = document.querySelector('[data-avatar-button]');
     const avatarPreview = document.querySelector('[data-avatar-preview]');
@@ -307,6 +432,13 @@
     const portfolioInput2 = document.querySelector('[data-portfolio-input-2]');
     const portfolioButton2 = document.querySelector('[data-portfolio-button-2]');
     const portfolioPreview2 = document.querySelector('[data-portfolio-preview-2]');
+
+    // Смена предмета → перерисовать список целей
+    if (subjectSelect) {
+      subjectSelect.addEventListener('change', () => {
+        renderGoalsCheckboxes(subjectSelect.value, []);
+      });
+    }
 
     if (avatarButton && avatarInput) {
       avatarButton.addEventListener('click', () => avatarInput.click());
@@ -363,6 +495,21 @@
         saveBtn.disabled = true;
         saveBtn.textContent = 'Сохраняем…';
 
+        const linkValue = document.querySelector('[data-edit-link]').value.trim();
+        if (!isValidHttps(linkValue)) {
+          if (errorEl) errorEl.textContent = 'Ссылка на урок должна начинаться с https://';
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Сохранить';
+          return;
+        }
+
+        const goalsValue = collectSelectedGoals();
+        const bioValue = document.querySelector('[data-edit-bio]').value.trim();
+        const priceValue = parseInt(document.querySelector('[data-edit-price]').value, 10) || 0;
+
+        // Авто-активация, если всё заполнено
+        const shouldBeActive = !!bioValue && priceValue > 0 && goalsValue.length > 0;
+
         let avatar_url, portfolio_url, portfolio_url_2;
 
         try {
@@ -392,12 +539,14 @@
 
           const payload = {
             subject: document.querySelector('[data-edit-subject]').value,
-            price: parseInt(document.querySelector('[data-edit-price]').value, 10) || 0,
+            price: priceValue,
             phone: document.querySelector('[data-edit-phone]').value.trim(),
             telegram: document.querySelector('[data-edit-telegram]').value.trim(),
             whatsapp: document.querySelector('[data-edit-whatsapp]').value.trim(),
-            meeting_link: document.querySelector('[data-edit-link]').value.trim(),
-            bio: document.querySelector('[data-edit-bio]').value.trim()
+            meeting_link: linkValue,
+            bio: bioValue,
+            goals: goalsValue,
+            is_active: shouldBeActive
           };
           if (avatar_url !== undefined) payload.avatar_url = avatar_url;
           if (portfolio_url !== undefined) payload.portfolio_url = portfolio_url;
@@ -460,7 +609,7 @@
   async function loadPreview() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, rating, reviews_count, avatar_url, portfolio_url, portfolio_url_2')
+      .select('subject, price, bio, phone, telegram, whatsapp, meeting_link, rating, reviews_count, avatar_url, portfolio_url, portfolio_url_2, goals')
       .eq('id', currentUser.user.id)
       .single();
     if (error || !data) return;
@@ -479,7 +628,7 @@
 
     const avEl = document.querySelector('[data-preview-avatar]');
     if (avEl) {
-      if (data.avatar_url) avEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      if (data.avatar_url) avEl.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       else avEl.textContent = initials;
     }
 
@@ -498,7 +647,6 @@
       bioBlock.hidden = true;
     }
 
-    // Контакты — показываем/скрываем иконки
     const contactsBlock = document.querySelector('[data-preview-contacts-block]');
     const cTg = document.querySelector('[data-preview-contact="telegram"]');
     const cWa = document.querySelector('[data-preview-contact="whatsapp"]');
@@ -512,7 +660,6 @@
     if (cLk) { cLk.hidden = !data.meeting_link; if (data.meeting_link) hasContacts = true; }
     if (contactsBlock) contactsBlock.hidden = !hasContacts;
 
-    // Портфолио
     const portfolioBlock = document.querySelector('[data-preview-portfolio-block]');
     const pImg1 = document.querySelector('[data-preview-portfolio-image]');
     const pImg2 = document.querySelector('[data-preview-portfolio-image-2]');
@@ -558,9 +705,9 @@
           <div class="week-day__body">
             ${dayCells.length
               ? dayCells.map(c => `
-                <div class="week-cell week-cell--${c.status} week-cell--preview">
-                  <div class="week-cell__time">${c.time}</div>
-                  <div class="week-cell__status">${STATUS_LABELS[c.status] || c.status}</div>
+                <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
+                  <div class="week-cell__time">${escapeHtml(c.time)}</div>
+                  <div class="week-cell__status">${escapeHtml(STATUS_LABELS[c.status] || c.status)}</div>
                 </div>
               `).join('')
               : '<div class="week-day__empty">—</div>'}
@@ -572,7 +719,6 @@
     el.innerHTML = html;
   }
 
-  // Кнопка «Редактировать профиль» внутри превью
   document.addEventListener('click', (e) => {
     const editBtn = e.target.closest('[data-preview-edit]');
     if (editBtn) {
@@ -592,7 +738,7 @@
       .eq('teacher_id', currentUser.user.id)
       .order('weekday', { ascending: true })
       .order('time', { ascending: true });
-    if (error) { board.innerHTML = '<div class="week-board__loading">Ошибка: ' + error.message + '</div>'; return; }
+    if (error) { board.innerHTML = '<div class="week-board__loading">Ошибка: ' + escapeHtml(error.message) + '</div>'; return; }
 
     cellsMap = {};
     (data || []).forEach(item => {
@@ -628,13 +774,13 @@
 
   function renderCell(day, cell) {
     const time = cell.key.split('|')[1];
-    const statusClass = 'week-cell--' + cell.status;
+    const statusClass = 'week-cell--' + escapeHtml(cell.status);
     const statusLabel = STATUS_LABELS[cell.status] || cell.status;
     return `
-      <div class="week-cell ${statusClass}" data-cell-key="${cell.key}">
-        <div class="week-cell__time">${time}</div>
-        <div class="week-cell__status">${statusLabel}</div>
-        ${cell.note ? `<div class="week-cell__note">${cell.note}</div>` : ''}
+      <div class="week-cell ${statusClass}" data-cell-key="${escapeHtml(cell.key)}">
+        <div class="week-cell__time">${escapeHtml(time)}</div>
+        <div class="week-cell__status">${escapeHtml(statusLabel)}</div>
+        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
       </div>
     `;
   }
@@ -781,9 +927,9 @@
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
     return `
-      <div class="week-cell week-cell--personal" data-personal-cell-key="${cell.key}">
-        <div class="week-cell__time">${time}</div>
-        ${cell.note ? `<div class="week-cell__note">${cell.note}</div>` : ''}
+      <div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}">
+        <div class="week-cell__time">${escapeHtml(time)}</div>
+        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
       </div>
     `;
   }
@@ -895,7 +1041,7 @@
       .order('created_at', { ascending: false });
 
     if (error) {
-      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>';
+      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + escapeHtml(error.message) + '</div></div>';
       updateStats(0, 0);
       return;
     }
@@ -953,34 +1099,35 @@
 
   function renderBookingCard(b) {
     const dateLabel = `${DAYS[b.weekday]} · ${b.time}`;
+    const safeName = escapeHtml(b.studentName);
     let statusClass, statusLabel, statusEmoji, actionHtml = '';
 
     if (b.status === 'pending') {
       statusClass = 'pending'; statusLabel = 'Ожидает'; statusEmoji = '⏳';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--primary" data-approve-request="${b.id}" data-weekday="${b.weekday}" data-time="${b.time}" data-student="${b.student_id}">Одобрить</button>
-        <button class="booking-card__action booking-card__action--danger" data-reject-request="${b.id}">Отклонить</button>
-        <button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>
+        <button class="booking-card__action booking-card__action--primary" data-approve-request="${escapeHtml(b.id)}" data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-student="${escapeHtml(b.student_id)}">Одобрить</button>
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${escapeHtml(b.id)}">Отклонить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>
       `;
     } else if (b.status === 'approved') {
       statusClass = 'approved'; statusLabel = 'Одобрена'; statusEmoji = '✅';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--danger" data-reject-request="${b.id}">Отменить</button>
-        <button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${escapeHtml(b.id)}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>
       `;
     } else if (b.status === 'rejected') {
       statusClass = 'rejected'; statusLabel = 'Отклонена'; statusEmoji = '❌';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>`;
     } else if (b.status === 'cancelled') {
       statusClass = 'cancelled'; statusLabel = 'Отменена'; statusEmoji = '✕';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${b.id}">✕ Удалить</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>`;
     }
 
     return `
       <div class="booking-card">
         <div class="booking-card__head">
-          <div class="booking-card__date">${dateLabel}</div>
-          <div class="booking-card__info"><span class="booking-card__name">${b.studentName}</span></div>
+          <div class="booking-card__date">${escapeHtml(dateLabel)}</div>
+          <div class="booking-card__info"><span class="booking-card__name">${safeName}</span></div>
         </div>
         <div class="booking-card__status booking-card__status--${statusClass}">${statusEmoji} ${statusLabel}</div>
         <div class="booking-card__actions">${actionHtml}</div>
