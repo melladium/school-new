@@ -133,6 +133,19 @@
     });
   }
 
+  /* СОГЛАСИЕ С ПРАВИЛАМИ */
+  function initAgreeCheckbox() {
+    const form = document.querySelector('[data-register-form]');
+    if (!form) return;
+    const agree = form.querySelector('[data-agree]');
+    const submit = form.querySelector('[data-submit]');
+    if (!agree || !submit) return;
+
+    const sync = () => { submit.disabled = !agree.checked; };
+    agree.addEventListener('change', sync);
+    sync();
+  }
+
   /* ЛОГИН ФОРМА */
   function initLoginForm() {
     const form = document.querySelector('[data-login-form]');
@@ -175,6 +188,7 @@
 
     const errorEl = form.querySelector('[data-error]');
     const submitBtn = form.querySelector('[type="submit"]');
+    const agree = form.querySelector('[data-agree]');
     let selectedRole = null;
 
     roleScreen.querySelectorAll('[data-pick-role]').forEach(card => {
@@ -200,6 +214,7 @@
         roleScreen.hidden = false;
         errorEl.textContent = '';
         form.reset();
+        if (agree && submitBtn) submitBtn.disabled = true;
       });
     }
 
@@ -209,6 +224,11 @@
 
       if (!selectedRole) {
         errorEl.textContent = 'Сначала выберите роль';
+        return;
+      }
+
+      if (agree && !agree.checked) {
+        errorEl.textContent = 'Подтвердите согласие с правилами и политикой обработки ПД';
         return;
       }
 
@@ -249,6 +269,7 @@
   /* СТАРТ */
   document.addEventListener('DOMContentLoaded', () => {
     initPasswordToggles();
+    initAgreeCheckbox();
     initLoginForm();
     initRegisterForm();
   });
