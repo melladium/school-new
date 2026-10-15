@@ -1,13 +1,14 @@
+/* ═══════════ TABLET / MOBILE ═══════════ */
+
 @media (max-width: 1024px) {
   .nav__links { display: none; }
   .nav__actions .btn--ghost { display: none; }
+  .nav__burger { display: flex; }
   .for-teachers__grid { grid-template-columns: repeat(2, 1fr); }
   .footer__inner { grid-template-columns: 1fr 1fr; gap: 32px; }
 }
 
 @media (max-width: 768px) {
-  .nav__burger { display: flex; }
-
   .nav__mobile {
     position: absolute;
     top: 100%;
@@ -41,7 +42,13 @@
   }
   .nav__mobile a:hover,
   .nav__mobile button:hover { color: var(--text); }
-  .nav__mobile-auth { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+
+  .nav__mobile-auth {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+  }
   .nav__mobile-auth .btn { width: 100%; }
 
   @keyframes navMobileIn {
