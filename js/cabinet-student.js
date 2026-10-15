@@ -14,9 +14,27 @@
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
   const SUBJECT_LABELS = {
-    math: 'Математика', english: 'Английский', physics: 'Физика',
-    russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
+    math: 'Математика',
+    russian: 'Русский',
+    physics: 'Физика',
+    chemistry: 'Химия',
+    biology: 'Биология',
+    it: 'Информатика',
+    english: 'Английский',
+    history: 'История',
+    social: 'Обществознание',
+    geography: 'География'
   };
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function cellDateTime(weekday, time) {
     const now = new Date();
@@ -138,10 +156,10 @@
     }
 
     panel.innerHTML = data.map(n => `
-      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link || ''}">
-        <span class="notif-item__text">${n.text}</span>
-        <span class="notif-item__time">${formatTime(n.created_at)}</span>
-        <button class="notif-item__del" data-notif-del="${n.id}" title="Удалить">✕</button>
+      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${escapeHtml(n.id)}" data-link="${escapeHtml(n.link || '')}">
+        <span class="notif-item__text">${escapeHtml(n.text)}</span>
+        <span class="notif-item__time">${escapeHtml(formatTime(n.created_at))}</span>
+        <button class="notif-item__del" data-notif-del="${escapeHtml(n.id)}" title="Удалить">✕</button>
       </div>
     `).join('');
 
@@ -194,7 +212,7 @@
       .order('created_at', { ascending: false });
 
     if (error) {
-      listEl.innerHTML = `<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">${error.message}</div></div>`;
+      listEl.innerHTML = `<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">${escapeHtml(error.message)}</div></div>`;
       updateStats(0, 0);
       return;
     }
@@ -270,65 +288,62 @@
     const dateLabel = `${DAYS[b.weekday]} · ${b.time}`;
     const isDone = b.status === 'approved' && isPast(b.weekday, b.time);
     const canReview = isDone && !reviewedTeacherIds.has(b.teacher_id);
+    const safeName = escapeHtml(b.teacherName);
+    const safeNameAttr = escapeHtml(b.teacherName);
 
     let statusClass, statusLabel, statusEmoji, actionHtml = '';
 
-    // PENDING — Ожидает: только «Отменить». Никаких «Добавить в расписание» и «Удалить»
     if (b.status === 'pending') {
       statusClass = 'pending';
       statusLabel = 'Ожидает';
       statusEmoji = '⏳';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
+        <button class="booking-card__action booking-card__action--danger" data-action-cancel="${escapeHtml(b.id)}">Отменить</button>
       `;
     }
-    // APPROVED + время в будущем: «Добавить в расписание» + «Отменить» + «Удалить»
     else if (b.status === 'approved' && !isDone) {
       statusClass = 'approved';
       statusLabel = 'Одобрена';
       statusEmoji = '✅';
       actionHtml = `
-        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${b.weekday}" data-time="${b.time}" data-teacher-name="${b.teacherName}">Добавить в расписание</button>
-        <button class="booking-card__action booking-card__action--danger" data-action-cancel="${b.id}">Отменить</button>
-        <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
+        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-teacher-name="${safeNameAttr}">Добавить в расписание</button>
+        <button class="booking-card__action booking-card__action--danger" data-action-cancel="${escapeHtml(b.id)}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>
       `;
     }
-    // APPROVED + время прошло (done): «Оценить» (если можно) + «Удалить»
     else if (b.status === 'approved' && isDone) {
       statusClass = 'done';
       statusLabel = 'Проведено';
       statusEmoji = '✅';
       if (canReview) {
         actionHtml = `
-          <button class="booking-card__action booking-card__action--primary" data-action-review="${b.teacher_id}" data-teacher-name="${b.teacherName}">Оценить урок</button>
-          <button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>
+          <button class="booking-card__action booking-card__action--primary" data-action-review="${escapeHtml(b.teacher_id)}" data-teacher-name="${safeNameAttr}">Оценить урок</button>
+          <button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>
         `;
       } else {
-        actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
+        actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>`;
       }
     }
-    // REJECTED: только «Удалить»
     else if (b.status === 'rejected') {
       statusClass = 'rejected';
       statusLabel = 'Отклонена';
       statusEmoji = '❌';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>`;
     }
-    // CANCELLED: только «Удалить»
     else if (b.status === 'cancelled') {
       statusClass = 'cancelled';
       statusLabel = 'Отменена';
       statusEmoji = '✕';
-      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${b.id}">✕ Удалить</button>`;
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>`;
     }
 
     return `
       <div class="booking-card">
         <div class="booking-card__head">
-          <div class="booking-card__date">${dateLabel}</div>
+          <div class="booking-card__date">${escapeHtml(dateLabel)}</div>
           <div class="booking-card__info">
-            <span class="booking-card__name">${b.teacherName}</span>
-            · ${b.teacherSubject}
+            <span class="booking-card__name">${safeName}</span>
+            · ${escapeHtml(b.teacherSubject)}
           </div>
         </div>
         <div class="booking-card__status booking-card__status--${statusClass}">
@@ -547,9 +562,9 @@
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
     return `
-      <div class="week-cell week-cell--personal" data-personal-cell-key="${cell.key}">
-        <div class="week-cell__time">${time}</div>
-        ${cell.note ? `<div class="week-cell__note">${cell.note}</div>` : ''}
+      <div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}">
+        <div class="week-cell__time">${escapeHtml(time)}</div>
+        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
       </div>
     `;
   }
