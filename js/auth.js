@@ -30,7 +30,8 @@
           bio: '',
           rating: 0,
           reviews_count: 0,
-          is_active: true
+          goals: [],
+          is_active: false
         });
         if (teacherError) return { error: { message: 'Репетитор: ' + teacherError.message } };
       }
