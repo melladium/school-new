@@ -26,7 +26,7 @@
   let personalMap = {};
   let personalEditingKey = null;
 
-  let currentTab = 'public';
+  /* ─────────── ДАТА/ВРЕМЯ ─────────── */
 
   function cellDateTime(weekday, time) {
     const now = new Date();
@@ -44,6 +44,8 @@
     return cellDateTime(weekday, time).getTime() < Date.now();
   }
 
+  /* ─────────── INIT ─────────── */
+
   async function init() {
     currentUser = await window.authAPI.requireAuth('teacher');
     if (!currentUser) return;
@@ -54,12 +56,13 @@
     const logoutBtn = document.querySelector('[data-logout]');
     if (logoutBtn) logoutBtn.addEventListener('click', window.authAPI.signOut);
 
+    initModals();
     initBurger();
-    initProfileSection();
+    initTabs();
     initNotifications();
+    initProfileSection();
     initCellModal();
     initPersonalCellModal();
-    initTabs();
 
     const addBtn = document.querySelector('[data-add-cell]');
     if (addBtn) addBtn.addEventListener('click', () => openCellModal(null));
@@ -68,12 +71,13 @@
     if (addPersonalBtn) addPersonalBtn.addEventListener('click', () => openPersonalCellModal(null));
 
     document.querySelectorAll('[data-open-profile]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const modal = document.querySelector('[data-modal="profile"]');
-        if (modal) modal.hidden = false;
-        document.body.style.overflow = 'hidden';
-      });
+      btn.addEventListener('click', openProfileModal);
     });
+
+    const previewLink = document.querySelector('[data-preview-link]');
+    if (previewLink) {
+      previewLink.href = 'teacher.html?id=' + currentUser.user.id + '&preview=1';
+    }
 
     await Promise.all([
       loadProfile(),
@@ -102,14 +106,51 @@
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
-        currentTab = t;
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         panels.forEach(p => p.classList.toggle('is-active', p.dataset.tabPanel === t));
       });
     });
   }
 
-  /* УВЕДОМЛЕНИЯ */
+  /* ─────────── МОДАЛКИ (общее закрытие) ─────────── */
+
+  function initModals() {
+    document.querySelectorAll('[data-modal-close]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modal = el.closest('.modal');
+        if (modal) modal.hidden = true;
+        document.body.style.overflow = '';
+      });
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal:not([hidden])').forEach(m => { m.hidden = true; });
+        document.body.style.overflow = '';
+      }
+    });
+  }
+
+  function openModal(name) {
+    const modal = document.querySelector(`[data-modal="${name}"]`);
+    if (!modal) return;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(name) {
+    const modal = document.querySelector(`[data-modal="${name}"]`);
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function openProfileModal() {
+    openModal('profile');
+  }
+
+  /* ─────────── УВЕДОМЛЕНИЯ ─────────── */
+
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -188,7 +229,8 @@
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
-  /* ПРОФИЛЬ */
+  /* ─────────── ПРОФИЛЬ ─────────── */
+
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -197,53 +239,12 @@
       .single();
     if (error || !data) return;
 
-    const setText = (sel, val) => {
-      const el = document.querySelector(sel);
-      if (el) el.textContent = val || '—';
-    };
-
-    setText('[data-profile-name]', currentUser.profile.name || currentUser.profile.email);
-    setText('[data-profile-email]', currentUser.profile.email);
-    setText('[data-profile-subject]', SUBJECT_LABELS[data.subject] || data.subject);
-    setText('[data-profile-price]', data.price ? data.price + ' ₽' : '—');
-    setText('[data-profile-phone]', data.phone);
-    setText('[data-profile-telegram]', data.telegram);
-    setText('[data-profile-whatsapp]', data.whatsapp);
-    setText('[data-profile-link]', data.meeting_link);
-    setText('[data-profile-bio]', data.bio || 'Информация пока не заполнена');
-
-    // Публичное превью (вкладка "Моя анкета")
-    setText('[data-hero-name]', currentUser.profile.name || 'Репетитор');
-    setText('[data-hero-subject]', SUBJECT_LABELS[data.subject] || data.subject);
-    setText('[data-hero-price]', data.price ? data.price + ' ₽ / урок' : '—');
-    setText('[data-hero-rating]', '—');
-    setText('[data-hero-reviews]', '· 0 отзывов');
-    setText('[data-bio-text]', data.bio || 'Информация пока не заполнена');
-
     const initials = (currentUser.profile.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    const avatarEl = document.querySelector('[data-profile-avatar]');
-    if (avatarEl) {
-      if (data.avatar_url) avatarEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else avatarEl.textContent = initials;
-    }
-
-    const heroAvatar = document.querySelector('[data-hero-avatar]');
-    if (heroAvatar) {
-      if (data.avatar_url) heroAvatar.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else heroAvatar.textContent = initials;
-    }
-
-    const navAvatar = document.querySelector('[data-user-avatar]');
-    if (navAvatar) {
-      if (data.avatar_url) navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
-      else navAvatar.textContent = initials;
-    }
-
-    const previewEl = document.querySelector('[data-avatar-preview]');
-    if (previewEl) {
-      if (data.avatar_url) previewEl.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
-      else previewEl.textContent = '👤';
+    const avatarPreview = document.querySelector('[data-avatar-preview]');
+    if (avatarPreview) {
+      if (data.avatar_url) avatarPreview.innerHTML = `<img src="${data.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
+      else avatarPreview.textContent = '👤';
     }
 
     const portfolioPreview = document.querySelector('[data-portfolio-preview]');
@@ -258,39 +259,32 @@
       else portfolioPreview2.textContent = '🖼';
     }
 
-    // Контакты превью
-    const previewTg = document.querySelector('[data-preview-telegram]');
-    if (previewTg) previewTg.hidden = !data.telegram;
-    const previewWa = document.querySelector('[data-preview-whatsapp]');
-    if (previewWa) previewWa.hidden = !data.whatsapp;
-    const previewPh = document.querySelector('[data-preview-phone]');
-    if (previewPh) previewPh.hidden = !data.phone;
-    const previewLk = document.querySelector('[data-preview-link]');
-    if (previewLk) previewLk.hidden = !data.meeting_link;
+    const navAvatar = document.querySelector('[data-user-avatar]');
+    if (navAvatar) {
+      if (data.avatar_url) navAvatar.innerHTML = `<img src="${data.avatar_url}" alt="">`;
+      else navAvatar.textContent = initials;
+    }
 
-    // Кнопка "Открыть страницу"
-    const openPublic = document.querySelector('[data-open-public-page]');
-    if (openPublic) openPublic.href = 'teacher.html?id=' + currentUser.user.id;
-
-    // Тоггл видимости
     const toggleBtn = document.querySelector('[data-toggle-visibility]');
     if (toggleBtn) {
       if (data.is_active === false) { toggleBtn.textContent = 'Показать анкету'; toggleBtn.dataset.active = 'false'; }
       else { toggleBtn.textContent = 'Скрыть анкету'; toggleBtn.dataset.active = 'true'; }
     }
 
-    document.querySelector('[data-edit-subject]').value = data.subject || 'math';
-    document.querySelector('[data-edit-price]').value = data.price || '';
-    document.querySelector('[data-edit-phone]').value = data.phone || '';
-    document.querySelector('[data-edit-telegram]').value = data.telegram || '';
-    document.querySelector('[data-edit-whatsapp]').value = data.whatsapp || '';
-    document.querySelector('[data-edit-link]').value = data.meeting_link || '';
-    document.querySelector('[data-edit-bio]').value = data.bio || '';
+    const setVal = (sel, val) => {
+      const el = document.querySelector(sel);
+      if (el) el.value = val || '';
+    };
+    setVal('[data-edit-subject]', data.subject || 'math');
+    setVal('[data-edit-price]', data.price || '');
+    setVal('[data-edit-phone]', data.phone || '');
+    setVal('[data-edit-telegram]', data.telegram || '');
+    setVal('[data-edit-whatsapp]', data.whatsapp || '');
+    setVal('[data-edit-link]', data.meeting_link || '');
+    setVal('[data-edit-bio]', data.bio || '');
   }
 
   function initProfileSection() {
-    const viewEl = document.querySelector('[data-profile-view]');
-    const editEl = document.querySelector('[data-profile-edit]');
     const saveBtn = document.querySelector('[data-profile-save]');
     const cancelBtn = document.querySelector('[data-profile-cancel]');
     const errorEl = document.querySelector('[data-profile-error]');
@@ -348,95 +342,74 @@
       });
     }
 
-    // Показ формы редактирования — при нажатии на "Редактировать" в модалке
-    document.querySelectorAll('[data-open-profile]').forEach(() => {});
-
-    // Отдельный триггер для переключения view/edit
-    const profileModal = document.querySelector('[data-modal="profile"]');
-    if (profileModal) {
-      // Найти кнопку "Редактировать" — их может быть 2
-      // Первая снаружи (в шапке) — просто открывает
-      // Внутри модалки — переключает на edit
-      const innerBtns = profileModal.querySelectorAll('[data-open-profile]');
-      innerBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          viewEl.hidden = true;
-          editEl.hidden = false;
-        });
-      });
-    }
-
     if (cancelBtn) {
       cancelBtn.addEventListener('click', () => {
-        viewEl.hidden = false;
-        editEl.hidden = true;
-        errorEl.textContent = '';
+        if (errorEl) errorEl.textContent = '';
         avatarFile = null;
         portfolioFile = null;
         portfolioFile2 = null;
+        closeModal('profile');
       });
     }
 
     if (saveBtn) {
       saveBtn.addEventListener('click', async () => {
-        errorEl.textContent = '';
+        if (errorEl) errorEl.textContent = '';
         saveBtn.disabled = true;
         saveBtn.textContent = 'Сохраняем…';
 
-        let avatar_url = undefined;
-        let portfolio_url = undefined;
-        let portfolio_url_2 = undefined;
+        let avatar_url, portfolio_url, portfolio_url_2;
 
-        if (avatarFile) {
-          const ext = avatarFile.name.split('.').pop();
-          const path = `${currentUser.user.id}/avatar.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, avatarFile, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка загрузки аватара: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
-          const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
-          avatar_url = urlData.publicUrl + '?t=' + Date.now();
+        try {
+          if (avatarFile) {
+            const ext = avatarFile.name.split('.').pop();
+            const path = `${currentUser.user.id}/avatar.${ext}`;
+            const { error } = await window.supabaseClient.storage.from('avatars').upload(path, avatarFile, { upsert: true });
+            if (error) throw new Error('Аватар: ' + error.message);
+            avatar_url = window.supabaseClient.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+          }
+
+          if (portfolioFile) {
+            const ext = portfolioFile.name.split('.').pop();
+            const path = `${currentUser.user.id}/portfolio.${ext}`;
+            const { error } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile, { upsert: true });
+            if (error) throw new Error('Достижение 1: ' + error.message);
+            portfolio_url = window.supabaseClient.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+          }
+
+          if (portfolioFile2) {
+            const ext = portfolioFile2.name.split('.').pop();
+            const path = `${currentUser.user.id}/portfolio-2.${ext}`;
+            const { error } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile2, { upsert: true });
+            if (error) throw new Error('Достижение 2: ' + error.message);
+            portfolio_url_2 = window.supabaseClient.storage.from('avatars').getPublicUrl(path).data.publicUrl + '?t=' + Date.now();
+          }
+
+          const payload = {
+            subject: document.querySelector('[data-edit-subject]').value,
+            price: parseInt(document.querySelector('[data-edit-price]').value, 10) || 0,
+            phone: document.querySelector('[data-edit-phone]').value.trim(),
+            telegram: document.querySelector('[data-edit-telegram]').value.trim(),
+            whatsapp: document.querySelector('[data-edit-whatsapp]').value.trim(),
+            meeting_link: document.querySelector('[data-edit-link]').value.trim(),
+            bio: document.querySelector('[data-edit-bio]').value.trim()
+          };
+          if (avatar_url !== undefined) payload.avatar_url = avatar_url;
+          if (portfolio_url !== undefined) payload.portfolio_url = portfolio_url;
+          if (portfolio_url_2 !== undefined) payload.portfolio_url_2 = portfolio_url_2;
+
+          const { error } = await window.supabaseClient.from('teachers').update(payload).eq('id', currentUser.user.id);
+          if (error) throw new Error(error.message);
+
+          avatarFile = null; portfolioFile = null; portfolioFile2 = null;
+          await loadProfile();
+          closeModal('profile');
+        } catch (e) {
+          if (errorEl) errorEl.textContent = 'Ошибка: ' + e.message;
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Сохранить';
         }
-
-        if (portfolioFile) {
-          const ext = portfolioFile.name.split('.').pop();
-          const path = `${currentUser.user.id}/portfolio.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
-          const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
-          portfolio_url = urlData.publicUrl + '?t=' + Date.now();
-        }
-
-        if (portfolioFile2) {
-          const ext = portfolioFile2.name.split('.').pop();
-          const path = `${currentUser.user.id}/portfolio-2.${ext}`;
-          const { error: uploadError } = await window.supabaseClient.storage.from('avatars').upload(path, portfolioFile2, { upsert: true });
-          if (uploadError) { errorEl.textContent = 'Ошибка: ' + uploadError.message; saveBtn.disabled = false; saveBtn.textContent = 'Сохранить'; return; }
-          const { data: urlData } = window.supabaseClient.storage.from('avatars').getPublicUrl(path);
-          portfolio_url_2 = urlData.publicUrl + '?t=' + Date.now();
-        }
-
-        const payload = {
-          subject: document.querySelector('[data-edit-subject]').value,
-          price: parseInt(document.querySelector('[data-edit-price]').value, 10) || 0,
-          phone: document.querySelector('[data-edit-phone]').value.trim(),
-          telegram: document.querySelector('[data-edit-telegram]').value.trim(),
-          whatsapp: document.querySelector('[data-edit-whatsapp]').value.trim(),
-          meeting_link: document.querySelector('[data-edit-link]').value.trim(),
-          bio: document.querySelector('[data-edit-bio]').value.trim()
-        };
-
-        if (avatar_url !== undefined) payload.avatar_url = avatar_url;
-        if (portfolio_url !== undefined) payload.portfolio_url = portfolio_url;
-        if (portfolio_url_2 !== undefined) payload.portfolio_url_2 = portfolio_url_2;
-
-        const { error } = await window.supabaseClient.from('teachers').update(payload).eq('id', currentUser.user.id);
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Сохранить';
-        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-
-        avatarFile = null; portfolioFile = null; portfolioFile2 = null;
-        await loadProfile();
-        viewEl.hidden = false;
-        editEl.hidden = true;
       });
     }
 
@@ -460,14 +433,20 @@
         deleteBtn.disabled = true;
         deleteBtn.textContent = 'Удаляем…';
         const { error } = await window.supabaseClient.rpc('delete_user');
-        if (error) { alert('Ошибка: ' + error.message); deleteBtn.disabled = false; deleteBtn.textContent = 'Удалить аккаунт навсегда'; return; }
+        if (error) {
+          alert('Ошибка: ' + error.message);
+          deleteBtn.disabled = false;
+          deleteBtn.textContent = 'Удалить аккаунт навсегда';
+          return;
+        }
         alert('Аккаунт удалён. Сейчас вы выйдете.');
         await window.authAPI.signOut();
       });
     }
   }
 
-  /* ПУБЛИЧНОЕ РАСПИСАНИЕ */
+  /* ─────────── ПУБЛИЧНОЕ РАСПИСАНИЕ ─────────── */
+
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
@@ -527,9 +506,6 @@
   function initCellModal() {
     const modal = document.querySelector('[data-modal="cell-edit"]');
     if (!modal) return;
-    modal.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', () => { modal.hidden = true; document.body.style.overflow = ''; });
-    });
 
     const saveBtn = modal.querySelector('[data-cell-save]');
     const deleteBtn = modal.querySelector('[data-cell-delete]');
@@ -559,14 +535,13 @@
         }
 
         const { error } = await window.supabaseClient.from('schedule_template').upsert({
-          teacher_id: currentUser.user.id, weekday: day, time: time, text_content: note, status: status
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: note, status
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false;
         saveBtn.textContent = 'Сохранить';
         if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-        modal.hidden = true;
-        document.body.style.overflow = '';
+        closeModal('cell-edit');
         editingKey = null;
         await loadCells();
       });
@@ -581,8 +556,7 @@
           .eq('teacher_id', currentUser.user.id)
           .eq('weekday', parseInt(oldDay, 10))
           .eq('time', oldTime);
-        modal.hidden = true;
-        document.body.style.overflow = '';
+        closeModal('cell-edit');
         editingKey = null;
         await loadCells();
       });
@@ -622,12 +596,12 @@
       if (deleteBtn) deleteBtn.hidden = true;
     }
 
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
+    openModal('cell-edit');
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ */
+  /* ─────────── ЛИЧНОЕ РАСПИСАНИЕ ─────────── */
+
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
@@ -681,9 +655,6 @@
   function initPersonalCellModal() {
     const modal = document.querySelector('[data-modal="personal-cell-edit"]');
     if (!modal) return;
-    modal.querySelectorAll('[data-modal-close]').forEach(el => {
-      el.addEventListener('click', () => { modal.hidden = true; document.body.style.overflow = ''; });
-    });
 
     const saveBtn = modal.querySelector('[data-personal-cell-save]');
     const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
@@ -711,14 +682,13 @@
         }
 
         const { error } = await window.supabaseClient.from('personal_schedule').upsert({
-          teacher_id: currentUser.user.id, weekday: day, time: time, text_content: text
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: text
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false;
         saveBtn.textContent = 'Сохранить';
         if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
-        modal.hidden = true;
-        document.body.style.overflow = '';
+        closeModal('personal-cell-edit');
         personalEditingKey = null;
         await loadPersonal();
       });
@@ -733,8 +703,7 @@
           .eq('teacher_id', currentUser.user.id)
           .eq('weekday', parseInt(oldDay, 10))
           .eq('time', oldTime);
-        modal.hidden = true;
-        document.body.style.overflow = '';
+        closeModal('personal-cell-edit');
         personalEditingKey = null;
         await loadPersonal();
       });
@@ -771,12 +740,12 @@
       if (deleteBtn) deleteBtn.hidden = true;
     }
 
-    modal.hidden = false;
-    document.body.style.overflow = 'hidden';
+    openModal('personal-cell-edit');
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЗАЯВКИ */
+  /* ─────────── ЗАЯВКИ ─────────── */
+
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
@@ -791,10 +760,11 @@
 
     if (error) {
       listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + error.message + '</div></div>';
+      updateStats(0, 0);
       return;
     }
 
-    if (!data.length) {
+    if (!data || !data.length) {
       listEl.innerHTML = `
         <div class="cabinet__empty">
           <div class="cabinet__empty-icon">📩</div>
@@ -891,14 +861,17 @@
 
   async function approveRequest(id, weekday, time, studentId) {
     if (!confirm('Одобрить заявку? Место станет занятым.')) return;
-    const { error: reqError } = await window.supabaseClient.from('booking_requests').update({ status: 'approved' }).eq('id', id);
+
+    const { error: reqError } = await window.supabaseClient
+      .from('booking_requests').update({ status: 'approved' }).eq('id', id);
     if (reqError) { alert('Ошибка: ' + reqError.message); return; }
 
-    const { data: profile } = await window.supabaseClient.from('profiles').select('name').eq('id', studentId).single();
+    const { data: profile } = await window.supabaseClient
+      .from('profiles').select('name').eq('id', studentId).single();
     const studentName = (profile && profile.name) || 'Ученик';
 
     await window.supabaseClient.from('schedule_template').upsert({
-      teacher_id: currentUser.user.id, weekday: weekday, time: time, text_content: studentName, status: 'busy'
+      teacher_id: currentUser.user.id, weekday, time, text_content: studentName, status: 'busy'
     }, { onConflict: 'teacher_id,weekday,time' });
 
     await Promise.all([loadRequests(), loadCells()]);
@@ -906,14 +879,16 @@
 
   async function rejectRequest(id) {
     if (!confirm('Отклонить заявку?')) return;
-    const { error } = await window.supabaseClient.from('booking_requests').update({ status: 'rejected' }).eq('id', id);
+    const { error } = await window.supabaseClient
+      .from('booking_requests').update({ status: 'rejected' }).eq('id', id);
     if (error) { alert('Ошибка: ' + error.message); return; }
     await loadRequests();
   }
 
   async function deleteRequest(id) {
     if (!confirm('Удалить заявку навсегда?')) return;
-    const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
+    const { error } = await window.supabaseClient
+      .from('booking_requests').delete().eq('id', id);
     if (error) { alert('Ошибка: ' + error.message); return; }
     await loadRequests();
   }
