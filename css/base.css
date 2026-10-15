@@ -5,8 +5,8 @@
   --border: #1C1C22;
   --border-strong: #26262E;
   --text: #F2F2F4;
-  --text-dim: #9A9AA5;
-  --text-mute: #5E5E68;
+  --text-dim: #A5A5B0;
+  --text-mute: #7C7C88;
 
   --accent: #4EE8E8;
   --accent-dim: rgba(78, 232, 232, 0.08);
@@ -352,7 +352,7 @@ img { max-width: 100%; display: block; }
 
 .field select {
   appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1l5 5 5-5' stroke='%239A9AA5' stroke-width='1.5' stroke-linecap='round'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1l5 5 5-5' stroke='%23A5A5B0' stroke-width='1.5' stroke-linecap='round'/></svg>");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 40px;
