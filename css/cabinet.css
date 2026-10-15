@@ -256,7 +256,7 @@
 .student-col-side { min-width: 0; }
 .student-col-main > .cabinet__title--col { margin-bottom: 16px; }
 
-/* РАСКЛАДКА УЧИТЕЛЯ — расписание слева, заявки справа */
+/* РАСКЛАДКА УЧИТЕЛЯ */
 .teacher-layout {
   display: grid;
   grid-template-columns: 1.4fr 1fr;
@@ -376,7 +376,6 @@
 }
 .week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
 
-/* Ячейки в превью — не кликабельны */
 .week-cell--preview { cursor: default; }
 .week-cell--preview:hover { transform: none; }
 
@@ -515,7 +514,7 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-/* MODAL ACTIONS (кнопки в модалках) */
+/* MODAL ACTIONS */
 .modal-actions {
   display: flex;
   gap: 10px;
@@ -532,7 +531,7 @@
   margin-top: 0;
 }
 
-/* MODAL WIDE (для превью) */
+/* MODAL WIDE */
 .modal__panel--wide {
   max-width: 1080px;
   width: 100%;
@@ -557,10 +556,7 @@
   font-family: var(--font-body);
   flex-shrink: 0;
 }
-.preview-banner__icon {
-  font-size: 16px;
-  line-height: 1;
-}
+.preview-banner__icon { font-size: 16px; line-height: 1; }
 
 .preview-body {
   display: grid;
@@ -572,17 +568,8 @@
   min-height: 0;
 }
 
-.preview-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.preview-feed {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.preview-sidebar { display: flex; flex-direction: column; gap: 16px; }
+.preview-feed { display: flex; flex-direction: column; gap: 16px; }
 
 .preview-card {
   background: var(--surface-2);
@@ -624,11 +611,7 @@
   line-height: 1.15;
   margin-bottom: 6px;
 }
-.preview-subject {
-  font-size: 13.5px;
-  color: var(--text-dim);
-  margin-bottom: 10px;
-}
+.preview-subject { font-size: 13.5px; color: var(--text-dim); margin-bottom: 10px; }
 .preview-price {
   font-family: var(--font-mono);
   font-size: 18px;
@@ -651,11 +634,7 @@
 .preview-rating__star { color: var(--cabinet-accent, var(--accent)); }
 .preview-rating__count { color: var(--text-mute); }
 
-.preview-bio {
-  color: var(--text-dim);
-  font-size: 13.5px;
-  line-height: 1.55;
-}
+.preview-bio { color: var(--text-dim); font-size: 13.5px; line-height: 1.55; }
 
 .preview-contacts {
   display: grid;
@@ -745,6 +724,79 @@
 }
 .preview-portfolio img[hidden] { display: none; }
 
+/* ═══════════ ЦЕЛИ РЕПЕТИТОРА В ПРОФИЛЕ ═══════════ */
+
+.profile-goals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  min-height: 48px;
+}
+.profile-goals__loading {
+  font-size: 13px;
+  color: var(--text-mute);
+  font-family: var(--font-mono);
+  width: 100%;
+  text-align: center;
+  padding: 4px 0;
+}
+.profile-goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface-1);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  user-select: none;
+}
+.profile-goal:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+.profile-goal input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease);
+}
+.profile-goal input[type="checkbox"]:checked {
+  background: var(--cabinet-accent, var(--accent));
+  border-color: var(--cabinet-accent, var(--accent));
+}
+.profile-goal input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 0.5px;
+  width: 4px;
+  height: 8px;
+  border: solid #08080A;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+.profile-goal:has(input:checked) {
+  border-color: var(--cabinet-accent, var(--accent));
+  color: var(--text);
+  background: var(--cabinet-accent-dim, var(--accent-dim));
+}
+
 /* MOBILE */
 @media (max-width: 1024px) {
   .week-board { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -795,4 +847,6 @@
   .preview-card { padding: 16px; }
   .preview-avatar { width: 88px; height: 88px; font-size: 28px; }
   .preview-name { font-size: 18px; }
+  .profile-goals { padding: 10px; gap: 6px; }
+  .profile-goal { padding: 6px 10px; font-size: 12px; }
 }
