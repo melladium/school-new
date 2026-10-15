@@ -32,6 +32,7 @@
   letter-spacing: -0.02em;
   white-space: nowrap;
   display: inline-flex;
+  align-items: center;
 }
 
 .nav__logo span {
@@ -46,6 +47,12 @@
   opacity: 1;
   transform: translateY(0);
   filter: blur(0);
+}
+
+.nav__logo-space {
+  width: 0.35em;
+  height: 1px;
+  display: inline-block;
 }
 
 .nav__logo span:nth-child(1) { transition-delay: 0.02s; }
@@ -98,7 +105,7 @@
   transition: all 0.3s var(--ease);
 }
 
-/* USER MENU (имя + аватар + колокольчик) */
+/* USER MENU */
 .nav__user-menu {
   display: flex;
   align-items: center;
@@ -211,6 +218,21 @@
 
 .hero__title em { font-style: normal; color: var(--accent); }
 
+.hero__sub {
+  color: var(--text-dim);
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.5;
+  max-width: 52ch;
+  margin-top: 24px;
+}
+
+.hero__cta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 36px;
+}
+
 [data-hero-el] {
   opacity: 0;
   transform: translateY(20px);
@@ -314,6 +336,12 @@
 
 .podbor__results { margin-top: 64px; }
 .podbor__reset { text-align: center; margin-top: 40px; }
+
+.podbor__more {
+  grid-column: 1 / -1;
+  text-align: center;
+  margin-top: 8px;
+}
 
 /* TEACHER CARD */
 .teacher-card {
@@ -749,7 +777,7 @@
   transition: opacity 0.9s var(--ease), transform 0.9s var(--ease), filter 0.9s var(--ease);
 }
 
-/* ═══════════ LEGAL PAGES (terms.html, privacy.html) ═══════════ */
+/* ═══════════ LEGAL PAGES ═══════════ */
 
 .legal {
   position: relative;
@@ -843,11 +871,7 @@
   gap: 8px;
 }
 
-.legal__content li {
-  position: relative;
-  padding-left: 4px;
-}
-
+.legal__content li { position: relative; padding-left: 4px; }
 .legal__content li::marker { color: var(--accent); }
 
 .legal__content a {
@@ -896,7 +920,42 @@
   justify-content: space-between;
 }
 
+/* ═══════════ MOBILE ═══════════ */
+
+@media (max-width: 1024px) {
+  .nav__links { display: none; }
+  .nav__actions .btn--ghost { display: none; }
+  .nav__burger { display: flex; }
+  .for-teachers__grid { grid-template-columns: repeat(2, 1fr); }
+  .footer__inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+
 @media (max-width: 768px) {
+  .hero { padding: 140px 0 40px; }
+  .hero--compact { padding: 140px 0 20px; }
+  .hero__title { font-size: clamp(32px, 8vw, 48px); }
+  .hero__sub { margin-top: 18px; font-size: 15px; }
+  .hero__cta { margin-top: 24px; }
+  .hero__cta .btn { flex: 1; }
+
+  .podbor { padding: 40px 0 64px; }
+  .podbor__card { padding: 24px; }
+  .podbor__question { font-size: 22px; }
+  .podbor__row { grid-template-columns: 1fr; gap: 20px; }
+  .podbor__nav { flex-direction: column-reverse; gap: 10px; }
+  .podbor__nav .btn { width: 100%; }
+
+  .how, .for-teachers { padding: 64px 0; }
+  .for-teachers__grid { grid-template-columns: 1fr; }
+  .section-head { margin-bottom: 40px; }
+
+  .footer__inner { grid-template-columns: 1fr; gap: 28px; }
+  .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+  .modal { padding: 12px; }
+  .cursor-glow { display: none; }
+  .nav__logo { font-size: 13px; }
+
   .legal { padding: 130px 0 60px; }
   .legal__head { margin-bottom: 32px; padding-bottom: 24px; }
   .legal__content { font-size: 15px; }
@@ -904,4 +963,13 @@
   .legal__footer-note { padding: 16px 18px; font-size: 14px; }
   .legal__back { flex-direction: column; }
   .legal__back .btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .hero__title { font-size: 30px; }
+  .hero__cta { flex-direction: column; }
+  .hero__cta .btn { width: 100%; }
+  .nav__logo { font-size: 12px; }
+  .btn { font-size: 13px; padding: 10px 16px; }
+  .btn--lg { padding: 12px 20px; font-size: 14px; }
 }
