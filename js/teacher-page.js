@@ -9,10 +9,50 @@
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
   const SUBJECT_LABELS = {
-    math: 'Математика', english: 'Английский', physics: 'Физика',
-    russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
+    math: 'Математика',
+    russian: 'Русский',
+    physics: 'Физика',
+    chemistry: 'Химия',
+    biology: 'Биология',
+    it: 'Информатика',
+    english: 'Английский',
+    history: 'История',
+    social: 'Обществознание',
+    geography: 'География'
   };
+
+  const GOAL_LABELS = {
+    school: 'Подтянуть школу',
+    oge: 'ОГЭ',
+    ege: 'ЕГЭ',
+    olymp: 'Олимпиады',
+    vuz: 'Подготовка к вузу',
+    essay: 'Сочинение',
+    literacy: 'Грамотность',
+    med: 'Медвуз',
+    python: 'Python',
+    web: 'Веб-разработка',
+    conversation: 'Разговорный',
+    business: 'Бизнес-английский',
+    ielts: 'IELTS / TOEFL'
+  };
+
   const STATUS_LABELS = { free: 'Свободно', busy: 'Занято', off: 'Не работает' };
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function isValidHttps(url) {
+    if (!url) return false;
+    return /^https:\/\/.+/i.test(url.trim());
+  }
 
   async function init() {
     const params = new URLSearchParams(window.location.search);
@@ -26,6 +66,7 @@
     renderHero();
     await renderSchedule(id);
     renderBio();
+    renderGoals();
     renderContacts();
     renderPortfolio();
 
@@ -36,7 +77,7 @@
   async function loadTeacher(id) {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, meeting_link, avatar_url, portfolio_url, portfolio_url_2')
+      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, meeting_link, avatar_url, portfolio_url, portfolio_url_2, goals')
       .eq('id', id)
       .eq('is_active', true)
       .single();
@@ -48,7 +89,8 @@
     teacher = {
       ...data,
       name: (profile && profile.name) || 'Репетитор',
-      subjectLabel: SUBJECT_LABELS[data.subject] || data.subject
+      subjectLabel: SUBJECT_LABELS[data.subject] || data.subject,
+      goals: Array.isArray(data.goals) ? data.goals : []
     };
   }
 
@@ -59,7 +101,7 @@
     const avatarEl = document.querySelector('[data-hero-avatar]');
     if (avatarEl) {
       if (teacher.avatar_url) {
-        avatarEl.innerHTML = `<img src="${teacher.avatar_url}" alt="">`;
+        avatarEl.innerHTML = `<img src="${escapeHtml(teacher.avatar_url)}" alt="">`;
       } else {
         avatarEl.textContent = initials;
       }
@@ -77,6 +119,17 @@
     const el = document.querySelector('[data-section-bio]');
     if (el) el.hidden = false;
     setText('[data-bio-text]', teacher.bio);
+  }
+
+  function renderGoals() {
+    if (!teacher.goals || !teacher.goals.length) return;
+    const sec = document.querySelector('[data-section-goals]');
+    const list = document.querySelector('[data-goals-list]');
+    if (!sec || !list) return;
+
+    const labels = teacher.goals.map(g => GOAL_LABELS[g] || g);
+    list.innerHTML = labels.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
+    sec.hidden = false;
   }
 
   function renderPortfolio() {
@@ -108,7 +161,7 @@
       const el = document.querySelector('[data-contact-telegram]');
       if (el) {
         el.hidden = false;
-        el.href = 'https://t.me/' + teacher.telegram.replace('@', '');
+        el.href = 'https://t.me/' + encodeURIComponent(teacher.telegram.replace('@', ''));
         hasAny = true;
       }
     }
@@ -117,7 +170,8 @@
       const el = document.querySelector('[data-contact-whatsapp]');
       if (el) {
         el.hidden = false;
-        el.href = 'https://wa.me/' + teacher.whatsapp.replace(/[^\d]/g, '');
+        const wa = teacher.whatsapp.replace(/[^\d]/g, '');
+        el.href = 'https://wa.me/' + encodeURIComponent(wa);
         hasAny = true;
       }
     }
@@ -126,12 +180,12 @@
       const el = document.querySelector('[data-contact-phone]');
       if (el) {
         el.hidden = false;
-        el.href = 'tel:' + teacher.phone;
+        el.href = 'tel:' + encodeURIComponent(teacher.phone);
         hasAny = true;
       }
     }
 
-    if (teacher.meeting_link) {
+    if (teacher.meeting_link && isValidHttps(teacher.meeting_link)) {
       const el = document.querySelector('[data-contact-link]');
       if (el) {
         el.hidden = false;
@@ -190,10 +244,10 @@
   function renderCell(day, cell) {
     const clickable = cell.status === 'free';
     return `
-      <div class="week-cell week-cell--${cell.status} ${clickable ? 'is-clickable' : ''}"
-           data-day="${day}" data-time="${cell.time}" data-status="${cell.status}">
-        <div class="week-cell__time">${cell.time}</div>
-        <div class="week-cell__status">${STATUS_LABELS[cell.status] || cell.status}</div>
+      <div class="week-cell week-cell--${escapeHtml(cell.status)} ${clickable ? 'is-clickable' : ''}"
+           data-day="${escapeHtml(day)}" data-time="${escapeHtml(cell.time)}" data-status="${escapeHtml(cell.status)}">
+        <div class="week-cell__time">${escapeHtml(cell.time)}</div>
+        <div class="week-cell__status">${escapeHtml(STATUS_LABELS[cell.status] || cell.status)}</div>
       </div>
     `;
   }
@@ -282,7 +336,7 @@
   function openLightbox(src) {
     const lb = document.createElement('div');
     lb.className = 'avatar-lightbox';
-    lb.innerHTML = `<img src="${src}" alt="">`;
+    lb.innerHTML = `<img src="${escapeHtml(src)}" alt="">`;
     document.body.appendChild(lb);
     document.body.style.overflow = 'hidden';
     lb.addEventListener('click', () => {
