@@ -64,8 +64,8 @@
       <div class="cabinet__head-row">
         <h1 class="cabinet__title">Расписание и заявки</h1>
         <div class="cabinet__head-actions">
-          <a class="btn btn--ghost" data-preview-link href="#" target="_blank" rel="noopener">Как видят ученики</a>
-          <button class="btn btn--ghost" data-open-profile>Редактировать профиль</button>
+          <button type="button" class="btn btn--ghost" data-open-preview>Как видят ученики</button>
+          <button type="button" class="btn btn--ghost" data-open-profile>Редактировать профиль</button>
         </div>
       </div>
 
@@ -80,10 +80,8 @@
         </div>
       </div>
 
-      <!-- ДВЕ КОЛОНКИ: слева расписание, справа заявки -->
       <div class="teacher-layout">
 
-        <!-- СЛЕВА: РАСПИСАНИЕ -->
         <div class="teacher-col-main">
           <div class="cabinet__col-head">
             <h2 class="cabinet__title cabinet__title--col">Расписание</h2>
@@ -94,7 +92,6 @@
             <button class="teacher-tab" data-tab="personal">Личное</button>
           </div>
 
-          <!-- ПУБЛИЧНОЕ -->
           <div class="teacher-tab-panel is-active" data-tab-panel="public">
             <div class="cabinet__section-head">
               <div></div>
@@ -114,7 +111,6 @@
             </div>
           </div>
 
-          <!-- ЛИЧНОЕ -->
           <div class="teacher-tab-panel" data-tab-panel="personal">
             <div class="cabinet__section-head">
               <div></div>
@@ -134,7 +130,6 @@
           </div>
         </div>
 
-        <!-- СПРАВА: ЗАЯВКИ -->
         <aside class="teacher-col-side">
           <div class="cabinet__col-head">
             <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
@@ -166,7 +161,113 @@
     </div>
   </main>
 
-  <!-- МОДАЛКА РЕДАКТИРОВАНИЯ ПРОФИЛЯ -->
+  <!-- ═══════════ МОДАЛКА: ПРЕДПРОСМОТР АНКЕТЫ ═══════════ -->
+  <div class="modal" data-modal="preview" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel modal__panel--wide">
+      <div class="preview-banner">
+        <span class="preview-banner__icon">👁</span>
+        <span>Так вас видят ученики. Это предпросмотр — заявки здесь не работают.</span>
+      </div>
+
+      <div class="preview-body">
+
+        <!-- SIDEBAR -->
+        <aside class="preview-sidebar">
+
+          <div class="preview-card preview-card--profile">
+            <div class="preview-avatar" data-preview-avatar>—</div>
+            <h2 class="preview-name" data-preview-name>—</h2>
+            <div class="preview-subject" data-preview-subject>—</div>
+            <div class="preview-price" data-preview-price>—</div>
+            <div class="preview-rating">
+              <span class="preview-rating__star">★</span>
+              <span data-preview-rating>—</span>
+              <span class="preview-rating__count" data-preview-reviews>—</span>
+            </div>
+          </div>
+
+          <div class="preview-card" data-preview-bio-block hidden>
+            <h3 class="preview-card__title">О себе</h3>
+            <p class="preview-bio" data-preview-bio></p>
+          </div>
+
+          <div class="preview-card" data-preview-contacts-block hidden>
+            <h3 class="preview-card__title">Связь</h3>
+            <div class="preview-contacts">
+
+              <div class="preview-contact" data-preview-contact="telegram" hidden>
+                <span class="preview-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 4L2 12l6 2 2 6 4-5 6 4V4z"/>
+                  </svg>
+                </span>
+                <span class="preview-contact__label">Telegram</span>
+              </div>
+
+              <div class="preview-contact" data-preview-contact="whatsapp" hidden>
+                <span class="preview-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.4 8.4 0 01-1.2 4.4L21 21l-5.3-1.3a8.5 8.5 0 01-12.3-7.5A8.5 8.5 0 0121 11.5z"/>
+                  </svg>
+                </span>
+                <span class="preview-contact__label">WhatsApp</span>
+              </div>
+
+              <div class="preview-contact" data-preview-contact="phone" hidden>
+                <span class="preview-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.4 2.1L8 10.2a16 16 0 006 6l1.4-1.4a2 2 0 012.1-.5c1 .3 2 .6 3 .7a2 2 0 011.7 2z"/>
+                  </svg>
+                </span>
+                <span class="preview-contact__label">Позвонить</span>
+              </div>
+
+              <div class="preview-contact" data-preview-contact="link" hidden>
+                <span class="preview-contact__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/>
+                    <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/>
+                  </svg>
+                </span>
+                <span class="preview-contact__label">Урок</span>
+              </div>
+
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- FEED -->
+        <div class="preview-feed">
+
+          <section class="preview-card">
+            <h3 class="preview-card__title">Расписание</h3>
+            <div class="preview-schedule" data-preview-schedule>
+              <div class="preview-schedule__loading">Загружаем…</div>
+            </div>
+          </section>
+
+          <section class="preview-card" data-preview-portfolio-block hidden>
+            <h3 class="preview-card__title">Достижения</h3>
+            <div class="preview-portfolio">
+              <img data-preview-portfolio-image src="" alt="Достижение 1" loading="lazy">
+              <img data-preview-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden>
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+
+      <div class="modal-actions modal-actions--sticky">
+        <button type="button" class="btn btn--ghost" data-modal-close>Закрыть</button>
+        <button type="button" class="btn btn--primary" data-preview-edit style="margin-left:auto;">Редактировать профиль</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ МОДАЛКА: РЕДАКТИРОВАНИЕ ПРОФИЛЯ ═══════════ -->
   <div class="modal" data-modal="profile" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel" style="max-width: 680px;">
