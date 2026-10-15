@@ -1,3 +1,4 @@
+/* AUTH */
 .auth-page {
   min-height: 100vh;
   padding: 140px 24px 80px;
@@ -256,10 +257,85 @@
 
 .auth-card__footer a:hover { opacity: 0.8; }
 
+/* ─── СОГЛАСИЕ С ПРАВИЛАМИ ─── */
+
+.auth-form__agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 4px 0 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-form__agree input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface-2);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s var(--ease);
+}
+
+.auth-form__agree input[type="checkbox"]:hover {
+  border-color: var(--text-dim);
+}
+
+.auth-form__agree input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.auth-form__agree input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 1.5px;
+  width: 5px;
+  height: 10px;
+  border: solid #08080A;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.auth-form__agree input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.auth-form__agree span {
+  display: block;
+  padding-top: 1px;
+}
+
+.auth-form__agree a {
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(78, 232, 232, 0.35);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.25s var(--ease), opacity 0.25s var(--ease);
+}
+
+.auth-form__agree a:hover {
+  text-decoration-color: var(--accent);
+  opacity: 0.9;
+}
+
 @media (max-width: 480px) {
   .auth-card { padding: 28px 22px; }
   .auth-card__title { font-size: 24px; }
   .role-card-big { padding: 18px 20px; gap: 14px; }
   .role-card-big__icon { width: 44px; height: 44px; }
   .role-card-big__title { font-size: 16px; }
+  .auth-form__agree { font-size: 12.5px; }
 }
