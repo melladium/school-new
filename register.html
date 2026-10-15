@@ -110,9 +110,17 @@
             </div>
           </div>
 
+          <label class="auth-form__agree">
+            <input type="checkbox" name="agree" data-agree>
+            <span>
+              Я согласен с <a href="terms.html" target="_blank" rel="noopener">Правилами пользования платформой</a>
+              и <a href="privacy.html" target="_blank" rel="noopener">Политикой обработки персональных данных</a>
+            </span>
+          </label>
+
           <div class="auth-form__error" data-error></div>
 
-          <button type="submit" class="btn btn--primary btn--lg auth-form__submit">
+          <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit disabled>
             Зарегистрироваться
           </button>
         </form>
