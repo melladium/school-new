@@ -1,44 +1,107 @@
 (function () {
   'use strict';
 
+  /* ─────────── СПРАВОЧНИКИ ─────────── */
+
+  const SUBJECT_LABELS = {
+    math: 'Математика',
+    russian: 'Русский',
+    physics: 'Физика',
+    chemistry: 'Химия',
+    biology: 'Биология',
+    it: 'Информатика',
+    english: 'Английский',
+    history: 'История',
+    social: 'Обществознание',
+    geography: 'География'
+  };
+
   const SUBJECT_GOALS = {
     math: [
-      { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'school', label: 'Подтянуть школу' },
-      { value: 'olymp', label: 'Олимпиады' }
-    ],
-    english: [
-      { value: 'school', label: 'Школа' },
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'conversation', label: 'Разговорный' },
-      { value: 'business', label: 'Бизнес' }
-    ],
-    physics: [
-      { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'school', label: 'Подтянуть школу' },
-      { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
     ],
     russian: [
-      { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'school', label: 'Подтянуть школу' },
-      { value: 'essay', label: 'Сочинение' }
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'essay',   label: 'Сочинение / изложение' },
+      { value: 'literacy', label: 'Грамотность' }
+    ],
+    physics: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
     ],
     chemistry: [
-      { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'school', label: 'Подтянуть школу' },
-      { value: 'med', label: 'Медвуз' }
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'med',     label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    biology: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'med',     label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
     ],
     it: [
-      { value: 'ege', label: 'ЕГЭ' },
-      { value: 'python', label: 'Python' },
-      { value: 'olymp', label: 'Олимпиады' },
-      { value: 'school', label: 'Школа' }
+      { value: 'school',  label: 'Школьная информатика' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'python',  label: 'Python' },
+      { value: 'web',     label: 'Веб-разработка' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    english: [
+      { value: 'school',       label: 'Школьная программа' },
+      { value: 'oge',          label: 'ОГЭ' },
+      { value: 'ege',          label: 'ЕГЭ' },
+      { value: 'conversation', label: 'Разговорный' },
+      { value: 'business',     label: 'Бизнес-английский' },
+      { value: 'ielts',        label: 'IELTS / TOEFL' }
+    ],
+    history: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    social: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    geography: [
+      { value: 'school',  label: 'Подтянуть школу' },
+      { value: 'oge',     label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' },
+      { value: 'olymp',   label: 'Олимпиады' }
     ]
   };
+
+  const PAGE_SIZE = 9;
+
+  /* ─────────── УТИЛИТЫ ─────────── */
+
+  function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isFinePointer = window.matchMedia('(pointer: fine)').matches;
@@ -68,6 +131,8 @@
     }, { passive: true });
   }
 
+  /* ─────────── CURSOR GLOW ─────────── */
+
   const glow = document.querySelector('[data-cursor-glow]');
   if (glow && !prefersReducedMotion && isFinePointer) {
     let gx = 0, gy = 0, tx = 0, ty = 0;
@@ -85,6 +150,8 @@
     })();
   }
 
+  /* ─────────── MAGNETIC ─────────── */
+
   function initMagnetic() {
     if (prefersReducedMotion || !isFinePointer) return;
     document.querySelectorAll('[data-magnetic]').forEach(btn => {
@@ -100,6 +167,8 @@
     });
   }
 
+  /* ─────────── PARALLAX ─────────── */
+
   const parallaxEl = document.querySelector('[data-parallax]');
   if (parallaxEl && !prefersReducedMotion) {
     window.addEventListener('scroll', () => {
@@ -107,6 +176,8 @@
       if (y < window.innerHeight) parallaxEl.style.transform = `translateY(${y * 0.3}px)`;
     }, { passive: true });
   }
+
+  /* ─────────── REVEAL ─────────── */
 
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -121,44 +192,52 @@
     document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
   }
 
+  /* ─────────── TEACHER CARD ─────────── */
+
   function teacherCard(t) {
+    const safeName = escapeHtml(t.name || 'Репетитор');
+    const safeSubject = escapeHtml(t.subjectLabel || '');
     const initials = (t.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
     const freeSlots = (t.slots || []).filter(s => s.free).slice(0, 4);
     const slotsHtml = freeSlots.map(s =>
-      `<span class="slot slot--free">${s.day} ${s.time}</span>`
+      `<span class="slot slot--free">${escapeHtml(s.day)} ${escapeHtml(s.time)}</span>`
     ).join('');
-    const tagsHtml = (t.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
+
+    const tagsHtml = (t.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('');
 
     const avatarHtml = t.avatar_url
-      ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${t.avatar_url}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
-      : `<div class="teacher-card__avatar">${initials}</div>`;
+      ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${escapeHtml(t.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt=""></div>`
+      : `<div class="teacher-card__avatar">${escapeHtml(initials)}</div>`;
 
     return `
-      <a class="teacher-card reveal" href="teacher.html?id=${t.id}" data-teacher-id="${t.id}">
+      <a class="teacher-card reveal" href="teacher.html?id=${encodeURIComponent(t.id)}" data-teacher-id="${escapeHtml(t.id)}">
         <div class="teacher-card__head">
           ${avatarHtml}
           <div>
-            <div class="teacher-card__name">${t.name}</div>
-            <div class="teacher-card__subject">${t.subjectLabel}</div>
+            <div class="teacher-card__name">${safeName}</div>
+            <div class="teacher-card__subject">${safeSubject}</div>
           </div>
-          <div class="teacher-card__rating">★ ${t.rating || '—'}</div>
+          <div class="teacher-card__rating">★ ${escapeHtml(t.rating || '—')}</div>
         </div>
         <div class="teacher-card__tags">${tagsHtml}</div>
         <div class="teacher-card__slots">${slotsHtml}</div>
         <div class="teacher-card__foot">
-          <div class="teacher-card__price">${t.price} ₽<span> / урок</span></div>
+          <div class="teacher-card__price">${escapeHtml(t.price)} ₽<span> / урок</span></div>
           <div class="teacher-card__cta">Подробнее →</div>
         </div>
       </a>
     `;
   }
 
+  /* ─────────── ЗАГРУЗКА УЧИТЕЛЕЙ ─────────── */
+
   async function loadTeachersFromDB() {
     if (!window.supabaseClient) return [];
     try {
       const { data: teacherRows, error } = await window.supabaseClient
         .from('teachers')
-        .select('id, subject, price, bio, rating, reviews_count, avatar_url')
+        .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals')
         .eq('is_active', true)
         .order('rating', { ascending: false });
 
@@ -183,16 +262,11 @@
         slotsMap[s.teacher_id].push(s);
       });
 
-      const subjectLabels = {
-        math: 'Математика', english: 'Английский', physics: 'Физика',
-        russian: 'Русский', chemistry: 'Химия', it: 'Информатика'
-      };
-
-      const days = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+      const days = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
       const result = teacherRows.map(t => {
         const profile = profilesMap[t.id] || {};
-        const slots = (slotsMap[t.id] || []).slice(0, 8).map(s => ({
+        const slots = (slotsMap[t.id] || []).map(s => ({
           day: days[s.weekday],
           time: (s.time || '').slice(0, 5),
           free: true
@@ -202,8 +276,9 @@
           id: t.id,
           name: profile.name || 'Репетитор',
           subject: t.subject,
-          subjectLabel: subjectLabels[t.subject] || t.subject,
-          tags: [subjectLabels[t.subject] || t.subject],
+          subjectLabel: SUBJECT_LABELS[t.subject] || t.subject,
+          goals: t.goals || [],
+          tags: [SUBJECT_LABELS[t.subject] || t.subject],
           price: t.price,
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
@@ -222,7 +297,9 @@
     }
   }
 
-  const podborState = { step: 1, subject: null, goal: null, time: null, budget: null };
+  /* ─────────── ПОДБОР ─────────── */
+
+  const podborState = { step: 1, subject: null, goal: null, budget: null, shown: PAGE_SIZE };
 
   const podborSteps = document.querySelectorAll('.podbor__step');
   const podborBar = document.querySelector('.podbor__bar');
@@ -248,7 +325,7 @@
       return;
     }
     goalChips.innerHTML = goals.map(g =>
-      `<button class="chip" data-value="${g.value}">${g.label}</button>`
+      `<button class="chip" data-value="${escapeHtml(g.value)}">${escapeHtml(g.label)}</button>`
     ).join('');
   }
 
@@ -272,8 +349,6 @@
       } else if (field === 'goal') {
         podborState.goal = chip.dataset.value;
         if (hintGoal) hintGoal.hidden = true;
-      } else if (field === 'time') {
-        podborState.time = chip.dataset.value;
       } else if (field === 'budget') {
         podborState.budget = chip.dataset.value;
       }
@@ -323,6 +398,8 @@
     });
   }
 
+  let podborAllResults = [];
+
   async function runPodbor() {
     if (!podborGrid) return;
     podborNext.disabled = true;
@@ -332,42 +409,20 @@
     let list = [...all];
 
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
+    if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     if (podborState.budget && podborState.budget !== 'any') {
       const max = +podborState.budget;
       list = list.filter(t => t.price <= max);
     }
-    if (podborState.time) {
-      const timeMap = {
-        morning: ['10:00', '11:00', '12:00'],
-        day: ['13:00', '14:00', '15:00', '16:00'],
-        evening: ['17:00', '18:00', '19:00', '20:00', '21:00'],
-        weekend: ['Сб', 'Вс']
-      };
-      const rule = timeMap[podborState.time];
-      list = list.filter(t => (t.slots || []).some(s => {
-        if (!s.free) return false;
-        if (podborState.time === 'weekend') return rule.includes(s.day);
-        return rule.includes(s.time);
-      }));
-    }
 
     list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    list = list.slice(0, 3);
+    podborAllResults = list;
+    podborState.shown = PAGE_SIZE;
 
     podborNext.disabled = false;
     podborNext.textContent = 'Показать репетиторов';
 
-    if (!list.length) {
-      podborGrid.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state__icon">😕</div>
-          <div class="empty-state__title">Пока никого нет</div>
-          <div class="empty-state__desc">Репетиторы появятся здесь после регистрации. Попробуйте позже.</div>
-        </div>
-      `;
-    } else {
-      podborGrid.innerHTML = list.map(teacherCard).join('');
-    }
+    renderPodborResults();
 
     podborCard.style.display = 'none';
     podborResults.hidden = false;
@@ -376,30 +431,73 @@
     initMagnetic();
   }
 
-  if (podborReset) {
-    podborReset.addEventListener('click', () => {
-      podborState.step = 1;
-      podborState.subject = null;
-      podborState.goal = null;
-      podborState.time = null;
-      podborState.budget = null;
-      document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
-      if (hintSubject) hintSubject.hidden = true;
-      if (hintGoal) hintGoal.hidden = true;
-      podborCard.style.display = '';
-      podborResults.hidden = true;
-      renderGoalChips();
-      updatePodborUI();
-      document.querySelector('#podbor').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  function renderPodborResults() {
+    if (!podborGrid) return;
+    const total = podborAllResults.length;
+
+    if (!total) {
+      podborGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">😕</div>
+          <div class="empty-state__title">Пока никого нет</div>
+          <div class="empty-state__desc">Попробуйте изменить задачу или увеличить бюджет.</div>
+          <button class="btn btn--ghost" data-podbor-reset-inline style="margin-top:16px;">Пройти заново</button>
+        </div>
+      `;
+      const inlineReset = podborGrid.querySelector('[data-podbor-reset-inline]');
+      if (inlineReset) inlineReset.addEventListener('click', resetPodbor);
+      return;
+    }
+
+    const shown = podborAllResults.slice(0, podborState.shown);
+    let html = shown.map(teacherCard).join('');
+
+    if (podborState.shown < total) {
+      html += `
+        <div class="podbor__more" style="grid-column:1/-1;text-align:center;margin-top:16px;">
+          <button class="btn btn--ghost" data-podbor-more>Показать ещё (${total - podborState.shown})</button>
+        </div>
+      `;
+    }
+
+    podborGrid.innerHTML = html;
+
+    const moreBtn = podborGrid.querySelector('[data-podbor-more]');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        podborState.shown += PAGE_SIZE;
+        renderPodborResults();
+        observeReveals();
+      });
+    }
   }
+
+  function resetPodbor() {
+    podborState.step = 1;
+    podborState.subject = null;
+    podborState.goal = null;
+    podborState.budget = null;
+    podborState.shown = PAGE_SIZE;
+    document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
+    if (hintSubject) hintSubject.hidden = true;
+    if (hintGoal) hintGoal.hidden = true;
+    podborCard.style.display = '';
+    podborResults.hidden = true;
+    renderGoalChips();
+    updatePodborUI();
+    const podborSection = document.querySelector('#podbor');
+    if (podborSection) podborSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  if (podborReset) podborReset.addEventListener('click', resetPodbor);
 
   renderGoalChips();
   updatePodborUI();
   observeReveals();
   initMagnetic();
 
-  /* BURGER */
+  /* ─────────── BURGER ─────────── */
+
   const burger = document.querySelector('.nav__burger');
   if (burger) {
     burger.addEventListener('click', () => {
@@ -419,7 +517,8 @@
     });
   }
 
-  /* AUTH HEADER — имя + аватар (клик → кабинет) + колокольчик */
+  /* ─────────── AUTH HEADER ─────────── */
+
   async function initAuthHeader() {
     if (!window.authAPI) return;
 
@@ -431,11 +530,9 @@
     const name = current.profile.name || current.profile.email || 'Профиль';
     const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-    // Скрываем кнопки "Войти / Регистрация"
     const actions = document.querySelector('[data-nav-actions]');
     if (actions) actions.hidden = true;
 
-    // Показываем блок с именем/аватаром + колокольчиком
     const userMenu = document.querySelector('[data-user-menu]');
     const link = document.querySelector('[data-user-link]');
     const nameEl = document.querySelector('[data-user-name]');
@@ -446,11 +543,11 @@
     if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
     if (avatarEl) avatarEl.textContent = initials;
 
-    // Колокольчик
     initNotifications(current.user.id);
   }
 
-  /* УВЕДОМЛЕНИЯ */
+  /* ─────────── УВЕДОМЛЕНИЯ ─────────── */
+
   function initNotifications(userId) {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -495,9 +592,9 @@
     }
 
     panel.innerHTML = data.map(n => `
-      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${n.id}" data-link="${n.link || ''}">
-        ${n.text}
-        <span class="notif-item__time">${formatTime(n.created_at)}</span>
+      <div class="notif-item ${n.read ? '' : 'is-unread'}" data-notif-id="${escapeHtml(n.id)}" data-link="${escapeHtml(n.link || '')}">
+        ${escapeHtml(n.text)}
+        <span class="notif-item__time">${escapeHtml(formatTime(n.created_at))}</span>
       </div>
     `).join('');
 
