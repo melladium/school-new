@@ -217,6 +217,13 @@
       cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
     });
 
+    // Максимум ячеек в одном дне → столько строк у всех
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
     let html = '<div class="week-board">';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
@@ -224,12 +231,14 @@
         .map(key => ({ key, ...cellsMap[key] }))
         .sort((a, b) => a.time.localeCompare(b.time));
 
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderCell(day, c)).join('')
+        : '<div class="week-day__empty">—</div>';
+
       html += `
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">
-            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">—</div>'}
-          </div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
         </div>
       `;
     });
