@@ -306,7 +306,7 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 14px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .week-board--personal { border-style: dashed; opacity: 0.9; }
@@ -320,10 +320,10 @@
   font-size: 12px;
 }
 
-/* Каждый день — grid с одинаковыми строками (--week-rows задаёт JS) */
+/* Каждый день — вертикальный grid: заголовок + ряды ячеек */
 .week-day {
   display: grid;
-  grid-template-rows: auto repeat(var(--week-rows, 12), 44px);
+  grid-template-rows: auto 1fr;
   gap: 6px;
   min-width: 0;
 }
@@ -344,7 +344,10 @@
 }
 
 .week-day__body {
-  display: contents;
+  display: grid;
+  grid-template-rows: repeat(var(--week-rows, 12), 44px);
+  gap: 6px;
+  min-height: 0;
 }
 
 .week-day__empty {
@@ -895,7 +898,7 @@
     padding: 10px;
     gap: 6px;
   }
-  .week-day { grid-template-rows: auto repeat(var(--week-rows, 12), 40px); }
+  .week-day__body { grid-template-rows: repeat(var(--week-rows, 12), 40px); }
   .week-cell { height: 40px; padding: 5px 7px; }
   .week-cell__time { font-size: 10px; }
   .week-day__head { height: 26px; font-size: 9px; }
