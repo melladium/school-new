@@ -154,7 +154,6 @@
       }
     }
 
-    // Телефон — теперь кнопка, не ссылка
     if (teacher.phone) {
       const el = document.querySelector('[data-contact-phone]');
       if (el) { el.hidden = false; hasAny = true; }
@@ -164,7 +163,6 @@
     if (sec && hasAny) sec.hidden = false;
   }
 
-  /* ─────────── МОДАЛКА ТЕЛЕФОНА ─────────── */
   function initPhoneModal() {
     const phoneBtn = document.querySelector('[data-contact-phone]');
     const modal = document.querySelector('[data-modal="phone"]');
@@ -187,7 +185,6 @@
           copyBtn.textContent = 'Скопировано ✓';
           setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1500);
         } catch (e) {
-          // fallback
           const ta = document.createElement('textarea');
           ta.value = teacher.phone;
           document.body.appendChild(ta);
@@ -258,8 +255,6 @@
 
   function renderCell(day, cell) {
     const clickable = cell.status === 'free';
-    // В публичном расписании имя ученика НЕ показываем (это видно только учителю)
-    // busy без имени → «Занято», busy с именем → тоже «Занято» (не раскрываем личность ученика другим)
     const statusText = STATUS_LABELS[cell.status] || cell.status;
 
     return `
