@@ -21,52 +21,52 @@
 
   const SUBJECT_GOALS = {
     math: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz', label: 'Подготовка к вузу' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
     ],
     russian: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'essay', label: 'Сочинение' },
+      { value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' },
+      { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' },
       { value: 'literacy', label: 'Грамотность' }
     ],
     physics: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz', label: 'Подготовка к вузу' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
     ],
     chemistry: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'med', label: 'Медвуз' },
-      { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
     ],
     biology: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'med', label: 'Медвуз' },
-      { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
     ],
     it: [
-      { value: 'school', label: 'Школьная информатика' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'python', label: 'Python' },
-      { value: 'web', label: 'Веб-разработка' }, { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' },
+      { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }
     ],
     english: [
-      { value: 'school', label: 'Школьная программа' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' },
-      { value: 'business', label: 'Бизнес-английский' }, { value: 'ielts', label: 'IELTS / TOEFL' }
+      { value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' },
+      { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' },
+      { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }
     ],
     history: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz', label: 'Подготовка к вузу' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
     ],
     social: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
     ],
     geography: [
-      { value: 'school', label: 'Подтянуть школу' }, { value: 'oge', label: 'ОГЭ' },
-      { value: 'ege', label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
     ]
   };
 
@@ -215,7 +215,7 @@
 
   function openProfileModal() { openModal('profile'); }
 
-  /* УВЕДОМЛЕНИЯ */
+  /* ─────────── УВЕДОМЛЕНИЯ ─────────── */
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -290,7 +290,7 @@
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
-  /* ПРОФИЛЬ */
+  /* ─────────── ПРОФИЛЬ ─────────── */
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -523,7 +523,7 @@
     }
   }
 
-  /* ПРЕДПРОСМОТР */
+  /* ─────────── ПРЕДПРОСМОТР ─────────── */
   async function openPreview() { openModal('preview'); await loadPreview(); }
 
   async function loadPreview() {
@@ -580,7 +580,7 @@
     const el = document.querySelector('[data-preview-schedule]');
     if (!el) return;
     const { data, error } = await window.supabaseClient
-      .from('schedule_template').select('weekday, time, status')
+      .from('schedule_template').select('weekday, time, status, student_name')
       .eq('teacher_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
 
@@ -588,7 +588,13 @@
     if (!data || !data.length) { el.innerHTML = '<div class="preview-schedule__loading">Расписание пока пустое</div>'; return; }
 
     const map = {};
-    data.forEach(item => { map[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time }; });
+    data.forEach(item => {
+      map[item.weekday + '|' + item.time] = {
+        status: item.status || 'free',
+        time: item.time,
+        studentName: item.student_name || ''
+      };
+    });
 
     let maxRows = 1;
     DAY_ORDER.forEach(day => {
@@ -602,11 +608,17 @@
         .map(k => ({ key: k, ...map[k] })).sort((a, b) => a.time.localeCompare(b.time));
 
       const cellsHtml = dayCells.length
-        ? dayCells.map(c => `
-            <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
-              <div class="week-cell__time">${escapeHtml(c.time)}</div>
-              <div class="week-cell__status">${escapeHtml(STATUS_LABELS[c.status] || c.status)}</div>
-            </div>`).join('')
+        ? dayCells.map(c => {
+            const statusText = (c.status === 'busy' && c.studentName)
+              ? c.studentName
+              : (STATUS_LABELS[c.status] || c.status);
+            return `
+              <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
+                <div class="week-cell__time">${escapeHtml(c.time)}</div>
+                <div class="week-cell__status">${escapeHtml(statusText)}</div>
+              </div>
+            `;
+          }).join('')
         : '<div class="week-day__empty">—</div>';
 
       html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
@@ -619,19 +631,25 @@
     if (editBtn) { closeModal('preview'); openProfileModal(); }
   });
 
-  /* ПУБЛИЧНОЕ РАСПИСАНИЕ */
+  /* ─────────── ПУБЛИЧНОЕ РАСПИСАНИЕ ─────────── */
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
     const { data, error } = await window.supabaseClient
-      .from('schedule_template').select('id, weekday, time, text_content, status')
+      .from('schedule_template').select('id, weekday, time, text_content, status, student_name')
       .eq('teacher_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
     if (error) { board.innerHTML = '<div class="week-board__loading">Ошибка: ' + escapeHtml(error.message) + '</div>'; return; }
 
     cellsMap = {};
     (data || []).forEach(item => {
-      cellsMap[item.weekday + '|' + item.time] = { id: item.id, status: item.status || 'free', note: item.text_content || '' };
+      const key = item.weekday + '|' + item.time;
+      cellsMap[key] = {
+        id: item.id,
+        status: item.status || 'free',
+        note: item.text_content || '',
+        studentName: item.student_name || ''
+      };
     });
     renderWeekBoard();
   }
@@ -664,12 +682,21 @@
   function renderCell(day, cell) {
     const time = cell.key.split('|')[1];
     const statusClass = 'week-cell--' + escapeHtml(cell.status);
-    const statusLabel = STATUS_LABELS[cell.status] || cell.status;
+
+    // Если busy + есть имя — показываем имя вместо «Занято»
+    let displayText;
+    let textClass = 'week-cell__status';
+    if (cell.status === 'busy' && cell.studentName) {
+      displayText = cell.studentName;
+      textClass = 'week-cell__status week-cell__status--name';
+    } else {
+      displayText = STATUS_LABELS[cell.status] || cell.status;
+    }
+
     return `
       <div class="week-cell ${statusClass}" data-cell-key="${escapeHtml(cell.key)}">
         <div class="week-cell__time">${escapeHtml(time)}</div>
-        <div class="week-cell__status">${escapeHtml(statusLabel)}</div>
-        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
+        <div class="${textClass}">${escapeHtml(displayText)}</div>
       </div>
     `;
   }
@@ -682,6 +709,7 @@
     const daySelect = modal.querySelector('[data-cell-day]');
     const timeInput = modal.querySelector('[data-cell-time]');
     const statusSelect = modal.querySelector('[data-cell-status]');
+    const nameInput = modal.querySelector('[data-cell-student-name]');
     const noteInput = modal.querySelector('[data-cell-note]');
 
     if (saveBtn) {
@@ -691,6 +719,7 @@
         const day = parseInt(daySelect.value, 10);
         const time = timeInput.value.trim();
         const status = statusSelect.value;
+        const studentName = nameInput.value.trim();
         const note = noteInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
@@ -702,7 +731,12 @@
         }
 
         const { error } = await window.supabaseClient.from('schedule_template').upsert({
-          teacher_id: currentUser.user.id, weekday: day, time, text_content: note, status
+          teacher_id: currentUser.user.id,
+          weekday: day,
+          time,
+          text_content: note,
+          student_name: studentName,
+          status
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -730,6 +764,7 @@
     const daySelect = modal.querySelector('[data-cell-day]');
     const timeInput = modal.querySelector('[data-cell-time]');
     const statusSelect = modal.querySelector('[data-cell-status]');
+    const nameInput = modal.querySelector('[data-cell-student-name]');
     const noteInput = modal.querySelector('[data-cell-note]');
     const deleteBtn = modal.querySelector('[data-cell-delete]');
     const errorEl = modal.querySelector('[data-cell-error]');
@@ -742,6 +777,7 @@
       if (title) title.textContent = 'Редактировать ячейку';
       daySelect.value = day; timeInput.value = time;
       statusSelect.value = cell.status || 'free';
+      nameInput.value = cell.studentName || '';
       noteInput.value = cell.note || '';
       if (deleteBtn) deleteBtn.hidden = false;
     } else {
@@ -749,7 +785,9 @@
       if (title) title.textContent = 'Новая ячейка';
       const d = getSmartDefaults(Object.keys(cellsMap));
       daySelect.value = d.day; timeInput.value = d.time;
-      statusSelect.value = 'free'; noteInput.value = '';
+      statusSelect.value = 'free';
+      nameInput.value = '';
+      noteInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
 
@@ -757,16 +795,20 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЛИЧНОЕ РАСПИСАНИЕ */
+  /* ─────────── ЛИЧНОЕ РАСПИСАНИЕ ─────────── */
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
-      .from('personal_schedule').select('id, weekday, time, text_content')
+      .from('personal_schedule').select('id, weekday, time, text_content, student_name')
       .eq('teacher_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
     if (error) return;
     (data || []).forEach(item => {
-      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '' };
+      personalMap[item.weekday + '|' + item.time] = {
+        id: item.id,
+        note: item.text_content || '',
+        studentName: item.student_name || ''
+      };
     });
     renderPersonalBoard();
   }
@@ -798,7 +840,8 @@
 
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
-    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div>${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}</div>`;
+    const display = cell.studentName || STATUS_LABELS.free;
+    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div><div class="week-cell__status">${escapeHtml(display)}</div></div>`;
   }
 
   function initPersonalCellModal() {
@@ -808,6 +851,7 @@
     const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
     const daySelect = modal.querySelector('[data-personal-cell-day]');
     const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const nameInput = modal.querySelector('[data-personal-cell-student-name]');
     const textInput = modal.querySelector('[data-personal-cell-text]');
 
     if (saveBtn) {
@@ -816,6 +860,7 @@
         errorEl.textContent = '';
         const day = parseInt(daySelect.value, 10);
         const time = timeInput.value.trim();
+        const studentName = nameInput.value.trim();
         const text = textInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
@@ -827,7 +872,11 @@
         }
 
         const { error } = await window.supabaseClient.from('personal_schedule').upsert({
-          teacher_id: currentUser.user.id, weekday: day, time, text_content: text
+          teacher_id: currentUser.user.id,
+          weekday: day,
+          time,
+          text_content: text,
+          student_name: studentName
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -854,6 +903,7 @@
     const title = modal.querySelector('[data-personal-cell-title]');
     const daySelect = modal.querySelector('[data-personal-cell-day]');
     const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const nameInput = modal.querySelector('[data-personal-cell-student-name]');
     const textInput = modal.querySelector('[data-personal-cell-text]');
     const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
     const errorEl = modal.querySelector('[data-personal-cell-error]');
@@ -865,6 +915,7 @@
       const cell = personalMap[key] || {};
       if (title) title.textContent = 'Редактировать ячейку';
       daySelect.value = day; timeInput.value = time;
+      nameInput.value = cell.studentName || '';
       textInput.value = cell.note || '';
       if (deleteBtn) deleteBtn.hidden = false;
     } else {
@@ -872,6 +923,7 @@
       if (title) title.textContent = 'Новая ячейка';
       const d = getSmartDefaults(Object.keys(personalMap));
       daySelect.value = d.day; timeInput.value = d.time;
+      nameInput.value = '';
       textInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
@@ -880,7 +932,7 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ЗАЯВКИ */
+  /* ─────────── ЗАЯВКИ ─────────── */
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
@@ -1006,7 +1058,8 @@
     const studentName = (profile && profile.name) || 'Ученик';
 
     await window.supabaseClient.from('schedule_template').upsert({
-      teacher_id: currentUser.user.id, weekday, time, text_content: studentName, status: 'busy'
+      teacher_id: currentUser.user.id, weekday, time,
+      text_content: '', student_name: studentName, status: 'busy'
     }, { onConflict: 'teacher_id,weekday,time' });
 
     await Promise.all([loadRequests(), loadCells()]);
@@ -1026,7 +1079,7 @@
     await loadRequests();
   }
 
-  /* ССЫЛКА НА УРОК */
+  /* ─────────── ССЫЛКА НА УРОК ─────────── */
   function initRequestLinkModal() {
     const modal = document.querySelector('[data-modal="request-link"]');
     if (!modal) return;
