@@ -782,4 +782,561 @@
     renderWeekBoard();
   }
 
-  function renderWeek
+  function renderWeekBoard() {
+    const board = document.querySelector('[data-week-board]');
+    if (!board) return;
+
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
+    let html = '';
+    DAY_ORDER.forEach(day => {
+      const dayCells = Object.keys(cellsMap)
+        .filter(key => key.startsWith(day + '|'))
+        .map(key => ({ key, ...cellsMap[key] }))
+        .sort((a, b) => a.key.localeCompare(b.key));
+
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderCell(day, c)).join('')
+        : '<div class="week-day__empty">Нет ячеек</div>';
+
+      html += `
+        <div class="week-day">
+          <div class="week-day__head">${DAYS[day]}</div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
+        </div>
+      `;
+    });
+
+    board.innerHTML = html;
+    board.querySelectorAll('[data-cell-key]').forEach(el => {
+      el.addEventListener('click', () => openCellModal(el.dataset.cellKey));
+    });
+  }
+
+  function renderCell(day, cell) {
+    const time = cell.key.split('|')[1];
+    const statusClass = 'week-cell--' + escapeHtml(cell.status);
+    const statusLabel = STATUS_LABELS[cell.status] || cell.status;
+    return `
+      <div class="week-cell ${statusClass}" data-cell-key="${escapeHtml(cell.key)}">
+        <div class="week-cell__time">${escapeHtml(time)}</div>
+        <div class="week-cell__status">${escapeHtml(statusLabel)}</div>
+        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function initCellModal() {
+    const modal = document.querySelector('[data-modal="cell-edit"]');
+    if (!modal) return;
+
+    const saveBtn = modal.querySelector('[data-cell-save]');
+    const deleteBtn = modal.querySelector('[data-cell-delete]');
+    const daySelect = modal.querySelector('[data-cell-day]');
+    const timeInput = modal.querySelector('[data-cell-time]');
+    const statusSelect = modal.querySelector('[data-cell-status]');
+    const noteInput = modal.querySelector('[data-cell-note]');
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        const errorEl = modal.querySelector('[data-cell-error]');
+        errorEl.textContent = '';
+        const day = parseInt(daySelect.value, 10);
+        const time = timeInput.value.trim();
+        const status = statusSelect.value;
+        const note = noteInput.value.trim();
+        if (!time) { errorEl.textContent = 'Укажите время'; return; }
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
+
+        if (editingKey) {
+          const [oldDay, oldTime] = editingKey.split('|');
+          await window.supabaseClient.from('schedule_template').delete()
+            .eq('teacher_id', currentUser.user.id)
+            .eq('weekday', parseInt(oldDay, 10))
+            .eq('time', oldTime);
+        }
+
+        const { error } = await window.supabaseClient.from('schedule_template').upsert({
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: note, status
+        }, { onConflict: 'teacher_id,weekday,time' });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
+        closeModal('cell-edit');
+        editingKey = null;
+        await loadCells();
+      });
+    }
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!editingKey) return;
+        if (!confirm('Удалить эту ячейку?')) return;
+        const [oldDay, oldTime] = editingKey.split('|');
+        await window.supabaseClient.from('schedule_template').delete()
+          .eq('teacher_id', currentUser.user.id)
+          .eq('weekday', parseInt(oldDay, 10))
+          .eq('time', oldTime);
+        closeModal('cell-edit');
+        editingKey = null;
+        await loadCells();
+      });
+    }
+  }
+
+  function openCellModal(key) {
+    const modal = document.querySelector('[data-modal="cell-edit"]');
+    if (!modal) return;
+    const title = modal.querySelector('[data-cell-title]');
+    const daySelect = modal.querySelector('[data-cell-day]');
+    const timeInput = modal.querySelector('[data-cell-time]');
+    const statusSelect = modal.querySelector('[data-cell-status]');
+    const noteInput = modal.querySelector('[data-cell-note]');
+    const deleteBtn = modal.querySelector('[data-cell-delete]');
+    const errorEl = modal.querySelector('[data-cell-error]');
+
+    errorEl.textContent = '';
+
+    if (key) {
+      editingKey = key;
+      const [day, time] = key.split('|');
+      const cell = cellsMap[key] || {};
+      if (title) title.textContent = 'Редактировать ячейку';
+      daySelect.value = day;
+      timeInput.value = time;
+      statusSelect.value = cell.status || 'free';
+      noteInput.value = cell.note || '';
+      if (deleteBtn) deleteBtn.hidden = false;
+    } else {
+      editingKey = null;
+      if (title) title.textContent = 'Новая ячейка';
+      const defaults = getSmartDefaults(Object.keys(cellsMap));
+      daySelect.value = defaults.day;
+      timeInput.value = defaults.time;
+      statusSelect.value = 'free';
+      noteInput.value = '';
+      if (deleteBtn) deleteBtn.hidden = true;
+    }
+
+    openModal('cell-edit');
+    setTimeout(() => timeInput && timeInput.focus(), 150);
+  }
+
+  /* ─────────── ЛИЧНОЕ РАСПИСАНИЕ ─────────── */
+
+  async function loadPersonal() {
+    personalMap = {};
+    const { data, error } = await window.supabaseClient
+      .from('personal_schedule')
+      .select('id, weekday, time, text_content')
+      .eq('teacher_id', currentUser.user.id)
+      .order('weekday', { ascending: true })
+      .order('time', { ascending: true });
+    if (error) return;
+    (data || []).forEach(item => {
+      const key = item.weekday + '|' + item.time;
+      personalMap[key] = { id: item.id, note: item.text_content || '' };
+    });
+    renderPersonalBoard();
+  }
+
+  function renderPersonalBoard() {
+    const board = document.querySelector('[data-personal-board]');
+    if (!board) return;
+
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(personalMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
+    let html = '';
+    DAY_ORDER.forEach(day => {
+      const dayCells = Object.keys(personalMap)
+        .filter(key => key.startsWith(day + '|'))
+        .map(key => ({ key, ...personalMap[key] }))
+        .sort((a, b) => a.key.localeCompare(b.key));
+
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderPersonalCell(day, c)).join('')
+        : '<div class="week-day__empty">Нет ячеек</div>';
+
+      html += `
+        <div class="week-day">
+          <div class="week-day__head">${DAYS[day]}</div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
+        </div>
+      `;
+    });
+
+    board.innerHTML = html;
+    board.querySelectorAll('[data-personal-cell-key]').forEach(el => {
+      el.addEventListener('click', () => openPersonalCellModal(el.dataset.personalCellKey));
+    });
+  }
+
+  function renderPersonalCell(day, cell) {
+    const time = cell.key.split('|')[1];
+    return `
+      <div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}">
+        <div class="week-cell__time">${escapeHtml(time)}</div>
+        ${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}
+      </div>
+    `;
+  }
+
+  function initPersonalCellModal() {
+    const modal = document.querySelector('[data-modal="personal-cell-edit"]');
+    if (!modal) return;
+
+    const saveBtn = modal.querySelector('[data-personal-cell-save]');
+    const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
+    const daySelect = modal.querySelector('[data-personal-cell-day]');
+    const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const textInput = modal.querySelector('[data-personal-cell-text]');
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        const errorEl = modal.querySelector('[data-personal-cell-error]');
+        errorEl.textContent = '';
+        const day = parseInt(daySelect.value, 10);
+        const time = timeInput.value.trim();
+        const text = textInput.value.trim();
+        if (!time) { errorEl.textContent = 'Укажите время'; return; }
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
+
+        if (personalEditingKey) {
+          const [oldDay, oldTime] = personalEditingKey.split('|');
+          await window.supabaseClient.from('personal_schedule').delete()
+            .eq('teacher_id', currentUser.user.id)
+            .eq('weekday', parseInt(oldDay, 10))
+            .eq('time', oldTime);
+        }
+
+        const { error } = await window.supabaseClient.from('personal_schedule').upsert({
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: text
+        }, { onConflict: 'teacher_id,weekday,time' });
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
+        closeModal('personal-cell-edit');
+        personalEditingKey = null;
+        await loadPersonal();
+      });
+    }
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', async () => {
+        if (!personalEditingKey) return;
+        if (!confirm('Удалить эту ячейку?')) return;
+        const [oldDay, oldTime] = personalEditingKey.split('|');
+        await window.supabaseClient.from('personal_schedule').delete()
+          .eq('teacher_id', currentUser.user.id)
+          .eq('weekday', parseInt(oldDay, 10))
+          .eq('time', oldTime);
+        closeModal('personal-cell-edit');
+        personalEditingKey = null;
+        await loadPersonal();
+      });
+    }
+  }
+
+  function openPersonalCellModal(key) {
+    const modal = document.querySelector('[data-modal="personal-cell-edit"]');
+    if (!modal) return;
+    const title = modal.querySelector('[data-personal-cell-title]');
+    const daySelect = modal.querySelector('[data-personal-cell-day]');
+    const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const textInput = modal.querySelector('[data-personal-cell-text]');
+    const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
+    const errorEl = modal.querySelector('[data-personal-cell-error]');
+
+    errorEl.textContent = '';
+
+    if (key) {
+      personalEditingKey = key;
+      const [day, time] = key.split('|');
+      const cell = personalMap[key] || {};
+      if (title) title.textContent = 'Редактировать ячейку';
+      daySelect.value = day;
+      timeInput.value = time;
+      textInput.value = cell.note || '';
+      if (deleteBtn) deleteBtn.hidden = false;
+    } else {
+      personalEditingKey = null;
+      if (title) title.textContent = 'Новая ячейка';
+      const defaults = getSmartDefaults(Object.keys(personalMap));
+      daySelect.value = defaults.day;
+      timeInput.value = defaults.time;
+      textInput.value = '';
+      if (deleteBtn) deleteBtn.hidden = true;
+    }
+
+    openModal('personal-cell-edit');
+    setTimeout(() => timeInput && timeInput.focus(), 150);
+  }
+
+  /* ─────────── ЗАЯВКИ ─────────── */
+
+  async function loadRequests() {
+    const listEl = document.querySelector('[data-bookings-list]');
+    if (!listEl) return;
+
+    listEl.innerHTML = '<div class="cabinet__loading">Загружаем…</div>';
+
+    const { data, error } = await window.supabaseClient
+      .from('booking_requests')
+      .select('id, status, weekday, time, student_id, meeting_link, created_at')
+      .eq('teacher_id', currentUser.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + escapeHtml(error.message) + '</div></div>';
+      updateStats(0, 0);
+      return;
+    }
+
+    if (!data || !data.length) {
+      listEl.innerHTML = `
+        <div class="cabinet__empty">
+          <div class="cabinet__empty-icon">📩</div>
+          <div class="cabinet__empty-title">Заявок пока нет</div>
+          <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
+        </div>
+      `;
+      updateStats(0, 0);
+      return;
+    }
+
+    const studentIds = [...new Set(data.map(b => b.student_id).filter(Boolean))];
+    const { data: profiles } = studentIds.length
+      ? await window.supabaseClient.from('profiles').select('id, name, email').in('id', studentIds)
+      : { data: [] };
+
+    const studentsMap = {};
+    (profiles || []).forEach(p => studentsMap[p.id] = p);
+
+    const upcoming = [];
+    const done = [];
+
+    const rows = data.map(b => {
+      const s = studentsMap[b.student_id] || {};
+      const item = { ...b, studentName: s.name || s.email || 'Ученик' };
+      if (b.status === 'approved' && isPast(b.weekday, b.time)) done.push(item);
+      else if (b.status === 'pending' || b.status === 'approved') upcoming.push(item);
+      return item;
+    });
+
+    listEl.innerHTML = rows.map(b => renderBookingCard(b)).join('');
+
+    listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
+      btn.addEventListener('click', () => approveRequest(
+        btn.dataset.approveRequest,
+        parseInt(btn.dataset.weekday, 10),
+        btn.dataset.time,
+        btn.dataset.student
+      ));
+    });
+    listEl.querySelectorAll('[data-reject-request]').forEach(btn => {
+      btn.addEventListener('click', () => rejectRequest(btn.dataset.rejectRequest));
+    });
+    listEl.querySelectorAll('[data-delete-request]').forEach(btn => {
+      btn.addEventListener('click', () => deleteRequest(btn.dataset.deleteRequest));
+    });
+    listEl.querySelectorAll('[data-open-request-link]').forEach(btn => {
+      btn.addEventListener('click', () => openRequestLinkModal(
+        btn.dataset.openRequestLink,
+        btn.dataset.studentName,
+        btn.dataset.weekday,
+        btn.dataset.time,
+        btn.dataset.currentLink || ''
+      ));
+    });
+
+    updateStats(upcoming.length, done.length);
+  }
+
+  function renderBookingCard(b) {
+    const dateLabel = `${DAYS[b.weekday]} · ${b.time}`;
+    const safeName = escapeHtml(b.studentName);
+    const hasLink = !!(b.meeting_link && b.meeting_link.trim());
+    let statusClass, statusLabel, statusEmoji, actionHtml = '';
+
+    if (b.status === 'pending') {
+      statusClass = 'pending'; statusLabel = 'Ожидает'; statusEmoji = '⏳';
+      actionHtml = `
+        <button class="booking-card__action booking-card__action--primary" data-approve-request="${escapeHtml(b.id)}" data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-student="${escapeHtml(b.student_id)}">Одобрить</button>
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${escapeHtml(b.id)}">Отклонить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>
+      `;
+    } else if (b.status === 'approved') {
+      statusClass = 'approved'; statusLabel = 'Одобрена'; statusEmoji = '✅';
+      const linkBtn = hasLink
+        ? `<button class="booking-card__action booking-card__action--primary" data-open-request-link="${escapeHtml(b.id)}" data-student-name="${safeName}" data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-current-link="${escapeHtml(b.meeting_link)}">✓ Ссылка добавлена</button>`
+        : `<button class="booking-card__action booking-card__action--ghost" data-open-request-link="${escapeHtml(b.id)}" data-student-name="${safeName}" data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-current-link="">Добавить ссылку на урок</button>`;
+      actionHtml = `
+        ${linkBtn}
+        <button class="booking-card__action booking-card__action--danger" data-reject-request="${escapeHtml(b.id)}">Отменить</button>
+        <button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>
+      `;
+    } else if (b.status === 'rejected') {
+      statusClass = 'rejected'; statusLabel = 'Отклонена'; statusEmoji = '❌';
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>`;
+    } else if (b.status === 'cancelled') {
+      statusClass = 'cancelled'; statusLabel = 'Отменена'; statusEmoji = '✕';
+      actionHtml = `<button class="booking-card__action booking-card__action--remove" data-delete-request="${escapeHtml(b.id)}">✕ Удалить</button>`;
+    }
+
+    return `
+      <div class="booking-card">
+        <div class="booking-card__head">
+          <div class="booking-card__date">${escapeHtml(dateLabel)}</div>
+          <div class="booking-card__info"><span class="booking-card__name">${safeName}</span></div>
+        </div>
+        <div class="booking-card__status booking-card__status--${statusClass}">${statusEmoji} ${statusLabel}</div>
+        <div class="booking-card__actions">${actionHtml}</div>
+      </div>
+    `;
+  }
+
+  function updateStats(upcoming, done) {
+    const uEl = document.querySelector('[data-stat="upcoming"]');
+    const dEl = document.querySelector('[data-stat="done"]');
+    if (uEl) uEl.textContent = upcoming;
+    if (dEl) dEl.textContent = done;
+  }
+
+  async function approveRequest(id, weekday, time, studentId) {
+    if (!confirm('Одобрить заявку? Место станет занятым.')) return;
+
+    const { error: reqError } = await window.supabaseClient
+      .from('booking_requests').update({ status: 'approved' }).eq('id', id);
+    if (reqError) { alert('Ошибка: ' + reqError.message); return; }
+
+    const { data: profile } = await window.supabaseClient
+      .from('profiles').select('name').eq('id', studentId).single();
+    const studentName = (profile && profile.name) || 'Ученик';
+
+    await window.supabaseClient.from('schedule_template').upsert({
+      teacher_id: currentUser.user.id, weekday, time, text_content: studentName, status: 'busy'
+    }, { onConflict: 'teacher_id,weekday,time' });
+
+    await Promise.all([loadRequests(), loadCells()]);
+  }
+
+  async function rejectRequest(id) {
+    if (!confirm('Отклонить заявку?')) return;
+    const { error } = await window.supabaseClient
+      .from('booking_requests').update({ status: 'rejected' }).eq('id', id);
+    if (error) { alert('Ошибка: ' + error.message); return; }
+    await loadRequests();
+  }
+
+  async function deleteRequest(id) {
+    if (!confirm('Удалить заявку навсегда?')) return;
+    const { error } = await window.supabaseClient
+      .from('booking_requests').delete().eq('id', id);
+    if (error) { alert('Ошибка: ' + error.message); return; }
+    await loadRequests();
+  }
+
+  /* ─────────── ССЫЛКА НА УРОК ДЛЯ ЗАЯВКИ ─────────── */
+
+  function initRequestLinkModal() {
+    const modal = document.querySelector('[data-modal="request-link"]');
+    if (!modal) return;
+
+    const saveBtn = modal.querySelector('[data-request-link-save]');
+    const removeBtn = modal.querySelector('[data-request-link-remove]');
+    const input = modal.querySelector('[data-request-link-input]');
+    const errorEl = modal.querySelector('[data-request-link-error]');
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        errorEl.textContent = '';
+        const url = input.value.trim();
+
+        if (!url) {
+          errorEl.textContent = 'Введите ссылку';
+          return;
+        }
+        if (!/^https:\/\/.+/i.test(url)) {
+          errorEl.textContent = 'Ссылка должна начинаться с https://';
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Сохраняем…';
+
+        const { error } = await window.supabaseClient
+          .from('booking_requests')
+          .update({ meeting_link: url })
+          .eq('id', currentRequestId);
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Сохранить';
+
+        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
+
+        closeModal('request-link');
+        currentRequestId = null;
+        await loadRequests();
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', async () => {
+        if (!confirm('Удалить ссылку из этой заявки?')) return;
+        removeBtn.disabled = true;
+        removeBtn.textContent = 'Удаляем…';
+
+        const { error } = await window.supabaseClient
+          .from('booking_requests')
+          .update({ meeting_link: null })
+          .eq('id', currentRequestId);
+
+        removeBtn.disabled = false;
+        removeBtn.textContent = 'Удалить ссылку';
+
+        if (error) { errorEl.textContent = 'Ошибка: ' + error.message; return; }
+
+        closeModal('request-link');
+        currentRequestId = null;
+        await loadRequests();
+      });
+    }
+  }
+
+  function openRequestLinkModal(id, studentName, weekday, time, currentLink) {
+    const modal = document.querySelector('[data-modal="request-link"]');
+    if (!modal) return;
+
+    currentRequestId = id;
+
+    const studentEl = modal.querySelector('[data-request-link-student]');
+    const timeEl = modal.querySelector('[data-request-link-time]');
+    const input = modal.querySelector('[data-request-link-input]');
+    const errorEl = modal.querySelector('[data-request-link-error]');
+    const removeBtn = modal.querySelector('[data-request-link-remove]');
+
+    const wd = parseInt(weekday, 10);
+    if (studentEl) studentEl.textContent = studentName || 'Ученик';
+    if (timeEl) timeEl.textContent = `${DAYS[wd] || '—'} · ${time || '—'}`;
+    if (input) input.value = currentLink || '';
+    if (errorEl) errorEl.textContent = '';
+    if (removeBtn) removeBtn.hidden = !currentLink;
+
+    openModal('request-link');
+    setTimeout(() => input && input.focus(), 150);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
