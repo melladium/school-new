@@ -1,5 +1,3 @@
-/* ═══════════ TABLET / MOBILE ═══════════ */
-
 @media (max-width: 1024px) {
   .nav__links { display: none; }
   .nav__actions .btn--ghost { display: none; }
@@ -9,46 +7,39 @@
 }
 
 @media (max-width: 768px) {
+  html, body { overflow-x: hidden; max-width: 100%; }
+  .nav__inner { gap: 8px; padding: 0 16px; }
+  .nav__logo { font-size: 12px; }
+  .nav__user-menu { gap: 6px; }
+  .nav__user-trigger { padding: 4px; }
+  .nav__user-name { display: none; }
+  .nav__user-avatar { width: 30px; height: 30px; font-size: 12px; }
+  .notif-bell { width: 34px; height: 34px; }
+  .nav__burger { width: 36px; height: 36px; flex-shrink: 0; }
+
   .nav__mobile {
     position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+    top: 100%; left: 0; right: 0;
     background: rgba(8, 8, 10, 0.96);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    animation: navMobileIn 0.4s var(--ease);
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex; flex-direction: column; gap: 12px;
+    animation: navMobileIn 0.3s var(--ease);
     z-index: 90;
   }
   .nav__mobile[hidden] { display: none; }
-  .nav__mobile a,
-  .nav__mobile button {
-    font-size: 15px;
-    color: var(--text-dim);
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    text-align: left;
-    background: none;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    cursor: pointer;
-    font-family: var(--font-body);
+  .nav__mobile a, .nav__mobile button {
+    font-size: 15px; color: var(--text-dim);
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    text-align: left; background: none;
+    border-left: none; border-right: none; border-top: none;
+    cursor: pointer; font-family: var(--font-body);
   }
-  .nav__mobile a:hover,
-  .nav__mobile button:hover { color: var(--text); }
-
-  .nav__mobile-auth {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 8px;
-  }
+  .nav__mobile a:hover, .nav__mobile button:hover { color: var(--text); }
+  .nav__mobile-auth { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
   .nav__mobile-auth .btn { width: 100%; }
 
   @keyframes navMobileIn {
@@ -59,9 +50,12 @@
   .nav__burger.is-active span:nth-child(1) { transform: translateY(3.25px) rotate(45deg); }
   .nav__burger.is-active span:nth-child(2) { transform: translateY(-3.25px) rotate(-45deg); }
 
-  .hero { padding: 140px 0 80px; }
+  .hero { padding: 140px 0 40px; }
   .hero--compact { padding: 140px 0 20px; }
   .hero__title { font-size: clamp(32px, 8vw, 48px); }
+  .hero__sub { margin-top: 18px; font-size: 15px; }
+  .hero__cta { margin-top: 24px; }
+  .hero__cta .btn { flex: 1; }
 
   .podbor { padding: 40px 0 64px; }
   .podbor__card { padding: 24px; }
@@ -70,14 +64,9 @@
   .podbor__nav { flex-direction: column-reverse; gap: 10px; }
   .podbor__nav .btn { width: 100%; }
 
-  .how, .for-teachers, .cta { padding: 64px 0; }
+  .how, .for-teachers { padding: 64px 0; }
   .for-teachers__grid { grid-template-columns: 1fr; }
   .section-head { margin-bottom: 40px; }
-
-  .tp { padding: 24px; }
-  .tp__grid { grid-template-columns: 1fr; gap: 24px; }
-  .tp__foot { flex-direction: column; gap: 16px; align-items: stretch; }
-  .tp__foot .btn { width: 100%; }
 
   .pay { padding: 24px; }
 
@@ -85,54 +74,26 @@
   .footer__bottom { flex-direction: column; gap: 8px; text-align: center; }
 
   .modal { padding: 12px; }
-  .cursor-glow { display: none; }
-  .nav__logo { font-size: 13px; }
-}
+  .cursor-glow { display: none !important; }
 
-@media (max-width: 480px) {
-  .hero__title { font-size: 32px; }
-  .nav__logo { font-size: 12px; }
-  .btn { font-size: 13px; padding: 10px 16px; }
-  .btn--lg { padding: 12px 20px; font-size: 14px; }
-}
-
-/* ═══════════ ФИНАЛЬНЫЙ МОБИЛЬНЫЙ ФИКС ═══════════ */
-
-@media (max-width: 768px) {
-  /* Убираем горизонтальный скролл */
-  html, body { overflow-x: hidden; max-width: 100%; }
-
-  /* Шапка не выпирает */
-  .nav__inner {
-    gap: 8px;
-    padding: 0 16px;
-  }
-  .nav__logo { font-size: 12px; }
-  .nav__user-menu { gap: 6px; }
-  .nav__user-trigger { padding: 4px; }
-  .nav__user-name { display: none; }
-  .nav__user-avatar { width: 30px; height: 30px; font-size: 12px; }
-  .notif-bell { width: 34px; height: 34px; }
-
-  /* Бургер — точно в углу, не вылезает */
-  .nav__burger {
-    width: 36px;
-    height: 36px;
-    flex-shrink: 0;
-  }
-
-  /* Мобильное меню — на всю ширину, без выпираний */
-  .nav__mobile {
-    padding: 16px;
-    box-sizing: border-box;
-  }
-
-  /* Все grid-контейнеры — одна колонка */
   .grid--2, .grid--3 { grid-template-columns: 1fr; }
+
+  .legal { padding: 130px 0 60px; }
+  .legal__head { margin-bottom: 32px; padding-bottom: 24px; }
+  .legal__content { font-size: 15px; }
+  .legal__content h2 { font-size: 18px; margin-top: 32px; }
+  .legal__footer-note { padding: 16px 18px; font-size: 14px; }
+  .legal__back { flex-direction: column; }
+  .legal__back .btn { width: 100%; }
 }
 
 @media (max-width: 480px) {
   .container { padding: 0 16px; }
   .hero__title { font-size: 28px; }
+  .hero__cta { flex-direction: column; }
+  .hero__cta .btn { width: 100%; }
   .hero__orb--1 { width: 400px; height: 400px; }
+  .nav__logo { font-size: 12px; }
+  .btn { font-size: 13px; padding: 10px 16px; }
+  .btn--lg { padding: 12px 20px; font-size: 14px; }
 }
