@@ -200,7 +200,17 @@
   color: var(--text-mute);
 }
 
-.booking-card__actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.booking-card__actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+
+.booking-card__hint {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text-mute);
+  font-style: italic;
+  padding: 8px 4px;
+}
+
 .booking-card__action {
   display: inline-flex;
   align-items: center;
@@ -215,6 +225,7 @@
   border: 1px solid transparent;
   font-family: var(--font-body);
   background: none;
+  text-decoration: none;
 }
 .booking-card__action--primary {
   background: var(--cabinet-accent, var(--accent));
@@ -320,7 +331,6 @@
   font-size: 12px;
 }
 
-/* Каждый день — вертикальный grid: заголовок + ряды ячеек */
 .week-day {
   display: grid;
   grid-template-rows: auto 1fr;
