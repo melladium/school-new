@@ -16,15 +16,9 @@
   };
 
   const SUBJECT_LABELS = {
-    math: 'Математика',
-    russian: 'Русский',
-    physics: 'Физика',
-    chemistry: 'Химия',
-    biology: 'Биология',
-    it: 'Информатика',
-    english: 'Английский',
-    history: 'История',
-    social: 'Обществознание',
+    math: 'Математика', russian: 'Русский', physics: 'Физика',
+    chemistry: 'Химия', biology: 'Биология', it: 'Информатика',
+    english: 'Английский', history: 'История', social: 'Обществознание',
     geography: 'География'
   };
 
@@ -142,18 +136,13 @@
     return cellDateTime(weekday, time).getTime() < Date.now();
   }
 
-  /* ─────────── УМНЫЙ ДЕФОЛТ ─────────── */
-
-  // Возвращает { day: '1'..'6'|'0', time: 'HH:00' }
   function getSmartDefaults(existingKeys) {
     const now = new Date();
     let hour = now.getHours();
     const minutes = now.getMinutes();
 
-    // Округляем к ближайшему следующему часу
     if (minutes > 30) hour += 1;
 
-    // Если уже вечер/ночь — переносим на завтра с 10:00
     let dayShift = 0;
     if (hour >= 22) {
       dayShift = 1;
@@ -161,11 +150,8 @@
     } else if (hour < 10) {
       hour = 10;
     }
-
-    // Не позже 22:00
     if (hour > 22) { hour = 10; dayShift += 1; }
 
-    // Считаем, сколько ячеек в каждом дне (уже существующих)
     const counts = {};
     DAY_ORDER.forEach(d => counts[d] = 0);
     if (Array.isArray(existingKeys)) {
@@ -175,7 +161,6 @@
       });
     }
 
-    // Начинаем поиск дня с (сегодня + dayShift)
     const today = now.getDay();
     const startDay = (today + dayShift) % 7;
     const startIdx = DAY_ORDER.indexOf(startDay);
@@ -184,7 +169,6 @@
       ...DAY_ORDER.slice(0, startIdx)
     ];
 
-    // Ищем наименее загруженный день из будущих (начиная с startDay)
     let bestDay = startDay;
     let bestCount = Infinity;
     orderedDays.forEach(d => {
@@ -194,13 +178,9 @@
       }
     });
 
-    // Формируем время HH:00
     const timeStr = String(hour).padStart(2, '0') + ':00';
 
-    return {
-      day: String(bestDay),
-      time: timeStr
-    };
+    return { day: String(bestDay), time: timeStr };
   }
 
   /* ─────────── INIT ─────────── */
@@ -269,8 +249,6 @@
       });
     });
   }
-
-  /* ─────────── МОДАЛКИ ─────────── */
 
   function initModals() {
     document.querySelectorAll('[data-modal-close]').forEach(el => {
@@ -658,7 +636,7 @@
     }
   }
 
-  /* ─────────── ПРЕДПРОСМОТР АНКЕТЫ ─────────── */
+  /* ─────────── ПРЕДПРОСМОТР ─────────── */
 
   async function openPreview() {
     openModal('preview');
@@ -774,9 +752,9 @@
         : '<div class="week-day__empty">—</div>';
 
       html += `
-        <div class="week-day" style="--week-rows:${maxRows}">
+        <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">${cellsHtml}</div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
         </div>
       `;
     });
@@ -835,9 +813,9 @@
         : '<div class="week-day__empty">Нет ячеек</div>';
 
       html += `
-        <div class="week-day" style="--week-rows:${maxRows}">
+        <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">${cellsHtml}</div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
         </div>
       `;
     });
@@ -999,9 +977,9 @@
         : '<div class="week-day__empty">Нет ячеек</div>';
 
       html += `
-        <div class="week-day" style="--week-rows:${maxRows}">
+        <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">${cellsHtml}</div>
+          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
         </div>
       `;
     });
