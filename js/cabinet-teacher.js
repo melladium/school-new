@@ -215,7 +215,6 @@
 
   function openProfileModal() { openModal('profile'); }
 
-  /* ─────────── УВЕДОМЛЕНИЯ ─────────── */
   function initNotifications() {
     const bell = document.querySelector('[data-notif-bell]');
     const panel = document.querySelector('[data-notif-panel]');
@@ -290,7 +289,6 @@
     return d.getDate() + '.' + (d.getMonth() + 1);
   }
 
-  /* ─────────── ПРОФИЛЬ ─────────── */
   async function loadProfile() {
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -523,7 +521,6 @@
     }
   }
 
-  /* ─────────── ПРЕДПРОСМОТР ─────────── */
   async function openPreview() { openModal('preview'); await loadPreview(); }
 
   async function loadPreview() {
@@ -609,9 +606,7 @@
 
       const cellsHtml = dayCells.length
         ? dayCells.map(c => {
-            const statusText = (c.status === 'busy' && c.studentName)
-              ? c.studentName
-              : (STATUS_LABELS[c.status] || c.status);
+            const statusText = (c.status === 'busy' && c.studentName) ? c.studentName : (STATUS_LABELS[c.status] || c.status);
             return `
               <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
                 <div class="week-cell__time">${escapeHtml(c.time)}</div>
@@ -631,7 +626,6 @@
     if (editBtn) { closeModal('preview'); openProfileModal(); }
   });
 
-  /* ─────────── ПУБЛИЧНОЕ РАСПИСАНИЕ ─────────── */
   async function loadCells() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
@@ -683,7 +677,6 @@
     const time = cell.key.split('|')[1];
     const statusClass = 'week-cell--' + escapeHtml(cell.status);
 
-    // Если busy + есть имя — показываем имя вместо «Занято»
     let displayText;
     let textClass = 'week-cell__status';
     if (cell.status === 'busy' && cell.studentName) {
@@ -795,7 +788,6 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ─────────── ЛИЧНОЕ РАСПИСАНИЕ ─────────── */
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
@@ -932,7 +924,6 @@
     setTimeout(() => timeInput && timeInput.focus(), 150);
   }
 
-  /* ─────────── ЗАЯВКИ ─────────── */
   async function loadRequests() {
     const listEl = document.querySelector('[data-bookings-list]');
     if (!listEl) return;
@@ -1079,7 +1070,6 @@
     await loadRequests();
   }
 
-  /* ─────────── ССЫЛКА НА УРОК ─────────── */
   function initRequestLinkModal() {
     const modal = document.querySelector('[data-modal="request-link"]');
     if (!modal) return;
