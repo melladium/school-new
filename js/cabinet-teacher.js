@@ -142,6 +142,67 @@
     return cellDateTime(weekday, time).getTime() < Date.now();
   }
 
+  /* ─────────── УМНЫЙ ДЕФОЛТ ─────────── */
+
+  // Возвращает { day: '1'..'6'|'0', time: 'HH:00' }
+  function getSmartDefaults(existingKeys) {
+    const now = new Date();
+    let hour = now.getHours();
+    const minutes = now.getMinutes();
+
+    // Округляем к ближайшему следующему часу
+    if (minutes > 30) hour += 1;
+
+    // Если уже вечер/ночь — переносим на завтра с 10:00
+    let dayShift = 0;
+    if (hour >= 22) {
+      dayShift = 1;
+      hour = 10;
+    } else if (hour < 10) {
+      hour = 10;
+    }
+
+    // Не позже 22:00
+    if (hour > 22) { hour = 10; dayShift += 1; }
+
+    // Считаем, сколько ячеек в каждом дне (уже существующих)
+    const counts = {};
+    DAY_ORDER.forEach(d => counts[d] = 0);
+    if (Array.isArray(existingKeys)) {
+      existingKeys.forEach(k => {
+        const d = parseInt(k.split('|')[0], 10);
+        if (counts[d] !== undefined) counts[d]++;
+      });
+    }
+
+    // Начинаем поиск дня с (сегодня + dayShift)
+    const today = now.getDay();
+    const startDay = (today + dayShift) % 7;
+    const startIdx = DAY_ORDER.indexOf(startDay);
+    const orderedDays = [
+      ...DAY_ORDER.slice(startIdx),
+      ...DAY_ORDER.slice(0, startIdx)
+    ];
+
+    // Ищем наименее загруженный день из будущих (начиная с startDay)
+    let bestDay = startDay;
+    let bestCount = Infinity;
+    orderedDays.forEach(d => {
+      if (counts[d] < bestCount) {
+        bestCount = counts[d];
+        bestDay = d;
+      }
+    });
+
+    // Формируем время HH:00
+    const timeStr = String(hour).padStart(2, '0') + ':00';
+
+    return {
+      day: String(bestDay),
+      time: timeStr
+    };
+  }
+
   /* ─────────── INIT ─────────── */
 
   async function init() {
@@ -433,7 +494,6 @@
     const portfolioButton2 = document.querySelector('[data-portfolio-button-2]');
     const portfolioPreview2 = document.querySelector('[data-portfolio-preview-2]');
 
-    // Смена предмета → перерисовать список целей
     if (subjectSelect) {
       subjectSelect.addEventListener('change', () => {
         renderGoalsCheckboxes(subjectSelect.value, []);
@@ -507,7 +567,6 @@
         const bioValue = document.querySelector('[data-edit-bio]').value.trim();
         const priceValue = parseInt(document.querySelector('[data-edit-price]').value, 10) || 0;
 
-        // Авто-активация, если всё заполнено
         const shouldBeActive = !!bioValue && priceValue > 0 && goalsValue.length > 0;
 
         let avatar_url, portfolio_url, portfolio_url_2;
@@ -692,31 +751,37 @@
     const map = {};
     data.forEach(item => { map[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time }; });
 
-    let html = '<div class="week-board">';
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(map).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
+    let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(map)
         .filter(k => k.startsWith(day + '|'))
         .map(k => ({ key: k, ...map[k] }))
         .sort((a, b) => a.time.localeCompare(b.time));
 
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => `
+            <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
+              <div class="week-cell__time">${escapeHtml(c.time)}</div>
+              <div class="week-cell__status">${escapeHtml(STATUS_LABELS[c.status] || c.status)}</div>
+            </div>
+          `).join('')
+        : '<div class="week-day__empty">—</div>';
+
       html += `
-        <div class="week-day">
+        <div class="week-day" style="--week-rows:${maxRows}">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">
-            ${dayCells.length
-              ? dayCells.map(c => `
-                <div class="week-cell week-cell--${escapeHtml(c.status)} week-cell--preview">
-                  <div class="week-cell__time">${escapeHtml(c.time)}</div>
-                  <div class="week-cell__status">${escapeHtml(STATUS_LABELS[c.status] || c.status)}</div>
-                </div>
-              `).join('')
-              : '<div class="week-day__empty">—</div>'}
-          </div>
+          <div class="week-day__body">${cellsHtml}</div>
         </div>
       `;
     });
-    html += '</div>';
-    el.innerHTML = html;
+
+    el.innerHTML = `<div class="week-board">${html}</div>`;
   }
 
   document.addEventListener('click', (e) => {
@@ -751,21 +816,32 @@
   function renderWeekBoard() {
     const board = document.querySelector('[data-week-board]');
     if (!board) return;
+
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap)
         .filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...cellsMap[key] }))
         .sort((a, b) => a.key.localeCompare(b.key));
+
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderCell(day, c)).join('')
+        : '<div class="week-day__empty">Нет ячеек</div>';
+
       html += `
-        <div class="week-day">
+        <div class="week-day" style="--week-rows:${maxRows}">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">
-            ${dayCells.length ? dayCells.map(c => renderCell(day, c)).join('') : '<div class="week-day__empty">Нет ячеек</div>'}
-          </div>
+          <div class="week-day__body">${cellsHtml}</div>
         </div>
       `;
     });
+
     board.innerHTML = html;
     board.querySelectorAll('[data-cell-key]').forEach(el => {
       el.addEventListener('click', () => openCellModal(el.dataset.cellKey));
@@ -871,8 +947,9 @@
     } else {
       editingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      daySelect.value = '1';
-      timeInput.value = '18:00';
+      const defaults = getSmartDefaults(Object.keys(cellsMap));
+      daySelect.value = defaults.day;
+      timeInput.value = defaults.time;
       statusSelect.value = 'free';
       noteInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
@@ -903,21 +980,32 @@
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-board]');
     if (!board) return;
+
+    let maxRows = 1;
+    DAY_ORDER.forEach(day => {
+      const count = Object.keys(personalMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > maxRows) maxRows = count;
+    });
+
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(personalMap)
         .filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...personalMap[key] }))
         .sort((a, b) => a.key.localeCompare(b.key));
+
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderPersonalCell(day, c)).join('')
+        : '<div class="week-day__empty">Нет ячеек</div>';
+
       html += `
-        <div class="week-day">
+        <div class="week-day" style="--week-rows:${maxRows}">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">
-            ${dayCells.length ? dayCells.map(c => renderPersonalCell(day, c)).join('') : '<div class="week-day__empty">Нет ячеек</div>'}
-          </div>
+          <div class="week-day__body">${cellsHtml}</div>
         </div>
       `;
     });
+
     board.innerHTML = html;
     board.querySelectorAll('[data-personal-cell-key]').forEach(el => {
       el.addEventListener('click', () => openPersonalCellModal(el.dataset.personalCellKey));
@@ -1016,8 +1104,9 @@
     } else {
       personalEditingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      daySelect.value = '1';
-      timeInput.value = '18:00';
+      const defaults = getSmartDefaults(Object.keys(personalMap));
+      daySelect.value = defaults.day;
+      timeInput.value = defaults.time;
       textInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
