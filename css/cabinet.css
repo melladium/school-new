@@ -1,5 +1,5 @@
 /* CABINET */
-.cabinet { min-height: 100vh; padding: 140px 0 80px; position: relative; overflow: hidden; }
+.cabinet { min-height: 100vh; padding: 140px 0 80px; position: relative; overflow-x: clip; }
 .cabinet__grid {
   position: absolute; inset: 0;
   background-image:
@@ -87,9 +87,15 @@
 /* SECTIONS */
 .cabinet__section { margin-bottom: 40px; }
 .cabinet__section-head {
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 16px; margin-bottom: 12px; flex-wrap: wrap;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  min-height: 32px;
 }
+.cabinet__section-head > .btn { margin-left: auto; }
 .cabinet__section-title {
   font-family: var(--font-display); font-size: 18px; font-weight: 400;
   letter-spacing: -0.02em; margin-bottom: 14px;
@@ -257,7 +263,7 @@
 /* РАСКЛАДКА УЧЕНИКА */
 .student-layout {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 28px;
   align-items: start;
 }
@@ -268,7 +274,7 @@
 /* РАСКЛАДКА УЧИТЕЛЯ */
 .teacher-layout {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   grid-template-areas: "schedule requests";
   gap: 28px;
   align-items: start;
@@ -283,7 +289,7 @@
   gap: 4px;
   margin-bottom: 14px;
   border-bottom: 1px solid var(--border);
-  overflow-x: auto;
+  flex-wrap: wrap;
 }
 .teacher-tab {
   padding: 10px 14px;
@@ -398,6 +404,7 @@
 }
 
 .week-cell.is-clickable:hover { transform: translateY(-2px); }
+.week-cell:hover { border-color: var(--cabinet-accent, var(--accent)); }
 
 .week-cell__time {
   font-family: var(--font-mono);
@@ -415,6 +422,20 @@
   font-family: var(--font-mono);
   color: var(--text-dim);
   line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Имя ученика в ячейке — крупнее, без капса, обрезка ellipsis */
+.week-cell__status--name {
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--text);
+  line-height: 1.1;
 }
 
 .week-cell__note {
@@ -429,26 +450,31 @@
 
 .week-cell--free { background: var(--accent-dim); border-color: var(--accent); }
 .week-cell--free .week-cell__status { color: var(--accent); }
+
 .week-cell--busy {
   background: rgba(248, 113, 113, 0.08);
   border-color: rgba(248, 113, 113, 0.4);
 }
 .week-cell--busy .week-cell__status { color: var(--red); }
+.week-cell--busy .week-cell__status--name { color: var(--text); }
+
 .week-cell--off {
   background: var(--surface-2);
   border-color: var(--border-strong);
   opacity: 0.7;
 }
 .week-cell--off .week-cell__status { color: var(--text-mute); }
+
 .week-cell--personal {
   background: var(--cabinet-accent-dim, var(--magenta-dim));
   border-color: var(--cabinet-accent, var(--magenta));
   border-style: dashed;
 }
 .week-cell--personal .week-cell__time { color: var(--cabinet-accent, var(--magenta)); }
+.week-cell--personal .week-cell__status { color: var(--cabinet-accent, var(--magenta)); }
 
 .week-cell--preview { cursor: default; }
-.week-cell--preview:hover { transform: none; }
+.week-cell--preview:hover { transform: none; border-color: inherit; }
 
 /* LOADING */
 .cabinet__loading {
@@ -759,6 +785,7 @@
 }
 .preview-schedule .week-cell__time { font-size: 11px; }
 .preview-schedule .week-cell__status { font-size: 8.5px; }
+.preview-schedule .week-cell__status--name { font-size: 9.5px; }
 .preview-schedule__loading {
   text-align: center;
   padding: 32px 16px;
@@ -875,6 +902,7 @@
   .cabinet-stat__num { font-size: 16px; }
   .cabinet__section { margin-bottom: 32px; }
   .cabinet__section-head { flex-direction: column; align-items: stretch; }
+  .cabinet__section-head > .btn { margin-left: 0; width: 100%; }
   .cabinet__col-head { flex-wrap: wrap; }
   .cabinet__head-actions { width: 100%; }
   .cabinet__head-actions .btn { flex: 1; }
@@ -892,6 +920,8 @@
   .week-day__body { grid-template-rows: repeat(var(--week-rows, 12), 40px); }
   .week-cell { height: 40px; padding: 5px 7px; }
   .week-cell__time { font-size: 10px; }
+  .week-cell__status { font-size: 8px; }
+  .week-cell__status--name { font-size: 9.5px; }
   .week-day__head { height: 26px; font-size: 9px; }
   .info-panel { padding: 10px 14px; }
   .modal__panel--wide { max-width: 100%; }
