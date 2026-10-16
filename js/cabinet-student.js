@@ -505,4 +505,32 @@
 
     if (key) {
       personalEditingKey = key;
-      const [day
+      const [day, time] = key.split('|');
+      const cell = personalMap[key] || {};
+      if (title) title.textContent = 'Редактировать ячейку';
+      daySelect.value = day; timeInput.value = time;
+      textInput.value = cell.note || '';
+      if (deleteBtn) deleteBtn.hidden = false;
+    } else {
+      personalEditingKey = null;
+      if (title) title.textContent = 'Новая ячейка';
+      daySelect.value = '1'; timeInput.value = '18:00'; textInput.value = '';
+      if (deleteBtn) deleteBtn.hidden = true;
+    }
+
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => timeInput && timeInput.focus(), 150);
+  }
+
+  async function deleteAccount() {
+    if (!confirm('Удалить аккаунт НАВСЕГДА?')) return;
+    if (!confirm('Точно? Это последнее предупреждение.')) return;
+    const { error } = await window.supabaseClient.rpc('delete_user');
+    if (error) { alert('Ошибка удаления: ' + error.message); return; }
+    alert('Аккаунт удалён.');
+    await window.authAPI.signOut();
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+})();
