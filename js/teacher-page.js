@@ -49,11 +49,6 @@
       .replace(/'/g, '&#39;');
   }
 
-  function isValidHttps(url) {
-    if (!url) return false;
-    return /^https:\/\/.+/i.test(url.trim());
-  }
-
   async function init() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
@@ -77,7 +72,7 @@
   async function loadTeacher(id) {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, meeting_link, avatar_url, portfolio_url, portfolio_url_2, goals')
+      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals')
       .eq('id', id)
       .eq('is_active', true)
       .single();
@@ -185,15 +180,6 @@
       }
     }
 
-    if (teacher.meeting_link && isValidHttps(teacher.meeting_link)) {
-      const el = document.querySelector('[data-contact-link]');
-      if (el) {
-        el.hidden = false;
-        el.href = teacher.meeting_link;
-        hasAny = true;
-      }
-    }
-
     const sec = document.querySelector('[data-section-contacts]');
     if (sec && hasAny) sec.hidden = false;
   }
@@ -217,7 +203,6 @@
       cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
     });
 
-    // Максимум ячеек в одном дне → столько строк у всех
     let maxRows = 1;
     DAY_ORDER.forEach(day => {
       const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
