@@ -208,15 +208,6 @@
 
 .booking-card__actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
-.booking-card__hint {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12px;
-  color: var(--text-mute);
-  font-style: italic;
-  padding: 8px 4px;
-}
-
 .booking-card__action {
   display: inline-flex;
   align-items: center;
@@ -260,7 +251,7 @@
 }
 .booking-card__action--remove:hover { color: var(--red); }
 
-/* РАСКЛАДКА УЧЕНИКА */
+/* РАСКЛАДКИ */
 .student-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -271,7 +262,6 @@
 .student-col-side { min-width: 0; }
 .student-col-main > .cabinet__title--col { margin-bottom: 16px; }
 
-/* РАСКЛАДКА УЧИТЕЛЯ */
 .teacher-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
@@ -283,7 +273,7 @@
 .teacher-col-side { grid-area: requests; min-width: 0; }
 .teacher-col-main > .cabinet__title--col { margin-bottom: 16px; }
 
-/* ВКЛАДКИ УЧИТЕЛЯ */
+/* ВКЛАДКИ */
 .teacher-tabs {
   display: flex;
   gap: 4px;
@@ -313,8 +303,7 @@
 .teacher-tab-panel { display: none; }
 .teacher-tab-panel.is-active { display: block; }
 
-/* ═══════════ WEEK BOARD — СИММЕТРИЧНАЯ СЕТКА ═══════════ */
-
+/* WEEK BOARD */
 .week-board {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -325,9 +314,7 @@
   padding: 14px;
   align-items: start;
 }
-
 .week-board--personal { border-style: dashed; opacity: 0.9; }
-
 .week-board__loading {
   grid-column: 1 / -1;
   text-align: center;
@@ -336,14 +323,12 @@
   font-family: var(--font-mono);
   font-size: 12px;
 }
-
 .week-day {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 6px;
   min-width: 0;
 }
-
 .week-day__head {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -358,14 +343,12 @@
   align-items: center;
   justify-content: center;
 }
-
 .week-day__body {
   display: grid;
   grid-template-rows: repeat(var(--week-rows, 12), 44px);
   gap: 6px;
   min-height: 0;
 }
-
 .week-day__empty {
   display: flex;
   align-items: center;
@@ -377,7 +360,6 @@
   color: var(--text-mute);
   font-family: var(--font-mono);
 }
-
 .week-day__more {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -402,8 +384,6 @@
   overflow: hidden;
   cursor: pointer;
 }
-
-.week-cell.is-clickable:hover { transform: translateY(-2px); }
 .week-cell:hover { border-color: var(--cabinet-accent, var(--accent)); }
 
 .week-cell__time {
@@ -413,7 +393,6 @@
   color: var(--text);
   line-height: 1;
 }
-
 .week-cell__status {
   font-size: 8.5px;
   text-transform: uppercase;
@@ -426,8 +405,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-/* Имя ученика в ячейке — крупнее, без капса, обрезка ellipsis */
 .week-cell__status--name {
   font-size: 10px;
   text-transform: none;
@@ -436,16 +413,6 @@
   font-family: var(--font-body);
   color: var(--text);
   line-height: 1.1;
-}
-
-.week-cell__note {
-  font-size: 9.5px;
-  color: var(--text-mute);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1;
-  margin-top: 2px;
 }
 
 .week-cell--free { background: var(--accent-dim); border-color: var(--accent); }
@@ -506,7 +473,6 @@
 }
 .notif-bell:hover { border-color: var(--cabinet-accent, var(--accent)); color: var(--cabinet-accent, var(--accent)); }
 .notif-bell svg { width: 17px; height: 17px; }
-
 .notif-bell__count {
   position: absolute;
   top: -5px; right: -5px;
@@ -521,7 +487,6 @@
   font-family: var(--font-mono);
 }
 .notif-bell__count[hidden] { display: none; }
-
 .notif-panel {
   position: absolute;
   top: calc(100% + 8px);
@@ -537,7 +502,6 @@
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
 }
 .notif-panel[hidden] { display: none; }
-
 .notif-item {
   position: relative;
   padding: 10px 32px 10px 12px;
@@ -575,7 +539,6 @@
   transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
 .notif-item__del:hover { background: rgba(248, 113, 113, 0.1); color: var(--red); }
-
 .notif-empty {
   padding: 20px;
   text-align: center;
@@ -625,8 +588,7 @@
   padding: 0;
 }
 
-/* ═══════════ ПРЕДПРОСМОТР АНКЕТЫ ═══════════ */
-
+/* ПРЕДПРОСМОТР */
 .preview-banner {
   display: flex;
   align-items: center;
@@ -641,7 +603,6 @@
   flex-shrink: 0;
 }
 .preview-banner__icon { font-size: 16px; line-height: 1; }
-
 .preview-body {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -651,10 +612,8 @@
   flex: 1 1 auto;
   min-height: 0;
 }
-
 .preview-sidebar { display: flex; flex-direction: column; gap: 16px; }
 .preview-feed { display: flex; flex-direction: column; gap: 16px; }
-
 .preview-card {
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -662,7 +621,6 @@
   padding: 20px;
 }
 .preview-card--profile { text-align: center; }
-
 .preview-card__title {
   font-family: var(--font-display);
   font-size: 14px;
@@ -670,7 +628,6 @@
   letter-spacing: -0.01em;
   margin-bottom: 12px;
 }
-
 .preview-avatar {
   width: 112px;
   height: 112px;
@@ -686,7 +643,6 @@
   overflow: hidden;
   margin: 0 auto 16px;
 }
-
 .preview-name {
   font-family: var(--font-display);
   font-size: 20px;
@@ -717,9 +673,7 @@
 }
 .preview-rating__star { color: var(--cabinet-accent, var(--accent)); }
 .preview-rating__count { color: var(--text-mute); }
-
 .preview-bio { color: var(--text-dim); font-size: 13.5px; line-height: 1.55; }
-
 .preview-contacts {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -760,7 +714,6 @@
   color: var(--text);
   line-height: 1;
 }
-
 .preview-schedule {
   background: var(--surface-1);
   border: 1px solid var(--border);
@@ -779,10 +732,7 @@
   padding: 6px 0;
   border-bottom: none;
 }
-.preview-schedule .week-cell {
-  height: 44px;
-  padding: 6px 8px;
-}
+.preview-schedule .week-cell { height: 44px; padding: 6px 8px; }
 .preview-schedule .week-cell__time { font-size: 11px; }
 .preview-schedule .week-cell__status { font-size: 8.5px; }
 .preview-schedule .week-cell__status--name { font-size: 9.5px; }
@@ -793,7 +743,6 @@
   font-family: var(--font-mono);
   font-size: 13px;
 }
-
 .preview-portfolio {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -809,8 +758,7 @@
 }
 .preview-portfolio img[hidden] { display: none; }
 
-/* ═══════════ ЦЕЛИ РЕПЕТИТОРА ═══════════ */
-
+/* ЦЕЛИ */
 .profile-goals {
   display: flex;
   flex-wrap: wrap;
@@ -844,21 +792,14 @@
   transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
   user-select: none;
 }
-.profile-goal:hover {
-  border-color: var(--text-dim);
-  color: var(--text);
-}
+.profile-goal:hover { border-color: var(--text-dim); color: var(--text); }
 .profile-goal input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
+  appearance: none; -webkit-appearance: none;
+  width: 14px; height: 14px;
   border-radius: 4px;
   border: 1.5px solid var(--border-strong);
   background: var(--surface-2);
-  cursor: pointer;
-  position: relative;
-  flex-shrink: 0;
+  cursor: pointer; position: relative; flex-shrink: 0;
   transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
 }
 .profile-goal input[type="checkbox"]:checked {
@@ -868,10 +809,8 @@
 .profile-goal input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  left: 3.5px;
-  top: 0.5px;
-  width: 4px;
-  height: 8px;
+  left: 3.5px; top: 0.5px;
+  width: 4px; height: 8px;
   border: solid #08080A;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
@@ -914,8 +853,7 @@
   .notif-panel { width: 280px; right: -8px; }
   .week-board {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    padding: 10px;
-    gap: 6px;
+    padding: 10px; gap: 6px;
   }
   .week-day__body { grid-template-rows: repeat(var(--week-rows, 12), 40px); }
   .week-cell { height: 40px; padding: 5px 7px; }
