@@ -95,3 +95,44 @@
   .btn { font-size: 13px; padding: 10px 16px; }
   .btn--lg { padding: 12px 20px; font-size: 14px; }
 }
+
+/* ═══════════ ФИНАЛЬНЫЙ МОБИЛЬНЫЙ ФИКС ═══════════ */
+
+@media (max-width: 768px) {
+  /* Убираем горизонтальный скролл */
+  html, body { overflow-x: hidden; max-width: 100%; }
+
+  /* Шапка не выпирает */
+  .nav__inner {
+    gap: 8px;
+    padding: 0 16px;
+  }
+  .nav__logo { font-size: 12px; }
+  .nav__user-menu { gap: 6px; }
+  .nav__user-trigger { padding: 4px; }
+  .nav__user-name { display: none; }
+  .nav__user-avatar { width: 30px; height: 30px; font-size: 12px; }
+  .notif-bell { width: 34px; height: 34px; }
+
+  /* Бургер — точно в углу, не вылезает */
+  .nav__burger {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  /* Мобильное меню — на всю ширину, без выпираний */
+  .nav__mobile {
+    padding: 16px;
+    box-sizing: border-box;
+  }
+
+  /* Все grid-контейнеры — одна колонка */
+  .grid--2, .grid--3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .hero__title { font-size: 28px; }
+  .hero__orb--1 { width: 400px; height: 400px; }
+}
