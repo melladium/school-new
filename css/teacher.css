@@ -35,8 +35,8 @@
 /* LAYOUT: sidebar + feed */
 .tp-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 20px;
   align-items: stretch;
 }
 
@@ -45,8 +45,8 @@
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-bottom: 20px;
+  padding: 18px;
+  margin-bottom: 12px;
 }
 .tp-card:last-child { margin-bottom: 0; }
 
@@ -63,8 +63,8 @@
 .tp-card--profile { text-align: center; }
 
 .tp-sidebar__avatar {
-  width: 128px;
-  height: 128px;
+  width: 112px;
+  height: 112px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1px solid var(--border-strong);
@@ -72,11 +72,11 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 40px;
+  font-size: 36px;
   color: var(--accent);
   overflow: hidden;
   cursor: zoom-in;
-  margin: 0 auto 18px;
+  margin: 0 auto 14px;
   transition: transform 0.3s var(--ease);
 }
 .tp-sidebar__avatar:hover { transform: scale(1.03); }
@@ -88,35 +88,35 @@
 
 .tp-sidebar__name {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
   letter-spacing: -0.02em;
   line-height: 1.15;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .tp-sidebar__subject {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--text-dim);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .tp-sidebar__price {
   font-family: var(--font-mono);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--text);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tp-sidebar__rating {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--text);
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 999px;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -126,24 +126,28 @@
 
 .tp-sidebar__title {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: -0.01em;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
 }
 
 /* О СЕБЕ в sidebar */
 .tp-sidebar__bio {
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.55;
 }
 
-/* СВЯЗЬ — виджеты 2×2 */
+/* СВЯЗЬ — 3 в ряд */
 .tp-contacts {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
+}
+
+.tp-contacts--row {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .tp-contact {
@@ -151,15 +155,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 14px 8px;
+  gap: 6px;
+  padding: 12px 6px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  transition: all 0.3s var(--ease);
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.25s var(--ease);
   color: var(--text);
   text-align: center;
-  min-height: 88px;
+  min-height: 72px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: inherit;
 }
 
 .tp-contact:hover {
@@ -169,8 +176,8 @@
 }
 
 .tp-contact__icon {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: var(--accent-dim);
   border: 1px solid rgba(78, 232, 232, 0.35);
@@ -179,7 +186,7 @@
   justify-content: center;
   color: var(--accent);
   flex-shrink: 0;
-  transition: all 0.3s var(--ease);
+  transition: background 0.25s var(--ease), border-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 
 .tp-contact:hover .tp-contact__icon {
@@ -188,10 +195,10 @@
   color: #08080A;
 }
 
-.tp-contact__icon svg { width: 18px; height: 18px; }
+.tp-contact__icon svg { width: 15px; height: 15px; }
 
 .tp-contact__label {
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 600;
   color: var(--text);
   letter-spacing: -0.01em;
@@ -202,15 +209,15 @@
 .tp-feed {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px;
+  gap: 16px;
 }
 
 .tp-feed__title {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 500;
   letter-spacing: -0.02em;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .tp-feed__text {
@@ -278,17 +285,17 @@
 .tp-portfolio img:hover { transform: scale(1.02); }
 .tp-portfolio img[hidden] { display: none; }
 
-/* ═══════════ ЦЕЛИ РЕПЕТИТОРА (Что беру) ═══════════ */
+/* ═══════════ ЦЕЛИ РЕПЕТИТОРА ═══════════ */
 
 .tp-goals {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .tp-goals .tag {
-  font-size: 11px;
-  padding: 5px 11px;
+  font-size: 10.5px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--text-dim);
@@ -296,6 +303,23 @@
   font-weight: 500;
   text-transform: none;
   letter-spacing: 0;
+}
+
+/* ═══════════ МОДАЛКА ТЕЛЕФОНА ═══════════ */
+
+.phone-display {
+  font-family: var(--font-mono);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--accent);
+  text-align: center;
+  padding: 20px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+  word-break: break-all;
 }
 
 /* LIGHTBOX */
@@ -336,9 +360,10 @@
 
 @media (max-width: 768px) {
   .tp-page { padding: 120px 0 60px; }
-  .tp-card { padding: 20px; }
-  .tp-sidebar__avatar { width: 100px; height: 100px; font-size: 32px; }
-  .tp-sidebar__name { font-size: 20px; }
+  .tp-card { padding: 16px; }
+  .tp-sidebar__avatar { width: 96px; height: 96px; font-size: 30px; }
+  .tp-sidebar__name { font-size: 18px; }
   .tp-portfolio--two { grid-template-columns: 1fr; }
   .tp-portfolio img { height: 220px; }
+  .phone-display { font-size: 20px; padding: 16px 12px; }
 }
