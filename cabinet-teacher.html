@@ -222,16 +222,6 @@
                 <span class="preview-contact__label">Позвонить</span>
               </div>
 
-              <div class="preview-contact" data-preview-contact="link" hidden>
-                <span class="preview-contact__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1"/>
-                    <path d="M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1"/>
-                  </svg>
-                </span>
-                <span class="preview-contact__label">Урок</span>
-              </div>
-
             </div>
           </div>
 
@@ -355,11 +345,6 @@
         </div>
 
         <div class="field" style="margin-bottom:14px;">
-          <label>Ссылка на урок (только https://)</label>
-          <input type="url" data-edit-link placeholder="https://...">
-        </div>
-
-        <div class="field" style="margin-bottom:14px;">
           <label>О себе</label>
           <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат..."></textarea>
         </div>
@@ -369,6 +354,43 @@
         <div class="modal-actions">
           <button class="btn btn--ghost" data-profile-cancel>Отмена</button>
           <button class="btn btn--primary" data-profile-save style="margin-left:auto;">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ МОДАЛКА: ССЫЛКА НА УРОК ДЛЯ ЗАЯВКИ ═══════════ -->
+  <div class="modal" data-modal="request-link" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel">
+      <div class="pay">
+        <div class="pay__title">Ссылка на урок</div>
+
+        <div class="pay__lesson">
+          <div class="pay__row">
+            <span class="pay__row-label">Ученик</span>
+            <span class="pay__row-value" data-request-link-student>—</span>
+          </div>
+          <div class="pay__row">
+            <span class="pay__row-label">Время</span>
+            <span class="pay__row-value" data-request-link-time>—</span>
+          </div>
+        </div>
+
+        <div class="pay__free-note">
+          Ссылку увидит только этот ученик. Вставьте ссылку на встречу (Zoom, Google Meet, Телемост и т.д.).
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Ссылка (https://)</label>
+          <input type="url" data-request-link-input placeholder="https://...">
+        </div>
+
+        <div class="auth-form__error" data-request-link-error></div>
+
+        <div class="modal-actions">
+          <button class="btn btn--ghost" data-request-link-remove hidden>Удалить ссылку</button>
+          <button class="btn btn--primary" data-request-link-save style="margin-left:auto;">Сохранить</button>
         </div>
       </div>
     </div>
