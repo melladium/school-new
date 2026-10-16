@@ -36,6 +36,11 @@
       .replace(/'/g, '&#39;');
   }
 
+  function isValidHttps(url) {
+    if (!url) return false;
+    return /^https:\/\/.+/i.test(url.trim());
+  }
+
   function cellDateTime(weekday, time) {
     const now = new Date();
     const [hh, mm] = (time || '00:00').split(':').map(Number);
@@ -207,7 +212,7 @@
 
     const { data, error } = await window.supabaseClient
       .from('booking_requests')
-      .select('id, status, weekday, time, teacher_id, created_at')
+      .select('id, status, weekday, time, teacher_id, meeting_link, created_at')
       .eq('student_id', currentUser.user.id)
       .order('created_at', { ascending: false });
 
@@ -290,6 +295,7 @@
     const canReview = isDone && !reviewedTeacherIds.has(b.teacher_id);
     const safeName = escapeHtml(b.teacherName);
     const safeNameAttr = escapeHtml(b.teacherName);
+    const hasLink = !!(b.meeting_link && isValidHttps(b.meeting_link));
 
     let statusClass, statusLabel, statusEmoji, actionHtml = '';
 
@@ -305,8 +311,14 @@
       statusClass = 'approved';
       statusLabel = 'Одобрена';
       statusEmoji = '✅';
+
+      const lessonBtn = hasLink
+        ? `<a class="booking-card__action booking-card__action--primary" href="${escapeHtml(b.meeting_link)}" target="_blank" rel="noopener">Войти в урок</a>`
+        : `<span class="booking-card__hint">Ссылку добавит репетитор</span>`;
+
       actionHtml = `
-        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-teacher-name="${safeNameAttr}">Добавить в расписание</button>
+        ${lessonBtn}
+        <button class="booking-card__action booking-card__action--ghost" data-action-add-to-schedule data-weekday="${escapeHtml(b.weekday)}" data-time="${escapeHtml(b.time)}" data-teacher-name="${safeNameAttr}">В моё расписание</button>
         <button class="booking-card__action booking-card__action--danger" data-action-cancel="${escapeHtml(b.id)}">Отменить</button>
         <button class="booking-card__action booking-card__action--remove" data-action-remove="${escapeHtml(b.id)}">✕ Удалить</button>
       `;
@@ -519,6 +531,7 @@
     if (!board) return;
 
     let maxPerDay = 0;
+    let maxRows = 1;
     let html = '';
 
     DAY_ORDER.forEach(day => {
@@ -531,11 +544,12 @@
 
       const limited = personalExpanded ? dayCells : dayCells.slice(0, 1);
       const moreCount = dayCells.length - limited.length;
+      if (limited.length > maxRows) maxRows = limited.length;
 
       html += `
         <div class="week-day">
           <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body">
+          <div class="week-day__body" style="--week-rows:${Math.max(limited.length, 1)}">
             ${limited.length
               ? limited.map(c => renderPersonalCell(day, c)).join('')
               : '<div class="week-day__empty">Нет ячеек</div>'
