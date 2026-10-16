@@ -1,39 +1,29 @@
 (function () {
   'use strict';
 
+  if (window.__teacherPageInit) return;
+  window.__teacherPageInit = true;
+
   let teacher = null;
   let selectedCell = null;
   let currentUser = null;
+  let initialized = false;
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
   const SUBJECT_LABELS = {
-    math: 'Математика',
-    russian: 'Русский',
-    physics: 'Физика',
-    chemistry: 'Химия',
-    biology: 'Биология',
-    it: 'Информатика',
-    english: 'Английский',
-    history: 'История',
-    social: 'Обществознание',
+    math: 'Математика', russian: 'Русский', physics: 'Физика',
+    chemistry: 'Химия', biology: 'Биология', it: 'Информатика',
+    english: 'Английский', history: 'История', social: 'Обществознание',
     geography: 'География'
   };
 
   const GOAL_LABELS = {
-    school: 'Подтянуть школу',
-    oge: 'ОГЭ',
-    ege: 'ЕГЭ',
-    olymp: 'Олимпиады',
-    vuz: 'Подготовка к вузу',
-    essay: 'Сочинение',
-    literacy: 'Грамотность',
-    med: 'Медвуз',
-    python: 'Python',
-    web: 'Веб-разработка',
-    conversation: 'Разговорный',
-    business: 'Бизнес-английский',
+    school: 'Подтянуть школу', oge: 'ОГЭ', ege: 'ЕГЭ', olymp: 'Олимпиады',
+    vuz: 'Подготовка к вузу', essay: 'Сочинение', literacy: 'Грамотность',
+    med: 'Медвуз', python: 'Python', web: 'Веб-разработка',
+    conversation: 'Разговорный', business: 'Бизнес-английский',
     ielts: 'IELTS / TOEFL'
   };
 
@@ -42,19 +32,22 @@
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   async function init() {
+    if (initialized) return;
+    initialized = true;
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
+    try {
+      currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
+    } catch (e) { currentUser = null; }
+
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
@@ -73,9 +66,7 @@
     const { data, error } = await window.supabaseClient
       .from('teachers')
       .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals')
-      .eq('id', id)
-      .eq('is_active', true)
-      .single();
+      .eq('id', id).eq('is_active', true).single();
     if (error || !data) return;
 
     const { data: profile } = await window.supabaseClient
@@ -95,11 +86,8 @@
 
     const avatarEl = document.querySelector('[data-hero-avatar]');
     if (avatarEl) {
-      if (teacher.avatar_url) {
-        avatarEl.innerHTML = `<img src="${escapeHtml(teacher.avatar_url)}" alt="">`;
-      } else {
-        avatarEl.textContent = initials;
-      }
+      if (teacher.avatar_url) avatarEl.innerHTML = `<img src="${escapeHtml(teacher.avatar_url)}" alt="" loading="lazy">`;
+      else avatarEl.textContent = initials;
     }
 
     setText('[data-hero-name]', teacher.name);
@@ -121,7 +109,6 @@
     const sec = document.querySelector('[data-section-goals]');
     const list = document.querySelector('[data-goals-list]');
     if (!sec || !list) return;
-
     const labels = teacher.goals.map(g => GOAL_LABELS[g] || g);
     list.innerHTML = labels.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
     sec.hidden = false;
@@ -133,16 +120,11 @@
     let hasAny = false;
 
     if (teacher.portfolio_url && img1) {
-      img1.src = teacher.portfolio_url;
-      img1.hidden = false;
-      hasAny = true;
+      img1.src = teacher.portfolio_url; img1.hidden = false; hasAny = true;
     }
     if (teacher.portfolio_url_2 && img2) {
-      img2.src = teacher.portfolio_url_2;
-      img2.hidden = false;
-      hasAny = true;
+      img2.src = teacher.portfolio_url_2; img2.hidden = false; hasAny = true;
     }
-
     if (hasAny) {
       const sec = document.querySelector('[data-section-portfolio]');
       if (sec) sec.hidden = false;
@@ -160,7 +142,6 @@
         hasAny = true;
       }
     }
-
     if (teacher.whatsapp) {
       const el = document.querySelector('[data-contact-whatsapp]');
       if (el) {
@@ -170,14 +151,9 @@
         hasAny = true;
       }
     }
-
     if (teacher.phone) {
       const el = document.querySelector('[data-contact-phone]');
-      if (el) {
-        el.hidden = false;
-        el.href = 'tel:' + encodeURIComponent(teacher.phone);
-        hasAny = true;
-      }
+      if (el) { el.hidden = false; el.href = 'tel:' + encodeURIComponent(teacher.phone); hasAny = true; }
     }
 
     const sec = document.querySelector('[data-section-contacts]');
@@ -189,8 +165,7 @@
     if (!el) return;
 
     const { data, error } = await window.supabaseClient
-      .from('schedule_template')
-      .select('weekday, time, status')
+      .from('schedule_template').select('weekday, time, status')
       .eq('teacher_id', teacherId)
       .order('weekday', { ascending: true })
       .order('time', { ascending: true });
@@ -298,11 +273,8 @@
     if (existing) { errEl.textContent = 'У вас уже есть заявка на это время.'; btn.disabled = false; btn.textContent = 'Отправить заявку'; return; }
 
     const { error } = await window.supabaseClient.from('booking_requests').insert({
-      student_id: currentUser.user.id,
-      teacher_id: teacher.id,
-      weekday: selectedCell.day,
-      time: selectedCell.time,
-      status: 'pending'
+      student_id: currentUser.user.id, teacher_id: teacher.id,
+      weekday: selectedCell.day, time: selectedCell.time, status: 'pending'
     });
     btn.disabled = false;
     btn.textContent = 'Отправить заявку';
@@ -319,10 +291,8 @@
       const img = hero.querySelector('img');
       if (img && img.src) openLightbox(img.src);
     });
-
     const p1 = document.querySelector('[data-portfolio-image]');
     if (p1) p1.addEventListener('click', () => { if (p1.src) openLightbox(p1.src); });
-
     const p2 = document.querySelector('[data-portfolio-image-2]');
     if (p2) p2.addEventListener('click', () => { if (p2.src) openLightbox(p2.src); });
   }
@@ -333,10 +303,7 @@
     lb.innerHTML = `<img src="${escapeHtml(src)}" alt="">`;
     document.body.appendChild(lb);
     document.body.style.overflow = 'hidden';
-    lb.addEventListener('click', () => {
-      lb.remove();
-      document.body.style.overflow = '';
-    });
+    lb.addEventListener('click', () => { lb.remove(); document.body.style.overflow = ''; });
   }
 
   function setText(sel, val) {
@@ -344,5 +311,9 @@
     if (el) el.textContent = val || '—';
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
