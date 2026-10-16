@@ -59,6 +59,7 @@
     renderPortfolio();
 
     initModals();
+    initPhoneModal();
     initLightboxes();
   }
 
@@ -142,6 +143,7 @@
         hasAny = true;
       }
     }
+
     if (teacher.whatsapp) {
       const el = document.querySelector('[data-contact-whatsapp]');
       if (el) {
@@ -151,13 +153,52 @@
         hasAny = true;
       }
     }
+
+    // Телефон — теперь кнопка, не ссылка
     if (teacher.phone) {
       const el = document.querySelector('[data-contact-phone]');
-      if (el) { el.hidden = false; el.href = 'tel:' + encodeURIComponent(teacher.phone); hasAny = true; }
+      if (el) { el.hidden = false; hasAny = true; }
     }
 
     const sec = document.querySelector('[data-section-contacts]');
     if (sec && hasAny) sec.hidden = false;
+  }
+
+  /* ─────────── МОДАЛКА ТЕЛЕФОНА ─────────── */
+  function initPhoneModal() {
+    const phoneBtn = document.querySelector('[data-contact-phone]');
+    const modal = document.querySelector('[data-modal="phone"]');
+    if (!phoneBtn || !modal) return;
+
+    const numberEl = modal.querySelector('[data-phone-number]');
+    const copyBtn = modal.querySelector('[data-phone-copy]');
+
+    phoneBtn.addEventListener('click', () => {
+      if (numberEl) numberEl.textContent = teacher.phone || '—';
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+    });
+
+    if (copyBtn) {
+      copyBtn.addEventListener('click', async () => {
+        if (!teacher.phone) return;
+        try {
+          await navigator.clipboard.writeText(teacher.phone);
+          copyBtn.textContent = 'Скопировано ✓';
+          setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1500);
+        } catch (e) {
+          // fallback
+          const ta = document.createElement('textarea');
+          ta.value = teacher.phone;
+          document.body.appendChild(ta);
+          ta.select();
+          try { document.execCommand('copy'); copyBtn.textContent = 'Скопировано ✓'; }
+          catch { copyBtn.textContent = 'Не удалось'; }
+          ta.remove();
+          setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1500);
+        }
+      });
+    }
   }
 
   async function renderSchedule(teacherId) {
@@ -165,7 +206,8 @@
     if (!el) return;
 
     const { data, error } = await window.supabaseClient
-      .from('schedule_template').select('weekday, time, status')
+      .from('schedule_template')
+      .select('weekday, time, status, student_name')
       .eq('teacher_id', teacherId)
       .order('weekday', { ascending: true })
       .order('time', { ascending: true });
@@ -175,7 +217,11 @@
 
     const cellsMap = {};
     data.forEach(item => {
-      cellsMap[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time };
+      cellsMap[item.weekday + '|' + item.time] = {
+        status: item.status || 'free',
+        time: item.time,
+        studentName: item.student_name || ''
+      };
     });
 
     let maxRows = 1;
@@ -212,11 +258,15 @@
 
   function renderCell(day, cell) {
     const clickable = cell.status === 'free';
+    // В публичном расписании имя ученика НЕ показываем (это видно только учителю)
+    // busy без имени → «Занято», busy с именем → тоже «Занято» (не раскрываем личность ученика другим)
+    const statusText = STATUS_LABELS[cell.status] || cell.status;
+
     return `
       <div class="week-cell week-cell--${escapeHtml(cell.status)} ${clickable ? 'is-clickable' : ''}"
            data-day="${escapeHtml(day)}" data-time="${escapeHtml(cell.time)}" data-status="${escapeHtml(cell.status)}">
         <div class="week-cell__time">${escapeHtml(cell.time)}</div>
-        <div class="week-cell__status">${escapeHtml(STATUS_LABELS[cell.status] || cell.status)}</div>
+        <div class="week-cell__status">${escapeHtml(statusText)}</div>
       </div>
     `;
   }
