@@ -9,6 +9,7 @@
 
   let bookingsExpanded = false;
   let bookingsAllRows = [];
+  let cellsExpanded = false;
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -106,6 +107,7 @@
     initPersonalCellModal();
     initRequestLinkModal();
     initBookingsToggle();
+    initCellsToggle();
 
     const addBtn = document.querySelector('[data-add-cell]');
     if (addBtn) addBtn.addEventListener('click', () => {
@@ -130,6 +132,17 @@
     });
   }
 
+  function initCellsToggle() {
+    const btn = document.querySelector('[data-toggle-cell-expand]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      cellsExpanded = !cellsExpanded;
+      renderWeekBoard();
+      renderPersonalBoard();
+    });
+  }
+
   function initBurger() {
     const burger = document.querySelector('.nav__burger');
     const mobileMenu = document.querySelector('[data-nav-mobile]');
@@ -146,11 +159,23 @@
   function initTabs() {
     const tabs = document.querySelectorAll('.teacher-tab');
     const panels = document.querySelectorAll('.teacher-tab-panel');
+    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
+    
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         panels.forEach(p => p.classList.toggle('is-active', p.dataset.tabPanel === t));
+        
+        // Сброс развернутости при переключении
+        cellsExpanded = false;
+        if (toggleBtn) {
+            toggleBtn.disabled = true;
+            toggleBtn.classList.add('is-disabled');
+        }
+
+        if (t === 'public') renderWeekBoard();
+        else renderPersonalBoard();
       });
     });
   }
@@ -623,20 +648,38 @@
 
   function renderWeekBoard() {
     const board = document.querySelector('[data-week-board]');
+    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
     if (!board) return;
+    
     let maxRows = 1;
+    let hasMoreThanOne = false;
     DAY_ORDER.forEach(day => {
       const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > 1) hasMoreThanOne = true;
       if (count > maxRows) maxRows = count;
     });
 
+    if (toggleBtn) {
+      if (!hasMoreThanOne) {
+        toggleBtn.disabled = true;
+        toggleBtn.classList.add('is-disabled');
+      } else {
+        toggleBtn.disabled = false;
+        toggleBtn.classList.remove('is-disabled');
+        toggleBtn.textContent = cellsExpanded ? 'Свернуть' : 'Развернуть';
+      }
+    }
+
+    // Логика сворачивания: если не развернуто, показываем только первую ячейку в дне
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap).filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...cellsMap[key] })).sort((a, b) => a.key.localeCompare(b.key));
 
-      const cellsHtml = dayCells.length
-        ? dayCells.map(c => renderCell(day, c)).join('')
+      const displayCells = cellsExpanded ? dayCells : dayCells.slice(0, 1);
+      
+      const cellsHtml = displayCells.length
+        ? displayCells.map(c => renderCell(day, c)).join('')
         : '<div class="week-day__empty">Нет ячеек</div>';
 
       html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
@@ -780,20 +823,37 @@
 
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-board]');
+    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
     if (!board) return;
+
     let maxRows = 1;
+    let hasMoreThanOne = false;
     DAY_ORDER.forEach(day => {
       const count = Object.keys(personalMap).filter(k => k.startsWith(day + '|')).length;
+      if (count > 1) hasMoreThanOne = true;
       if (count > maxRows) maxRows = count;
     });
+
+    if (toggleBtn) {
+      if (!hasMoreThanOne) {
+        toggleBtn.disabled = true;
+        toggleBtn.classList.add('is-disabled');
+      } else {
+        toggleBtn.disabled = false;
+        toggleBtn.classList.remove('is-disabled');
+        toggleBtn.textContent = cellsExpanded ? 'Свернуть' : 'Развернуть';
+      }
+    }
 
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(personalMap).filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...personalMap[key] })).sort((a, b) => a.key.localeCompare(b.key));
 
-      const cellsHtml = dayCells.length
-        ? dayCells.map(c => renderPersonalCell(day, c)).join('')
+      const displayCells = cellsExpanded ? dayCells : dayCells.slice(0, 1);
+
+      const cellsHtml = displayCells.length
+        ? displayCells.map(c => renderPersonalCell(day, c)).join('')
         : '<div class="week-day__empty">Нет ячеек</div>';
 
       html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
@@ -956,7 +1016,7 @@
     if (!listEl) return;
 
     const total = bookingsAllRows.length;
-    const showToggle = total > 2;
+    const showToggle = total > 1;
 
     if (toggle) {
       if (!showToggle) {
@@ -969,7 +1029,7 @@
       }
     }
 
-    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
+    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 1);
     listEl.innerHTML = visible.map(b => renderBookingCard(b)).join('');
 
     listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
