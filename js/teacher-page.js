@@ -48,6 +48,20 @@
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
+    // Инициализация хедера, чтобы не выкидывало
+    if (currentUser) {
+      const role = currentUser.profile.role;
+      const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+      const name = currentUser.profile.name || 'Профиль';
+      const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+      const actions = document.querySelector('.nav__actions');
+      if (actions) actions.hidden = true;
+
+      const userMenu = document.querySelector('[data-user-menu]');
+      // На странице teacher.html нет user-menu, поэтому хедер просто не меняем
+    }
+
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
