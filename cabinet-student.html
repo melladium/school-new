@@ -75,12 +75,11 @@
       <div class="student-layout">
 
         <div class="student-col-main">
-          <div class="cabinet__col-head">
+          <div class="cabinet__col-head cabinet__col-head--aligned">
             <h2 class="cabinet__title cabinet__title--col">Мои заявки</h2>
-          </div>
-          <div class="cabinet__list-toolbar">
             <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle hidden>Развернуть</button>
           </div>
+          
           <div class="cabinet__list" data-bookings-list>
             <div class="cabinet__empty">
               <div class="cabinet__empty-icon">📅</div>
@@ -92,25 +91,28 @@
         </div>
 
         <aside class="student-col-side">
-          <div class="cabinet__col-head">
-            <h2 class="cabinet__title cabinet__title--col">Моё расписание</h2>
+          <div class="cabinet__col-head cabinet__col-head--aligned">
+            <h2 class="cabinet__title cabinet__title--col">Расписание</h2>
             <div class="cabinet__col-actions">
               <button class="btn btn--ghost btn--sm" data-toggle-personal-board hidden>Развернуть</button>
               <button class="btn btn--primary btn--sm" data-add-personal-cell>+ Ячейка</button>
             </div>
           </div>
 
-          <div class="info-panel">
-            <div class="info-panel__title">Как пользоваться</div>
-            <ul class="info-panel__list">
-              <li>Это <strong>только для вас</strong>. Никто не видит.</li>
-              <li>Нажмите <strong>«+ Ячейка»</strong> — день, время, текст.</li>
-              <li>Или у заявки — <strong>«Добавить в расписание»</strong>.</li>
-            </ul>
-          </div>
+          <!-- Обертка для выравнивания -->
+          <div class="cabinet__side-content">
+            <div class="info-panel">
+              <div class="info-panel__title">Как пользоваться</div>
+              <ul class="info-panel__list">
+                <li>Это <strong>только для вас</strong>. Никто не видит.</li>
+                <li>Нажмите <strong>«+ Ячейка»</strong> — день, время, текст.</li>
+                <li>Или у заявки — <strong>«Добавить в расписание»</strong>.</li>
+              </ul>
+            </div>
 
-          <div class="week-board week-board--personal" data-personal-student-board>
-            <div class="week-board__loading">Загружаем…</div>
+            <div class="week-board week-board--personal" data-personal-student-board>
+              <!-- JS заменит это на пустое состояние или сетку -->
+            </div>
           </div>
         </aside>
 
@@ -152,7 +154,6 @@
     </div>
   </div>
 
-  <!-- Переделанная форма ячейки ученика -->
   <div class="modal" data-modal="personal-cell-edit" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
