@@ -56,12 +56,16 @@
   flex-shrink: 0;
 }
 
-.cabinet__list-toolbar {
+.cabinet__col-head--aligned {
+  height: 52px;
+  margin-bottom: 0;
+  padding-bottom: 12px;
+}
+
+.cabinet__side-content {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  min-height: 40px;
-  margin-bottom: 12px;
+  flex-direction: column;
+  gap: 14px;
 }
 
 /* STATS */
@@ -116,7 +120,7 @@
   background: var(--surface-1); border: 1px solid var(--border);
   border-left: 3px solid var(--cabinet-accent, var(--accent));
   border-radius: var(--radius);
-  padding: 12px 16px; margin-bottom: 14px;
+  padding: 12px 16px; margin-bottom: 0;
 }
 .info-panel__title {
   font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
@@ -268,7 +272,6 @@
 }
 .student-col-main { min-width: 0; }
 .student-col-side { min-width: 0; }
-.student-col-main > .cabinet__title--col { margin-bottom: 16px; }
 
 .teacher-layout {
   display: grid;
@@ -279,7 +282,6 @@
 }
 .teacher-col-main { grid-area: schedule; min-width: 0; }
 .teacher-col-side { grid-area: requests; min-width: 0; }
-.teacher-col-main > .cabinet__title--col { margin-bottom: 16px; }
 
 /* ВКЛАДКИ */
 .teacher-tabs {
@@ -855,7 +857,7 @@
   .cabinet__section { margin-bottom: 32px; }
   .cabinet__section-head { flex-direction: column; align-items: stretch; }
   .cabinet__section-head > .btn { margin-left: 0; width: 100%; }
-  .cabinet__col-head { flex-wrap: wrap; }
+  .cabinet__col-head, .cabinet__col-head--aligned { flex-wrap: wrap; height: auto; padding-bottom: 0; margin-bottom: 16px; }
   .cabinet__head-actions { width: 100%; }
   .cabinet__head-actions .btn { flex: 1; }
   .booking-card { padding: 14px 16px; }
