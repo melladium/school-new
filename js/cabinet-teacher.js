@@ -7,6 +7,9 @@
   let portfolioFile2 = null;
   let currentRequestId = null;
 
+  let bookingsExpanded = false;
+  let bookingsAllRows = [];
+
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
@@ -145,6 +148,7 @@
     initCellModal();
     initPersonalCellModal();
     initRequestLinkModal();
+    initBookingsToggle();
 
     const addBtn = document.querySelector('[data-add-cell]');
     if (addBtn) addBtn.addEventListener('click', () => openCellModal(null));
@@ -155,6 +159,16 @@
     document.querySelectorAll('[data-open-preview]').forEach(btn => btn.addEventListener('click', openPreview));
 
     await Promise.all([loadProfile(), loadCells(), loadPersonal(), loadRequests()]);
+  }
+
+  function initBookingsToggle() {
+    const btn = document.querySelector('[data-bookings-toggle]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      bookingsExpanded = !bookingsExpanded;
+      btn.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      renderBookingsList();
+    });
   }
 
   function initBurger() {
@@ -936,7 +950,10 @@
 
     if (error) {
       listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + escapeHtml(error.message) + '</div></div>';
-      updateStats(0, 0); return;
+      updateStats(0, 0);
+      const toggle = document.querySelector('[data-bookings-toggle]');
+      if (toggle) toggle.hidden = true;
+      return;
     }
 
     if (!data || !data.length) {
@@ -946,7 +963,10 @@
           <div class="cabinet__empty-title">Заявок пока нет</div>
           <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
         </div>`;
-      updateStats(0, 0); return;
+      updateStats(0, 0);
+      const toggle = document.querySelector('[data-bookings-toggle]');
+      if (toggle) toggle.hidden = true;
+      return;
     }
 
     const studentIds = [...new Set(data.map(b => b.student_id).filter(Boolean))];
@@ -966,7 +986,26 @@
       return item;
     });
 
-    listEl.innerHTML = rows.map(b => renderBookingCard(b)).join('');
+    bookingsAllRows = rows;
+    renderBookingsList();
+    updateStats(upcoming.length, done.length);
+  }
+
+  function renderBookingsList() {
+    const listEl = document.querySelector('[data-bookings-list]');
+    const toggle = document.querySelector('[data-bookings-toggle]');
+    if (!listEl) return;
+
+    const total = bookingsAllRows.length;
+    const showToggle = total > 2;
+
+    if (toggle) {
+      toggle.hidden = !showToggle;
+      toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+    }
+
+    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
+    listEl.innerHTML = visible.map(b => renderBookingCard(b)).join('');
 
     listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
       btn.addEventListener('click', () => approveRequest(btn.dataset.approveRequest, parseInt(btn.dataset.weekday, 10), btn.dataset.time, btn.dataset.student));
@@ -986,8 +1025,6 @@
         btn.dataset.currentLink || ''
       ));
     });
-
-    updateStats(upcoming.length, done.length);
   }
 
   function renderBookingCard(b) {
