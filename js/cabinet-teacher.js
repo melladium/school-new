@@ -23,54 +23,16 @@
   };
 
   const SUBJECT_GOALS = {
-    math: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    russian: [
-      { value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' },
-      { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' },
-      { value: 'literacy', label: 'Грамотность' }
-    ],
-    physics: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    chemistry: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
-      { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    biology: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
-      { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    it: [
-      { value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' },
-      { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    english: [
-      { value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' },
-      { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' },
-      { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }
-    ],
-    history: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    social: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
-    ],
-    geography: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
-    ]
+    math: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    russian: [{ value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' }, { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' }, { value: 'literacy', label: 'Грамотность' }],
+    physics: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    chemistry: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
+    biology: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
+    it: [{ value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' }, { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }],
+    english: [{ value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' }, { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' }, { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }],
+    history: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    social: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }],
+    geography: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }]
   };
 
   let cellsMap = {};
@@ -104,12 +66,10 @@
     let hour = now.getHours();
     const minutes = now.getMinutes();
     if (minutes > 30) hour += 1;
-
     let dayShift = 0;
     if (hour >= 22) { dayShift = 1; hour = 10; }
     else if (hour < 10) { hour = 10; }
     if (hour > 22) { hour = 10; dayShift += 1; }
-
     const counts = {};
     DAY_ORDER.forEach(d => counts[d] = 0);
     if (Array.isArray(existingKeys)) {
@@ -118,15 +78,12 @@
         if (counts[d] !== undefined) counts[d]++;
       });
     }
-
     const today = now.getDay();
     const startDay = (today + dayShift) % 7;
     const startIdx = DAY_ORDER.indexOf(startDay);
     const orderedDays = [...DAY_ORDER.slice(startIdx), ...DAY_ORDER.slice(0, startIdx)];
-
     let bestDay = startDay, bestCount = Infinity;
     orderedDays.forEach(d => { if (counts[d] < bestCount) { bestCount = counts[d]; bestDay = d; } });
-
     return { day: String(bestDay), time: String(hour).padStart(2, '0') + ':00' };
   }
 
@@ -151,9 +108,11 @@
     initBookingsToggle();
 
     const addBtn = document.querySelector('[data-add-cell]');
-    if (addBtn) addBtn.addEventListener('click', () => openCellModal(null));
-    const addPersonalBtn = document.querySelector('[data-add-personal-cell]');
-    if (addPersonalBtn) addPersonalBtn.addEventListener('click', () => openPersonalCellModal(null));
+    if (addBtn) addBtn.addEventListener('click', () => {
+      const isPersonal = document.querySelector('.teacher-tab.is-active').dataset.tab === 'personal';
+      if (isPersonal) openPersonalCellModal(null);
+      else openCellModal(null);
+    });
 
     document.querySelectorAll('[data-open-profile]').forEach(btn => btn.addEventListener('click', openProfileModal));
     document.querySelectorAll('[data-open-preview]').forEach(btn => btn.addEventListener('click', openPreview));
@@ -187,23 +146,11 @@
   function initTabs() {
     const tabs = document.querySelectorAll('.teacher-tab');
     const panels = document.querySelectorAll('.teacher-tab-panel');
-    const addCellBtn = document.querySelector('[data-add-cell]');
-    const addPersonalCellBtn = document.querySelector('[data-add-personal-cell]');
-
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         panels.forEach(p => p.classList.toggle('is-active', p.dataset.tabPanel === t));
-        
-        // Переключаем видимость кнопок + Ячейка
-        if (t === 'public') {
-          if (addCellBtn) addCellBtn.hidden = false;
-          if (addPersonalCellBtn) addPersonalCellBtn.hidden = true;
-        } else {
-          if (addCellBtn) addCellBtn.hidden = true;
-          if (addPersonalCellBtn) addPersonalCellBtn.hidden = false;
-        }
       });
     });
   }
