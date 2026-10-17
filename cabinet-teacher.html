@@ -87,13 +87,13 @@
             <h2 class="cabinet__title cabinet__title--col">Расписание</h2>
           </div>
 
-          <!-- Единый контейнер для табов и кнопки -->
           <div class="teacher-tabs-row">
             <div class="teacher-tabs">
               <button class="teacher-tab is-active" data-tab="public">Публичное</button>
               <button class="teacher-tab" data-tab="personal">Личное</button>
             </div>
             <div class="teacher-tabs-actions">
+              <button class="btn btn--ghost btn--sm" data-toggle-cell-expand disabled>Развернуть</button>
               <button class="btn btn--primary btn--sm" data-add-cell>+ Ячейка</button>
             </div>
           </div>
@@ -160,9 +160,7 @@
     </div>
   </main>
 
-  <!-- Модалки оставляем как были (profile, request-link, cell-edit, personal-cell-edit) -->
-  <!-- Для краткости я вставляю их в этот же файл, они не изменились -->
-  
+  <!-- Модалки оставляем без изменений -->
   <!-- Preview Modal -->
   <div class="modal" data-modal="preview" hidden>
     <div class="modal__backdrop" data-modal-close></div>
