@@ -92,7 +92,7 @@
     }, { passive: true });
   }
 
-  /* CURSOR GLOW — desktop only, пауза когда не движется */
+  /* CURSOR GLOW */
   const glow = document.querySelector('[data-cursor-glow]');
   if (glow && !prefersReducedMotion && isFinePointer && !isMobile) {
     let gx = 0, gy = 0, tx = 0, ty = 0, rafId = null, running = false;
@@ -173,12 +173,12 @@
     const slotsHtml = freeSlots.map(s =>
       `<span class="slot slot--free">${escapeHtml(s.day)} ${escapeHtml(s.time)}</span>`
     ).join('');
-    const tagsHtml = (t.tags || []).map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('');
 
     const avatarHtml = t.avatar_url
       ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${escapeHtml(t.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy"></div>`
       : `<div class="teacher-card__avatar">${escapeHtml(initials)}</div>`;
 
+    // Убрали дублирование предмета в тегах
     return `
       <a class="teacher-card reveal" href="teacher.html?id=${encodeURIComponent(t.id)}" data-teacher-id="${escapeHtml(t.id)}">
         <div class="teacher-card__head">
@@ -189,7 +189,6 @@
           </div>
           <div class="teacher-card__rating">★ ${escapeHtml(t.rating || '—')}</div>
         </div>
-        <div class="teacher-card__tags">${tagsHtml}</div>
         <div class="teacher-card__slots">${slotsHtml}</div>
         <div class="teacher-card__foot">
           <div class="teacher-card__price">${escapeHtml(t.price)} ₽<span> / урок</span></div>
@@ -237,7 +236,6 @@
           subject: t.subject,
           subjectLabel: SUBJECT_LABELS[t.subject] || t.subject,
           goals: t.goals || [],
-          tags: [SUBJECT_LABELS[t.subject] || t.subject],
           price: t.price,
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
@@ -390,11 +388,8 @@
           <div class="empty-state__icon">😕</div>
           <div class="empty-state__title">Пока никого нет</div>
           <div class="empty-state__desc">Попробуйте изменить задачу или увеличить бюджет.</div>
-          <button class="btn btn--ghost" data-podbor-reset-inline style="margin-top:16px;">Пройти заново</button>
         </div>
       `;
-      const b = podborGrid.querySelector('[data-podbor-reset-inline]');
-      if (b) b.addEventListener('click', resetPodbor);
       return;
     }
 
