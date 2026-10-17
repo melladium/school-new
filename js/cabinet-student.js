@@ -341,7 +341,6 @@
     if (!confirm('Удалить заявку навсегда?')) return;
     const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
     if (error) { alert('Ошибка: ' + error.message); return; }
-    // Удаляем из локального массива сразу
     bookingsAllRows = bookingsAllRows.filter(b => b.id !== id);
     renderBookingsList();
     updateStats(bookingsAllRows.filter(b => b.status === 'pending' || b.status === 'approved').length, bookingsAllRows.filter(b => b.status === 'approved' && isPast(b.weekday, b.time)).length);
@@ -429,11 +428,21 @@
 
   async function loadPersonal() {
     personalMap = {};
+    const board = document.querySelector('[data-personal-student-board]');
+    if (!board) return;
+    board.innerHTML = '<div class="week-board__loading">Загружаем…</div>';
+
     const { data, error } = await window.supabaseClient
       .from('personal_schedule_student').select('id, weekday, time, text_content, student_name')
       .eq('student_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
-    if (error) return;
+
+    if (error) {
+      console.error('Ошибка загрузки расписания:', error);
+      board.innerHTML = '<div class="week-day__empty" style="grid-column: 1/-1; height: auto; padding: 20px;">Ошибка загрузки</div>';
+      return;
+    }
+    
     (data || []).forEach(item => {
       personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: item.student_name || '' };
     });
