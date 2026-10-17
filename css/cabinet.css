@@ -56,6 +56,15 @@
   flex-shrink: 0;
 }
 
+/* НОВЫЙ БЛОК ДЛЯ КНОПКИ */
+.cabinet__list-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 40px;
+  margin-bottom: 12px;
+}
+
 /* STATS */
 .cabinet__stats {
   display: flex;
