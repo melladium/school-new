@@ -56,7 +56,6 @@
   flex-shrink: 0;
 }
 
-/* НОВЫЙ БЛОК ДЛЯ КНОПКИ */
 .cabinet__list-toolbar {
   display: flex;
   justify-content: flex-end;
@@ -683,11 +682,16 @@
 .preview-rating__star { color: var(--cabinet-accent, var(--accent)); }
 .preview-rating__count { color: var(--text-mute); }
 .preview-bio { color: var(--text-dim); font-size: 13.5px; line-height: 1.55; }
+
 .preview-contacts {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+.preview-contacts--row {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .preview-contact {
   display: flex;
   flex-direction: column;
