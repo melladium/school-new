@@ -82,7 +82,6 @@
     if (!btn) return;
     btn.addEventListener('click', () => {
       bookingsExpanded = !bookingsExpanded;
-      btn.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
       renderBookingsList();
     });
   }
@@ -342,7 +341,10 @@
     if (!confirm('Удалить заявку навсегда?')) return;
     const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
     if (error) { alert('Ошибка: ' + error.message); return; }
-    await loadBookings();
+    // Удаляем из локального массива сразу
+    bookingsAllRows = bookingsAllRows.filter(b => b.id !== id);
+    renderBookingsList();
+    updateStats(bookingsAllRows.filter(b => b.status === 'pending' || b.status === 'approved').length, bookingsAllRows.filter(b => b.status === 'approved' && isPast(b.weekday, b.time)).length);
   }
 
   async function addToSchedule(time, weekday, teacherName) {
@@ -428,12 +430,12 @@
   async function loadPersonal() {
     personalMap = {};
     const { data, error } = await window.supabaseClient
-      .from('personal_schedule_student').select('id, weekday, time, text_content')
+      .from('personal_schedule_student').select('id, weekday, time, text_content, student_name')
       .eq('student_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
     if (error) return;
     (data || []).forEach(item => {
-      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '' };
+      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: item.student_name || '' };
     });
     renderPersonalBoard();
   }
@@ -474,7 +476,9 @@
 
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
-    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div>${cell.note ? `<div class="week-cell__note">${escapeHtml(cell.note)}</div>` : ''}</div>`;
+    const displayText = cell.studentName ? escapeHtml(cell.studentName) : escapeHtml(cell.note || 'Свободно');
+    const cls = cell.studentName ? 'week-cell__status week-cell__status--name' : 'week-cell__status';
+    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div><div class="${cls}">${displayText}</div></div>`;
   }
 
   function initPersonalCellModal() {
@@ -487,6 +491,7 @@
     const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
     const daySelect = modal.querySelector('[data-personal-cell-day]');
     const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const nameInput = modal.querySelector('[data-personal-cell-student-name]');
     const textInput = modal.querySelector('[data-personal-cell-text]');
 
     if (saveBtn) {
@@ -495,6 +500,7 @@
         errorEl.textContent = '';
         const day = parseInt(daySelect.value, 10);
         const time = timeInput.value.trim();
+        const studentName = nameInput.value.trim();
         const text = textInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
@@ -506,7 +512,7 @@
         }
 
         const { error } = await window.supabaseClient.from('personal_schedule_student').upsert({
-          student_id: currentUser.user.id, weekday: day, time, text_content: text
+          student_id: currentUser.user.id, weekday: day, time, text_content: text, student_name: studentName
         }, { onConflict: 'student_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -535,6 +541,7 @@
     const title = modal.querySelector('[data-personal-cell-title]');
     const daySelect = modal.querySelector('[data-personal-cell-day]');
     const timeInput = modal.querySelector('[data-personal-cell-time]');
+    const nameInput = modal.querySelector('[data-personal-cell-student-name]');
     const textInput = modal.querySelector('[data-personal-cell-text]');
     const deleteBtn = modal.querySelector('[data-personal-cell-delete]');
     const errorEl = modal.querySelector('[data-personal-cell-error]');
@@ -546,12 +553,13 @@
       const cell = personalMap[key] || {};
       if (title) title.textContent = 'Редактировать ячейку';
       daySelect.value = day; timeInput.value = time;
+      nameInput.value = cell.studentName || '';
       textInput.value = cell.note || '';
       if (deleteBtn) deleteBtn.hidden = false;
     } else {
       personalEditingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      daySelect.value = '1'; timeInput.value = '18:00'; textInput.value = '';
+      daySelect.value = '1'; timeInput.value = '18:00'; nameInput.value = ''; textInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
 
