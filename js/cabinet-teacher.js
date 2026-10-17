@@ -165,6 +165,7 @@
     const btn = document.querySelector('[data-bookings-toggle]');
     if (!btn) return;
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
       bookingsExpanded = !bookingsExpanded;
       renderBookingsList();
     });
@@ -186,11 +187,23 @@
   function initTabs() {
     const tabs = document.querySelectorAll('.teacher-tab');
     const panels = document.querySelectorAll('.teacher-tab-panel');
+    const addCellBtn = document.querySelector('[data-add-cell]');
+    const addPersonalCellBtn = document.querySelector('[data-add-personal-cell]');
+
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         panels.forEach(p => p.classList.toggle('is-active', p.dataset.tabPanel === t));
+        
+        // Переключаем видимость кнопок + Ячейка
+        if (t === 'public') {
+          if (addCellBtn) addCellBtn.hidden = false;
+          if (addPersonalCellBtn) addPersonalCellBtn.hidden = true;
+        } else {
+          if (addCellBtn) addCellBtn.hidden = true;
+          if (addPersonalCellBtn) addPersonalCellBtn.hidden = false;
+        }
       });
     });
   }
@@ -951,7 +964,7 @@
       listEl.innerHTML = '<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">' + escapeHtml(error.message) + '</div></div>';
       updateStats(0, 0);
       const toggle = document.querySelector('[data-bookings-toggle]');
-      if (toggle) toggle.hidden = true;
+      if (toggle) { toggle.disabled = true; toggle.classList.add('is-disabled'); }
       return;
     }
 
@@ -964,7 +977,7 @@
         </div>`;
       updateStats(0, 0);
       const toggle = document.querySelector('[data-bookings-toggle]');
-      if (toggle) toggle.hidden = true;
+      if (toggle) { toggle.disabled = true; toggle.classList.add('is-disabled'); }
       return;
     }
 
@@ -999,8 +1012,14 @@
     const showToggle = total > 2;
 
     if (toggle) {
-      toggle.hidden = !showToggle;
-      toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      if (!showToggle) {
+        toggle.disabled = true;
+        toggle.classList.add('is-disabled');
+      } else {
+        toggle.disabled = false;
+        toggle.classList.remove('is-disabled');
+        toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      }
     }
 
     const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
