@@ -9,6 +9,9 @@
   let personalEditingKey = null;
   let personalExpanded = false;
 
+  let bookingsExpanded = false;
+  let bookingsAllRows = [];
+
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
@@ -66,11 +69,22 @@
     initReviewModal();
     initPersonalCellModal();
     initTogglePersonal();
+    initBookingsToggle();
 
     const addPersonalBtn = document.querySelector('[data-add-personal-cell]');
     if (addPersonalBtn) addPersonalBtn.addEventListener('click', () => openPersonalCellModal(null));
 
     await Promise.all([loadReviewedTeachers(), loadBookings(), loadPersonal()]);
+  }
+
+  function initBookingsToggle() {
+    const btn = document.querySelector('[data-bookings-toggle]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      bookingsExpanded = !bookingsExpanded;
+      btn.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      renderBookingsList();
+    });
   }
 
   function initBurger() {
@@ -186,7 +200,10 @@
 
     if (error) {
       listEl.innerHTML = `<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">${escapeHtml(error.message)}</div></div>`;
-      updateStats(0, 0); return;
+      updateStats(0, 0);
+      const toggle = document.querySelector('[data-bookings-toggle]');
+      if (toggle) toggle.hidden = true;
+      return;
     }
 
     if (!data.length) {
@@ -197,7 +214,10 @@
           <div class="cabinet__empty-desc">Найдите репетитора и оставьте первую заявку</div>
           <a href="index.html#podbor" class="btn btn--primary btn--lg">Найти репетитора</a>
         </div>`;
-      updateStats(0, 0); return;
+      updateStats(0, 0);
+      const toggle = document.querySelector('[data-bookings-toggle]');
+      if (toggle) toggle.hidden = true;
+      return;
     }
 
     const teacherIds = [...new Set(data.map(b => b.teacher_id).filter(Boolean))];
@@ -221,14 +241,31 @@
       return item;
     });
 
-    listEl.innerHTML = rows.map(b => renderBookingCard(b)).join('');
+    bookingsAllRows = rows;
+    renderBookingsList();
+    updateStats(upcoming.length, done.length);
+  }
+
+  function renderBookingsList() {
+    const listEl = document.querySelector('[data-bookings-list]');
+    const toggle = document.querySelector('[data-bookings-toggle]');
+    if (!listEl) return;
+
+    const total = bookingsAllRows.length;
+    const showToggle = total > 2;
+
+    if (toggle) {
+      toggle.hidden = !showToggle;
+      toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+    }
+
+    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
+    listEl.innerHTML = visible.map(b => renderBookingCard(b)).join('');
 
     listEl.querySelectorAll('[data-action-cancel]').forEach(btn => btn.addEventListener('click', () => cancelBooking(btn.dataset.actionCancel)));
     listEl.querySelectorAll('[data-action-review]').forEach(btn => btn.addEventListener('click', () => openReviewModal(btn.dataset.actionReview, btn.dataset.teacherName)));
     listEl.querySelectorAll('[data-action-remove]').forEach(btn => btn.addEventListener('click', () => removeBooking(btn.dataset.actionRemove)));
     listEl.querySelectorAll('[data-action-add-to-schedule]').forEach(btn => btn.addEventListener('click', () => addToSchedule(btn.dataset.time, btn.dataset.weekday, btn.dataset.teacherName)));
-
-    updateStats(upcoming.length, done.length);
   }
 
   function renderBookingCard(b) {
