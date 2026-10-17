@@ -62,12 +62,6 @@
   padding-bottom: 12px;
 }
 
-.cabinet__side-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
 /* STATS */
 .cabinet__stats {
   display: flex;
@@ -281,7 +275,14 @@
   align-items: start;
 }
 .teacher-col-main { grid-area: schedule; min-width: 0; }
-.teacher-col-side { grid-area: requests; min-width: 0; }
+.teacher-col-side { 
+  grid-area: requests; 
+  min-width: 0; 
+  display: flex;
+  flex-direction: column;
+  /* Выравнивание верхней границы контента по левой колонке */
+  padding-top: 54px; 
+}
 
 /* ВКЛАДКИ */
 .teacher-tabs-row {
@@ -290,6 +291,8 @@
   align-items: flex-end;
   margin-bottom: 14px;
   border-bottom: 1px solid var(--border);
+  height: 54px; /* Фиксируем высоту для точного выравнивания */
+  box-sizing: border-box;
 }
 .teacher-tabs {
   display: flex;
@@ -300,7 +303,7 @@
 .teacher-tabs-actions {
   display: flex;
   gap: 6px;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
 }
 .teacher-tab {
   padding: 10px 14px;
@@ -855,6 +858,7 @@
     grid-template-areas: "schedule" "requests";
     gap: 20px;
   }
+  .teacher-col-side { padding-top: 0; }
   .preview-body { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
   .preview-portfolio img { height: 180px; }
 }
@@ -892,7 +896,7 @@
   .preview-portfolio { grid-template-columns: 1fr; }
   .preview-portfolio img { height: 200px; }
   .modal-actions--sticky { padding: 12px 16px; }
-  .teacher-tabs-row { flex-direction: column; align-items: stretch; border-bottom: none; gap: 10px; }
+  .teacher-tabs-row { flex-direction: column; align-items: stretch; border-bottom: none; gap: 10px; height: auto; }
   .teacher-tabs-actions { padding-bottom: 0; justify-content: flex-end; }
 }
 
