@@ -81,6 +81,7 @@
     const btn = document.querySelector('[data-bookings-toggle]');
     if (!btn) return;
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
       bookingsExpanded = !bookingsExpanded;
       renderBookingsList();
     });
@@ -103,6 +104,7 @@
     const btn = document.querySelector('[data-toggle-personal-board]');
     if (!btn) return;
     btn.addEventListener('click', () => {
+      if (btn.disabled) return;
       personalExpanded = !personalExpanded;
       btn.textContent = personalExpanded ? 'Свернуть' : 'Развернуть';
       renderPersonalBoard();
@@ -201,7 +203,7 @@
       listEl.innerHTML = `<div class="cabinet__empty"><div class="cabinet__empty-title">Ошибка</div><div class="cabinet__empty-desc">${escapeHtml(error.message)}</div></div>`;
       updateStats(0, 0);
       const toggle = document.querySelector('[data-bookings-toggle]');
-      if (toggle) toggle.hidden = true;
+      if (toggle) { toggle.disabled = true; toggle.classList.add('is-disabled'); }
       return;
     }
 
@@ -215,7 +217,7 @@
         </div>`;
       updateStats(0, 0);
       const toggle = document.querySelector('[data-bookings-toggle]');
-      if (toggle) toggle.hidden = true;
+      if (toggle) { toggle.disabled = true; toggle.classList.add('is-disabled'); }
       return;
     }
 
@@ -254,8 +256,14 @@
     const showToggle = total > 2;
 
     if (toggle) {
-      toggle.hidden = !showToggle;
-      toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      if (!showToggle) {
+        toggle.disabled = true;
+        toggle.classList.add('is-disabled');
+      } else {
+        toggle.disabled = false;
+        toggle.classList.remove('is-disabled');
+        toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+      }
     }
 
     const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
@@ -430,10 +438,9 @@
     personalMap = {};
     const board = document.querySelector('[data-personal-student-board]');
     if (!board) return;
-    board.innerHTML = '<div class="week-board__loading">Загружаем…</div>';
 
     const { data, error } = await window.supabaseClient
-      .from('personal_schedule_student').select('id, weekday, time, text_content, student_name')
+      .from('personal_schedule_student').select('id, weekday, time, text_content')
       .eq('student_id', currentUser.user.id)
       .order('weekday', { ascending: true }).order('time', { ascending: true });
 
@@ -444,7 +451,8 @@
     }
     
     (data || []).forEach(item => {
-      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: item.student_name || '' };
+      // Так как в таблице нет student_name, парсим его из text_content (или просто сохраняем в note)
+      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: '' };
     });
     renderPersonalBoard();
   }
@@ -477,17 +485,27 @@
     });
     board.innerHTML = html;
 
-    if (maxPerDay > 1) { if (toggleBtn) toggleBtn.hidden = false; }
-    else { if (toggleBtn) toggleBtn.hidden = true; personalExpanded = false; }
+    if (maxPerDay > 1) {
+      if (toggleBtn) {
+        toggleBtn.disabled = false;
+        toggleBtn.classList.remove('is-disabled');
+      }
+    } else {
+      if (toggleBtn) {
+        toggleBtn.disabled = true;
+        toggleBtn.classList.add('is-disabled');
+        personalExpanded = false;
+      }
+    }
 
     board.querySelectorAll('[data-personal-cell-key]').forEach(el => el.addEventListener('click', () => openPersonalCellModal(el.dataset.personalCellKey)));
   }
 
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
-    const displayText = cell.studentName ? escapeHtml(cell.studentName) : escapeHtml(cell.note || 'Свободно');
-    const cls = cell.studentName ? 'week-cell__status week-cell__status--name' : 'week-cell__status';
-    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div><div class="${cls}">${displayText}</div></div>`;
+    // Показываем заметку в ячейке, так как student_name в базе нет
+    const displayText = escapeHtml(cell.note || 'Свободно');
+    return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div><div class="week-cell__status">${displayText}</div></div>`;
   }
 
   function initPersonalCellModal() {
@@ -520,8 +538,11 @@
             .eq('student_id', currentUser.user.id).eq('weekday', parseInt(oldDay, 10)).eq('time', oldTime);
         }
 
+        // Склеиваем имя и заметку в text_content, так как student_name нет в БД
+        const finalContent = [studentName, text].filter(Boolean).join(' — ');
+
         const { error } = await window.supabaseClient.from('personal_schedule_student').upsert({
-          student_id: currentUser.user.id, weekday: day, time, text_content: text, student_name: studentName
+          student_id: currentUser.user.id, weekday: day, time, text_content: finalContent
         }, { onConflict: 'student_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -562,7 +583,7 @@
       const cell = personalMap[key] || {};
       if (title) title.textContent = 'Редактировать ячейку';
       daySelect.value = day; timeInput.value = time;
-      nameInput.value = cell.studentName || '';
+      nameInput.value = '';
       textInput.value = cell.note || '';
       if (deleteBtn) deleteBtn.hidden = false;
     } else {
