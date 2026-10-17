@@ -1103,7 +1103,6 @@
     if (!confirm('Удалить заявку навсегда?')) return;
     const { error } = await window.supabaseClient.from('booking_requests').delete().eq('id', id);
     if (error) { alert('Ошибка: ' + error.message); return; }
-    // Удаляем из локального массива сразу, чтобы при развертывании не было бага
     bookingsAllRows = bookingsAllRows.filter(b => b.id !== id);
     renderBookingsList();
     updateStats(bookingsAllRows.filter(b => b.status === 'pending' || b.status === 'approved').length, bookingsAllRows.filter(b => b.status === 'approved' && isPast(b.weekday, b.time)).length);
