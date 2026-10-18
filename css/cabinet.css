@@ -278,9 +278,25 @@
 .teacher-col-side { 
   grid-area: requests; 
   min-width: 0; 
+  position: relative;
+}
+
+/* Заголовок заявок на уровне расписания */
+.teacher-col-side .cabinet__col-head--aligned {
+  height: auto;
+  margin-bottom: 16px;
+  padding-bottom: 0;
   display: flex;
-  flex-direction: column;
-  padding-top: 54px; 
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Кнопка Развернуть в правой колонке */
+.teacher-col-side [data-bookings-toggle] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
 }
 
 /* ВКЛАДКИ */
@@ -303,7 +319,6 @@
   display: flex;
   gap: 6px;
   padding-bottom: 8px;
-  align-items: center;
 }
 .teacher-tab {
   padding: 10px 14px;
