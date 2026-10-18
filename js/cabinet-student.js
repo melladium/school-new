@@ -253,7 +253,7 @@
     if (!listEl) return;
 
     const total = bookingsAllRows.length;
-    const showToggle = total > 2;
+    const showToggle = total > 1;
 
     if (toggle) {
       if (!showToggle) {
@@ -262,12 +262,18 @@
       } else {
         toggle.disabled = false;
         toggle.classList.remove('is-disabled');
-        toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+        toggle.textContent = bookingsExpanded ? 'Свернуть' : `Развернуть (+${total - 1})`;
       }
     }
 
-    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 2);
-    listEl.innerHTML = visible.map(b => renderBookingCard(b)).join('');
+    const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 1);
+    
+    let html = visible.map(b => renderBookingCard(b)).join('');
+    if (!bookingsExpanded && total > 1) {
+        html += `<div style="text-align:center; margin-top: 10px; font-size: 13px; color: var(--text-dim); font-family: var(--font-mono);">Ещё ${total - 1} заявок...</div>`;
+    }
+    
+    listEl.innerHTML = html;
 
     listEl.querySelectorAll('[data-action-cancel]').forEach(btn => btn.addEventListener('click', () => cancelBooking(btn.dataset.actionCancel)));
     listEl.querySelectorAll('[data-action-review]').forEach(btn => btn.addEventListener('click', () => openReviewModal(btn.dataset.actionReview, btn.dataset.teacherName)));
@@ -451,7 +457,6 @@
     }
     
     (data || []).forEach(item => {
-      // Так как в таблице нет student_name, парсим его из text_content (или просто сохраняем в note)
       personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: '' };
     });
     renderPersonalBoard();
@@ -489,11 +494,13 @@
       if (toggleBtn) {
         toggleBtn.disabled = false;
         toggleBtn.classList.remove('is-disabled');
+        toggleBtn.textContent = personalExpanded ? 'Свернуть' : `Развернуть (+${maxPerDay - 1})`;
       }
     } else {
       if (toggleBtn) {
         toggleBtn.disabled = true;
         toggleBtn.classList.add('is-disabled');
+        toggleBtn.textContent = 'Развернуть';
         personalExpanded = false;
       }
     }
@@ -503,7 +510,6 @@
 
   function renderPersonalCell(day, cell) {
     const time = cell.key.split('|')[1];
-    // Показываем заметку в ячейке, так как student_name в базе нет
     const displayText = escapeHtml(cell.note || 'Свободно');
     return `<div class="week-cell week-cell--personal" data-personal-cell-key="${escapeHtml(cell.key)}"><div class="week-cell__time">${escapeHtml(time)}</div><div class="week-cell__status">${displayText}</div></div>`;
   }
@@ -530,6 +536,7 @@
         const studentName = nameInput.value.trim();
         const text = textInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
+        if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
 
         if (personalEditingKey) {
@@ -538,7 +545,6 @@
             .eq('student_id', currentUser.user.id).eq('weekday', parseInt(oldDay, 10)).eq('time', oldTime);
         }
 
-        // Склеиваем имя и заметку в text_content, так как student_name нет в БД
         const finalContent = [studentName, text].filter(Boolean).join(' — ');
 
         const { error } = await window.supabaseClient.from('personal_schedule_student').upsert({
@@ -589,7 +595,7 @@
     } else {
       personalEditingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      daySelect.value = '1'; timeInput.value = '18:00'; nameInput.value = ''; textInput.value = '';
+      daySelect.value = ''; timeInput.value = '10:00'; nameInput.value = ''; textInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
     }
 
