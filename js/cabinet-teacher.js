@@ -25,54 +25,16 @@
   };
 
   const SUBJECT_GOALS = {
-    math: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    russian: [
-      { value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' },
-      { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' },
-      { value: 'literacy', label: 'Грамотность' }
-    ],
-    physics: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    chemistry: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
-      { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    biology: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
-      { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    it: [
-      { value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' },
-      { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }
-    ],
-    english: [
-      { value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' },
-      { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' },
-      { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }
-    ],
-    history: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
-      { value: 'vuz',     label: 'Подготовка к вузу' }
-    ],
-    social: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
-    ],
-    geography: [
-      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
-      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
-    ]
+    math: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    russian: [{ value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' }, { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' }, { value: 'literacy', label: 'Грамотность' }],
+    physics: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    chemistry: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
+    biology: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
+    it: [{ value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' }, { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }],
+    english: [{ value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' }, { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' }, { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }],
+    history: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
+    social: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }],
+    geography: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }]
   };
 
   let cellsMap = {};
@@ -685,7 +647,7 @@
       if (maxPerDay > 1) {
         toggleBtn.disabled = false;
         toggleBtn.classList.remove('is-disabled');
-        toggleBtn.textContent = scheduleExpanded ? 'Свернуть' : 'Развернуть';
+        toggleBtn.textContent = scheduleExpanded ? 'Свернуть' : `Развернуть (+${maxPerDay - 1})`;
       } else {
         toggleBtn.disabled = true;
         toggleBtn.classList.add('is-disabled');
@@ -1015,12 +977,18 @@
       } else {
         toggle.disabled = false;
         toggle.classList.remove('is-disabled');
-        toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
+        toggle.textContent = bookingsExpanded ? 'Свернуть' : `Развернуть (+${total - 1})`;
       }
     }
 
     const visible = bookingsExpanded ? bookingsAllRows : bookingsAllRows.slice(0, 1);
-    listEl.innerHTML = visible.map(b => renderBookingCard(b)).join('');
+    
+    let html = visible.map(b => renderBookingCard(b)).join('');
+    if (!bookingsExpanded && total > 1) {
+        html += `<div style="text-align:center; margin-top: 10px; font-size: 13px; color: var(--text-dim); font-family: var(--font-mono);">Ещё ${total - 1} заявок...</div>`;
+    }
+    
+    listEl.innerHTML = html;
 
     listEl.querySelectorAll('[data-approve-request]').forEach(btn => {
       btn.addEventListener('click', () => approveRequest(btn.dataset.approveRequest, parseInt(btn.dataset.weekday, 10), btn.dataset.time, btn.dataset.student));
