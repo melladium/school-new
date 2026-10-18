@@ -9,7 +9,8 @@
 
   let bookingsExpanded = false;
   let bookingsAllRows = [];
-  let cellsExpanded = false;
+  
+  let scheduleExpanded = false;
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -24,16 +25,54 @@
   };
 
   const SUBJECT_GOALS = {
-    math: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
-    russian: [{ value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' }, { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' }, { value: 'literacy', label: 'Грамотность' }],
-    physics: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
-    chemistry: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
-    biology: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' }, { value: 'olymp',   label: 'Олимпиады' }],
-    it: [{ value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' }, { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }],
-    english: [{ value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' }, { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' }, { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }],
-    history: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }, { value: 'vuz',     label: 'Подготовка к вузу' }],
-    social: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }],
-    geography: [{ value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' }, { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }]
+    math: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    russian: [
+      { value: 'school',   label: 'Подтянуть школу' }, { value: 'oge',      label: 'ОГЭ' },
+      { value: 'ege',      label: 'ЕГЭ' }, { value: 'essay',    label: 'Сочинение' },
+      { value: 'literacy', label: 'Грамотность' }
+    ],
+    physics: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    chemistry: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    biology: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'med',   label: 'Медвуз' },
+      { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    it: [
+      { value: 'school',  label: 'Школьная информатика' }, { value: 'oge',    label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'python', label: 'Python' },
+      { value: 'web',     label: 'Веб-разработка' }, { value: 'olymp',   label: 'Олимпиады' }
+    ],
+    english: [
+      { value: 'school',       label: 'Школьная программа' }, { value: 'oge',          label: 'ОГЭ' },
+      { value: 'ege',          label: 'ЕГЭ' }, { value: 'conversation', label: 'Разговорный' },
+      { value: 'business',     label: 'Бизнес-английский' }, { value: 'ielts',        label: 'IELTS / TOEFL' }
+    ],
+    history: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' },
+      { value: 'vuz',     label: 'Подготовка к вузу' }
+    ],
+    social: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
+    ],
+    geography: [
+      { value: 'school',  label: 'Подтянуть школу' }, { value: 'oge',  label: 'ОГЭ' },
+      { value: 'ege',     label: 'ЕГЭ' }, { value: 'olymp', label: 'Олимпиады' }
+    ]
   };
 
   let cellsMap = {};
@@ -62,32 +101,6 @@
 
   function isPast(weekday, time) { return cellDateTime(weekday, time).getTime() < Date.now(); }
 
-  function getSmartDefaults(existingKeys) {
-    const now = new Date();
-    let hour = now.getHours();
-    const minutes = now.getMinutes();
-    if (minutes > 30) hour += 1;
-    let dayShift = 0;
-    if (hour >= 22) { dayShift = 1; hour = 10; }
-    else if (hour < 10) { hour = 10; }
-    if (hour > 22) { hour = 10; dayShift += 1; }
-    const counts = {};
-    DAY_ORDER.forEach(d => counts[d] = 0);
-    if (Array.isArray(existingKeys)) {
-      existingKeys.forEach(k => {
-        const d = parseInt(k.split('|')[0], 10);
-        if (counts[d] !== undefined) counts[d]++;
-      });
-    }
-    const today = now.getDay();
-    const startDay = (today + dayShift) % 7;
-    const startIdx = DAY_ORDER.indexOf(startDay);
-    const orderedDays = [...DAY_ORDER.slice(startIdx), ...DAY_ORDER.slice(0, startIdx)];
-    let bestDay = startDay, bestCount = Infinity;
-    orderedDays.forEach(d => { if (counts[d] < bestCount) { bestCount = counts[d]; bestDay = d; } });
-    return { day: String(bestDay), time: String(hour).padStart(2, '0') + ':00' };
-  }
-
   async function init() {
     currentUser = await window.authAPI.requireAuth('teacher');
     if (!currentUser) return;
@@ -107,7 +120,7 @@
     initPersonalCellModal();
     initRequestLinkModal();
     initBookingsToggle();
-    initCellsToggle();
+    initScheduleToggle();
 
     const addBtn = document.querySelector('[data-add-cell]');
     if (addBtn) addBtn.addEventListener('click', () => {
@@ -122,6 +135,16 @@
     await Promise.all([loadProfile(), loadCells(), loadPersonal(), loadRequests()]);
   }
 
+  function initScheduleToggle() {
+    const btn = document.querySelector('[data-schedule-toggle]');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      scheduleExpanded = !scheduleExpanded;
+      renderWeekBoard();
+    });
+  }
+
   function initBookingsToggle() {
     const btn = document.querySelector('[data-bookings-toggle]');
     if (!btn) return;
@@ -129,17 +152,6 @@
       if (btn.disabled) return;
       bookingsExpanded = !bookingsExpanded;
       renderBookingsList();
-    });
-  }
-
-  function initCellsToggle() {
-    const btn = document.querySelector('[data-toggle-cell-expand]');
-    if (!btn) return;
-    btn.addEventListener('click', () => {
-      if (btn.disabled) return;
-      cellsExpanded = !cellsExpanded;
-      renderWeekBoard();
-      renderPersonalBoard();
     });
   }
 
@@ -159,23 +171,11 @@
   function initTabs() {
     const tabs = document.querySelectorAll('.teacher-tab');
     const panels = document.querySelectorAll('.teacher-tab-panel');
-    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
-    
     tabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const t = tab.dataset.tab;
         tabs.forEach(x => x.classList.toggle('is-active', x.dataset.tab === t));
         panels.forEach(p => p.classList.toggle('is-active', p.dataset.tabPanel === t));
-        
-        // Сброс развернутости при переключении
-        cellsExpanded = false;
-        if (toggleBtn) {
-            toggleBtn.disabled = true;
-            toggleBtn.classList.add('is-disabled');
-        }
-
-        if (t === 'public') renderWeekBoard();
-        else renderPersonalBoard();
       });
     });
   }
@@ -648,45 +648,50 @@
 
   function renderWeekBoard() {
     const board = document.querySelector('[data-week-board]');
-    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
+    const toggleBtn = document.querySelector('[data-schedule-toggle]');
     if (!board) return;
     
     let maxRows = 1;
-    let hasMoreThanOne = false;
+    let maxPerDay = 0;
+
     DAY_ORDER.forEach(day => {
       const count = Object.keys(cellsMap).filter(k => k.startsWith(day + '|')).length;
-      if (count > 1) hasMoreThanOne = true;
       if (count > maxRows) maxRows = count;
+      if (count > maxPerDay) maxPerDay = count;
     });
 
-    if (toggleBtn) {
-      if (!hasMoreThanOne) {
-        toggleBtn.disabled = true;
-        toggleBtn.classList.add('is-disabled');
-      } else {
-        toggleBtn.disabled = false;
-        toggleBtn.classList.remove('is-disabled');
-        toggleBtn.textContent = cellsExpanded ? 'Свернуть' : 'Развернуть';
-      }
-    }
-
-    // Логика сворачивания: если не развернуто, показываем только первую ячейку в дне
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(cellsMap).filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...cellsMap[key] })).sort((a, b) => a.key.localeCompare(b.key));
 
-      const displayCells = cellsExpanded ? dayCells : dayCells.slice(0, 1);
-      
-      const cellsHtml = displayCells.length
-        ? displayCells.map(c => renderCell(day, c)).join('')
+      const visibleCells = scheduleExpanded ? dayCells : dayCells.slice(0, 1);
+      const moreCount = dayCells.length - visibleCells.length;
+
+      const cellsHtml = visibleCells.length
+        ? visibleCells.map(c => renderCell(day, c)).join('')
         : '<div class="week-day__empty">Нет ячеек</div>';
 
-      html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
+      html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${scheduleExpanded ? maxRows : Math.max(visibleCells.length, 1)}">
+        ${cellsHtml}
+        ${(!scheduleExpanded && moreCount > 0) ? `<div class="week-day__more">+${moreCount}</div>` : ''}
+      </div></div>`;
     });
 
     board.innerHTML = html;
     board.querySelectorAll('[data-cell-key]').forEach(el => el.addEventListener('click', () => openCellModal(el.dataset.cellKey)));
+
+    if (toggleBtn) {
+      if (maxPerDay > 1) {
+        toggleBtn.disabled = false;
+        toggleBtn.classList.remove('is-disabled');
+        toggleBtn.textContent = scheduleExpanded ? 'Свернуть' : 'Развернуть';
+      } else {
+        toggleBtn.disabled = true;
+        toggleBtn.classList.add('is-disabled');
+        toggleBtn.textContent = 'Развернуть';
+      }
+    }
   }
 
   function renderCell(day, cell) {
@@ -731,6 +736,7 @@
         const studentName = nameInput.value.trim();
         const note = noteInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
+        if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
 
         if (editingKey) {
@@ -792,8 +798,8 @@
     } else {
       editingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      const d = getSmartDefaults(Object.keys(cellsMap));
-      daySelect.value = d.day; timeInput.value = d.time;
+      daySelect.value = ''; 
+      timeInput.value = '10:00';
       statusSelect.value = 'free';
       nameInput.value = '';
       noteInput.value = '';
@@ -823,37 +829,20 @@
 
   function renderPersonalBoard() {
     const board = document.querySelector('[data-personal-board]');
-    const toggleBtn = document.querySelector('[data-toggle-cell-expand]');
     if (!board) return;
-
     let maxRows = 1;
-    let hasMoreThanOne = false;
     DAY_ORDER.forEach(day => {
       const count = Object.keys(personalMap).filter(k => k.startsWith(day + '|')).length;
-      if (count > 1) hasMoreThanOne = true;
       if (count > maxRows) maxRows = count;
     });
-
-    if (toggleBtn) {
-      if (!hasMoreThanOne) {
-        toggleBtn.disabled = true;
-        toggleBtn.classList.add('is-disabled');
-      } else {
-        toggleBtn.disabled = false;
-        toggleBtn.classList.remove('is-disabled');
-        toggleBtn.textContent = cellsExpanded ? 'Свернуть' : 'Развернуть';
-      }
-    }
 
     let html = '';
     DAY_ORDER.forEach(day => {
       const dayCells = Object.keys(personalMap).filter(key => key.startsWith(day + '|'))
         .map(key => ({ key, ...personalMap[key] })).sort((a, b) => a.key.localeCompare(b.key));
 
-      const displayCells = cellsExpanded ? dayCells : dayCells.slice(0, 1);
-
-      const cellsHtml = displayCells.length
-        ? displayCells.map(c => renderPersonalCell(day, c)).join('')
+      const cellsHtml = dayCells.length
+        ? dayCells.map(c => renderPersonalCell(day, c)).join('')
         : '<div class="week-day__empty">Нет ячеек</div>';
 
       html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
@@ -888,6 +877,7 @@
         const studentName = nameInput.value.trim();
         const text = textInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
+        if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
 
         if (personalEditingKey) {
@@ -946,8 +936,8 @@
     } else {
       personalEditingKey = null;
       if (title) title.textContent = 'Новая ячейка';
-      const d = getSmartDefaults(Object.keys(personalMap));
-      daySelect.value = d.day; timeInput.value = d.time;
+      daySelect.value = ''; 
+      timeInput.value = '10:00';
       nameInput.value = '';
       textInput.value = '';
       if (deleteBtn) deleteBtn.hidden = true;
