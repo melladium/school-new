@@ -129,9 +129,9 @@
         </div>
 
         <aside class="teacher-col-side">
-          <div class="cabinet__col-head cabinet__col-head--aligned">
+          <div class="cabinet__col-head cabinet__col-head--aligned" style="margin-bottom: 0;">
             <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
-            <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle disabled>Развернуть</button>
+            <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle disabled style="position: absolute; top: 0; right: 0;">Развернуть</button>
           </div>
           <div class="cabinet__list" data-bookings-list>
             <div class="cabinet__empty">
@@ -234,7 +234,6 @@
           <div class="pay__title" style="margin:0;padding:0;border:0;">Редактировать профиль</div>
           <button type="button" class="btn btn--icon" data-modal-close aria-label="Закрыть">✕</button>
         </div>
-        <!-- Поля профиля -->
         <div class="field" style="margin-bottom:14px;">
           <label>Главное фото (аватар)</label>
           <div style="display:flex;align-items:center;gap:16px;">
@@ -242,6 +241,7 @@
             <div>
               <input type="file" accept="image/*" data-avatar-input style="display:none;">
               <button type="button" class="btn btn--ghost" data-avatar-button>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 2 МБ.</div>
             </div>
           </div>
         </div>
@@ -252,6 +252,7 @@
             <div>
               <input type="file" accept="image/*" data-portfolio-input style="display:none;">
               <button type="button" class="btn btn--ghost" data-portfolio-button>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
             </div>
           </div>
         </div>
@@ -262,6 +263,7 @@
             <div>
               <input type="file" accept="image/*" data-portfolio-input-2 style="display:none;">
               <button type="button" class="btn btn--ghost" data-portfolio-button-2>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
             </div>
           </div>
         </div>
@@ -282,7 +284,9 @@
         </div>
         <div class="field" style="margin-bottom:14px;">
           <label>Какие задачи беру</label>
-          <div class="profile-goals" data-goals-list></div>
+          <div class="profile-goals" data-goals-list>
+            <div class="profile-goals__loading">Выберите предмет</div>
+          </div>
         </div>
         <div class="field" style="margin-bottom:14px;">
           <label>Цена за урок (₽)</label>
@@ -322,6 +326,7 @@
           <div class="pay__row"><span class="pay__row-label">Ученик</span><span class="pay__row-value" data-request-link-student>—</span></div>
           <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-link-time>—</span></div>
         </div>
+        <div class="pay__free-note">Ссылку увидит только этот ученик.</div>
         <div class="field" style="margin-bottom:14px;">
           <label>Ссылка (https://)</label>
           <input type="url" data-request-link-input placeholder="https://...">
