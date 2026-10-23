@@ -647,7 +647,7 @@
       if (maxPerDay > 1) {
         toggleBtn.disabled = false;
         toggleBtn.classList.remove('is-disabled');
-        toggleBtn.textContent = scheduleExpanded ? 'Свернуть' : `Развернуть (+${maxPerDay - 1})`;
+        toggleBtn.textContent = scheduleExpanded ? 'Свернуть' : 'Развернуть';
       } else {
         toggleBtn.disabled = true;
         toggleBtn.classList.add('is-disabled');
@@ -699,6 +699,13 @@
         const note = noteInput.value.trim();
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
+        
+        // Новая проверка
+        if (status === 'free' && (studentName || note)) {
+          errorEl.textContent = 'Чтобы добавить имя или заметку, смените статус на "Занято".';
+          return;
+        }
+
         saveBtn.disabled = true; saveBtn.textContent = 'Сохраняем…';
 
         if (editingKey) {
@@ -977,7 +984,7 @@
       } else {
         toggle.disabled = false;
         toggle.classList.remove('is-disabled');
-        toggle.textContent = bookingsExpanded ? 'Свернуть' : `Развернуть (+${total - 1})`;
+        toggle.textContent = bookingsExpanded ? 'Свернуть' : 'Развернуть';
       }
     }
 
