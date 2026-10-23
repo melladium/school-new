@@ -83,7 +83,7 @@
       <div class="teacher-layout">
 
         <div class="teacher-col-main">
-          <div class="cabinet__col-head cabinet__col-head--aligned" style="visibility: hidden;">
+          <div class="cabinet__col-head cabinet__col-head--aligned">
             <h2 class="cabinet__title cabinet__title--col">Расписание</h2>
           </div>
 
@@ -129,13 +129,18 @@
         </div>
 
         <aside class="teacher-col-side">
-          <!-- Заголовок "Заявки" выравнивается через CSS по нужной координате -->
-          <div class="cabinet__col-head cabinet__col-head--aligned" style="margin-bottom: 0;">
-            <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
-            <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle disabled style="position: absolute; right: 0;" class="btn-align-y">Развернуть</button>
+          <!-- Обертка для абсолютного позиционирования -->
+          <div style="position: relative;">
+            <!-- Заголовок строго по линии с "Расписание" -->
+            <div class="cabinet__col-head cabinet__col-head--aligned" style="margin-bottom: 0;">
+              <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
+            </div>
+            
+            <!-- Кнопка строго на уровне табов левого блока -->
+            <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle disabled style="position: absolute; top: 58px; right: 0;">Развернуть</button>
           </div>
           
-          <!-- Обертка для карточек, которая опускается до уровня "Что это" -->
+          <!-- Блок заявок, опущенный до уровня "Что это" -->
           <div class="teacher-bookings-wrapper">
             <div class="cabinet__list" data-bookings-list>
               <div class="cabinet__empty">
@@ -215,11 +220,11 @@
               <div class="preview-schedule__loading">Загружаем…</div>
             </div>
           </section>
-          <section class="preview-card" data-preview-portfolio-block hidden>
+          <section class="preview-card" data-preview-portfolio-block hidden style="flex: 1; display: flex; flex-direction: column;">
             <h3 class="preview-card__title">Достижения</h3>
-            <div class="preview-portfolio">
-              <img data-preview-portfolio-image src="" alt="Достижение 1" loading="lazy">
-              <img data-preview-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden>
+            <div class="preview-portfolio" style="flex: 1;">
+              <img data-preview-portfolio-image src="" alt="Достижение 1" loading="lazy" style="height: 100%; object-fit: cover;">
+              <img data-preview-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden style="height: 100%; object-fit: cover;">
             </div>
           </section>
         </div>
@@ -232,7 +237,6 @@
   </div>
 
   <div class="modal" data-modal="profile" hidden>
-    <!-- ... (без изменений) ... -->
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel" style="max-width: 680px;">
       <div class="pay">
@@ -291,7 +295,6 @@
   </div>
 
   <div class="modal" data-modal="request-link" hidden>
-    <!-- ... (без изменений) ... -->
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
       <div class="pay">
@@ -361,7 +364,6 @@
   </div>
 
   <div class="modal" data-modal="personal-cell-edit" hidden>
-    <!-- ... (без изменений) ... -->
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
       <div class="pay">
@@ -401,7 +403,34 @@
   </div>
 
   <footer class="footer">
-    <!-- ... (без изменений) ... -->
+    <div class="container">
+      <div class="footer__inner">
+        <div class="footer__col">
+          <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
+          <p class="footer__desc">Площадка репетиторов без курсов и методологий. Бесплатно для всех.</p>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Ученикам</div>
+          <a href="index.html#podbor">Автоподбор</a>
+          <a href="index.html#how">Как это работает</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Репетиторам</div>
+          <a href="register.html">Стать репетитором</a>
+          <a href="login.html">Войти</a>
+        </div>
+        <div class="footer__col">
+          <div class="footer__title">Документы</div>
+          <a href="terms.html">Правила пользования</a>
+          <a href="privacy.html">Обработка ПД</a>
+          <a href="mailto:hi@kuznechevsky.ru">hi@kuznechevsky.ru</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Школа Кузнечевского</span>
+        <span>Бесплатно для всех</span>
+      </div>
+    </div>
   </footer>
 
   <script src="js/libs/supabase.js"></script>
