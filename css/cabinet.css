@@ -281,22 +281,9 @@
   position: relative;
 }
 
-/* Заголовок заявок на уровне расписания */
-.teacher-col-side .cabinet__col-head--aligned {
-  height: auto;
-  margin-bottom: 16px;
-  padding-bottom: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Кнопка Развернуть в правой колонке */
-.teacher-col-side [data-bookings-toggle] {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 2;
+/* Опускаем блок заявок ровно до уровня "Что это" */
+.teacher-bookings-wrapper {
+  margin-top: 58px; 
 }
 
 /* ВКЛАДКИ */
@@ -651,13 +638,28 @@
   min-height: 0;
 }
 .preview-sidebar { display: flex; flex-direction: column; gap: 16px; }
-.preview-feed { display: flex; flex-direction: column; gap: 16px; }
+.preview-feed { display: flex; flex-direction: column; gap: 16px; height: 100%; }
 .preview-card {
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 20px;
 }
+/* Растягиваем достижения */
+.preview-feed .preview-card:last-child {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+.preview-feed .preview-portfolio {
+  flex: 1 1 auto;
+}
+.preview-feed .preview-portfolio img {
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+}
+
 .preview-card--profile { text-align: center; }
 .preview-card__title {
   font-family: var(--font-display);
@@ -873,7 +875,7 @@
     grid-template-areas: "schedule" "requests";
     gap: 20px;
   }
-  .teacher-col-side { padding-top: 0; }
+  .teacher-bookings-wrapper { margin-top: 0; }
   .preview-body { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
   .preview-portfolio img { height: 180px; }
 }
