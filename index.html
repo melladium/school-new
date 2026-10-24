@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Школа Кузнечевского — площадка репетиторов</title>
-  <meta name="description" content="Площадка репетиторов без курсов и методологий. Живое расписание, реальные анкеты, бесплатно для всех.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -40,7 +39,6 @@
         <a href="register.html" class="btn btn--primary">Регистрация</a>
       </div>
 
-      <!-- Уведомления убраны, только имя и аватар -->
       <div class="nav__user-menu" data-user-menu hidden>
         <a href="#" class="nav__user-trigger" data-user-link>
           <span class="nav__user-name" data-user-name>…</span>
@@ -89,8 +87,8 @@
       <div class="container">
         <div class="section-head reveal">
           <div class="section-head__eyebrow">Автоподбор</div>
-          <h2 class="section-head__title">Три шага — и вы на уроке</h2>
-          <p class="section-head__lead">Ответьте на три вопроса. Покажем репетиторов под ваш запрос.</p>
+          <h2 class="section-head__title">Четыре шага — и вы на уроке</h2>
+          <p class="section-head__lead">Ответьте на несколько вопросов. Покажем репетиторов под ваш запрос.</p>
         </div>
 
         <div class="podbor__card reveal">
@@ -100,7 +98,7 @@
 
           <div class="podbor__viewport">
             <div class="podbor__step is-active" data-step="1">
-              <div class="podbor__step-label">Шаг 1 из 3</div>
+              <div class="podbor__step-label">Шаг 1 из 4</div>
               <h3 class="podbor__question">Какой предмет?</h3>
               <div class="chips" data-field="subject" data-chips>
                 <button class="chip" data-value="math">Математика</button>
@@ -118,14 +116,25 @@
             </div>
 
             <div class="podbor__step" data-step="2">
-              <div class="podbor__step-label">Шаг 2 из 3</div>
+              <div class="podbor__step-label">Шаг 2 из 4</div>
               <h3 class="podbor__question">Какая задача?</h3>
               <div class="chips" data-field="goal" data-goal-chips data-chips></div>
               <div class="podbor__hint" data-hint="goal" hidden>Выберите задачу</div>
             </div>
 
             <div class="podbor__step" data-step="3">
-              <div class="podbor__step-label">Шаг 3 из 3</div>
+              <div class="podbor__step-label">Шаг 3 из 4</div>
+              <h3 class="podbor__question">Кого предпочитаете?</h3>
+              <div class="chips" data-field="gender" data-chips>
+                <button class="chip" data-value="any">Не важно</button>
+                <button class="chip" data-value="male">Мужчину</button>
+                <button class="chip" data-value="female">Женщину</button>
+              </div>
+              <div class="podbor__hint" data-hint="gender" hidden>Выберите пол</div>
+            </div>
+
+            <div class="podbor__step" data-step="4">
+              <div class="podbor__step-label">Шаг 4 из 4</div>
               <h3 class="podbor__question">Какой бюджет за урок?</h3>
               <div class="chips" data-field="budget" data-chips>
                 <button class="chip" data-value="1000">до 1000 ₽</button>
