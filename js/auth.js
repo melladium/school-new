@@ -7,7 +7,7 @@
     try {
       const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
       if (error) return { error: { message: error.message } };
-      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт. Попробуйте другой email.' } };
+      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
 
       const userId = data.user.id;
 
@@ -58,11 +58,15 @@
 
   async function getCurrentUser() {
     try {
-      const { data: { user } } = await window.supabaseClient.auth.getUser();
-      if (!user) return null;
+      // Получаем сессию напрямую, не дергая getUser, чтобы избежать сетевых задержек
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      if (!session || !session.user) return null;
+      
       const { data: profile } = await window.supabaseClient
-        .from('profiles').select('role, name, email, gender').eq('id', user.id).single();
-      return { user, profile };
+        .from('profiles').select('role, name, email, gender').eq('id', session.user.id).single();
+      
+      if (!profile) return null;
+      return { user: session.user, profile };
     } catch (e) { return null; }
   }
 
@@ -101,7 +105,6 @@
     if (!agree || !submit || !genderSelect) return;
 
     const sync = () => {
-      // Кнопка активна только если галочка стоит и пол выбран
       submit.disabled = !agree.checked || !genderSelect.value;
     };
 
@@ -177,8 +180,8 @@
       errorEl.textContent = '';
 
       if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
-      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами и политикой обработки ПД'; return; }
-      if (genderSelect && !genderSelect.value) { errorEl.textContent = 'Пожалуйста, выберите пол'; return; }
+      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие'; return; }
+      if (genderSelect && !genderSelect.value) { errorEl.textContent = 'Выберите пол'; return; }
 
       const email = form.email.value.trim();
       const password = form.password.value;
