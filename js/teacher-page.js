@@ -44,14 +44,36 @@
     const id = params.get('id');
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
+    // Используем getCurrentUser БЕЗ принудительного requireAuth
     try {
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
+    // Обновляем шапку, если залогинен
+    if (currentUser) {
+      const role = currentUser.profile.role;
+      const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+      const name = currentUser.profile.name || 'Профиль';
+      const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+      const actions = document.querySelector('.nav__actions');
+      if (actions) actions.hidden = true;
+
+      const userMenu = document.querySelector('[data-user-menu]');
+      const link = document.querySelector('[data-user-link]');
+      const nameEl = document.querySelector('[data-user-name]');
+      const avatarEl = document.querySelector('[data-user-avatar]');
+
+      if (userMenu) userMenu.hidden = false;
+      if (link) link.href = cabinetHref;
+      if (nameEl) nameEl.textContent = currentUser.profile.name;
+      if (avatarEl) avatarEl.textContent = initials;
+    }
+
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    // НОВОЕ: Фиксируем уникальный просмотр
+    // Фиксируем уникальный просмотр
     if (currentUser && currentUser.user.id !== teacher.id) {
       await window.supabaseClient.rpc('increment_teacher_view', {
         p_teacher_id: teacher.id,
@@ -105,7 +127,6 @@
     setText('[data-hero-rating]', teacher.rating || '—');
     setText('[data-hero-reviews]', `· ${teacher.reviews_count || 0} отзывов`);
 
-    // Вставляем счетчик просмотров в херо-блок
     const ratingBlock = document.querySelector('.tp-sidebar__rating');
     if (ratingBlock && !ratingBlock.querySelector('.tp-sidebar__views')) {
       const viewsHtml = document.createElement('span');
