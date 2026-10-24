@@ -11,14 +11,17 @@
 
       const userId = data.user.id;
 
+      // Для ученика ставим male (или можно null, но лучше male)
+      const finalGender = gender || (role === 'student' ? 'male' : null);
+
       const { error: profileError } = await window.supabaseClient.from('profiles').insert({
-        id: userId, email: email, role: role, name: name || email.split('@')[0], gender: gender || 'male'
+        id: userId, email: email, role: role, name: name || email.split('@')[0], gender: finalGender
       });
       if (profileError) return { error: { message: 'Профиль: ' + profileError.message } };
 
       if (role === 'teacher') {
         const { error: teacherError } = await window.supabaseClient.from('teachers').insert({
-          id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false, gender: gender || 'male'
+          id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false, gender: finalGender
         });
         if (teacherError) return { error: { message: 'Репетитор: ' + teacherError.message } };
       }
@@ -58,7 +61,6 @@
 
   async function getCurrentUser() {
     try {
-      // Получаем сессию напрямую, не дергая getUser, чтобы избежать сетевых задержек
       const { data: { session } } = await window.supabaseClient.auth.getSession();
       if (!session || !session.user) return null;
       
@@ -96,23 +98,6 @@
     });
   }
 
-  function initAgreeCheckbox() {
-    const form = document.querySelector('[data-register-form]');
-    if (!form) return;
-    const agree = form.querySelector('[data-agree]');
-    const genderSelect = form.querySelector('#gender');
-    const submit = form.querySelector('[data-submit]');
-    if (!agree || !submit || !genderSelect) return;
-
-    const sync = () => {
-      submit.disabled = !agree.checked || !genderSelect.value;
-    };
-
-    agree.addEventListener('change', sync);
-    genderSelect.addEventListener('change', sync);
-    sync();
-  }
-
   function initLoginForm() {
     const form = document.querySelector('[data-login-form]');
     if (!form) return;
@@ -145,13 +130,17 @@
     const form = document.querySelector('[data-register-form]');
     const roleLabel = document.querySelector('[data-role-label]');
     const backBtn = document.querySelector('[data-back-to-roles]');
+    const genderField = form.querySelector('[data-gender-field]');
+    const genderSelect = form.querySelector('#gender');
     if (!form || !roleScreen || !formScreen) return;
 
     const errorEl = form.querySelector('[data-error]');
     const submitBtn = form.querySelector('[type="submit"]');
     const agree = form.querySelector('[data-agree]');
-    const genderSelect = form.querySelector('#gender');
     let selectedRole = null;
+
+    // Кнопка всегда кликабельна. Проверка внутри.
+    submitBtn.disabled = false;
 
     roleScreen.querySelectorAll('[data-pick-role]').forEach(card => {
       card.addEventListener('click', () => {
@@ -159,6 +148,11 @@
         if (roleLabel) roleLabel.textContent = selectedRole === 'teacher' ? 'репетитор' : 'ученик';
         roleScreen.hidden = true;
         formScreen.hidden = false;
+
+        // Показываем поле "пол" ТОЛЬКО для репетитора
+        if (genderField) genderField.hidden = selectedRole !== 'teacher';
+        if (genderSelect) genderSelect.value = ''; // Сбрасываем
+
         const nameInput = form.querySelector('#name');
         if (nameInput) setTimeout(() => nameInput.focus(), 200);
       });
@@ -171,7 +165,6 @@
         roleScreen.hidden = false;
         errorEl.textContent = '';
         form.reset();
-        if (submitBtn) submitBtn.disabled = true;
       });
     }
 
@@ -180,14 +173,19 @@
       errorEl.textContent = '';
 
       if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
-      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие'; return; }
-      if (genderSelect && !genderSelect.value) { errorEl.textContent = 'Выберите пол'; return; }
+      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами'; return; }
+
+      // Если репетитор и пол не выбран — ругаемся
+      if (selectedRole === 'teacher' && genderSelect && !genderSelect.value) {
+        errorEl.textContent = 'Выберите пол';
+        return;
+      }
 
       const email = form.email.value.trim();
       const password = form.password.value;
       const password2 = form.password2 ? form.password2.value : password;
       const name = form.name.value.trim();
-      const gender = genderSelect ? genderSelect.value : 'male';
+      const gender = selectedRole === 'teacher' ? (genderSelect ? genderSelect.value : null) : 'male';
 
       if (!name) { errorEl.textContent = 'Введите имя'; return; }
       if (password.length < 6) { errorEl.textContent = 'Пароль минимум 6 символов'; return; }
@@ -209,7 +207,6 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initPasswordToggles();
-    initAgreeCheckbox();
     initLoginForm();
     initRegisterForm();
   });
