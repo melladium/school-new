@@ -383,7 +383,6 @@
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     
-    // ЖЕСТКАЯ ФИЛЬТРАЦИЯ ПО ПОЛУ
     if (podborState.gender && podborState.gender !== 'any') {
       list = list.filter(t => t.gender === podborState.gender);
     }
