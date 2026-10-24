@@ -136,9 +136,40 @@
 
   function renderBio() {
     if (!teacher.bio) return;
-    const el = document.querySelector('[data-section-bio]');
-    if (el) el.hidden = false;
-    setText('[data-bio-text]', teacher.bio);
+    const section = document.querySelector('[data-section-bio]');
+    if (!section) return;
+
+    const text = teacher.bio.trim();
+    const isLong = text.length > 120 || text.split('\n').length > 4;
+
+    section.hidden = false;
+    
+    section.innerHTML = `
+      <h2 class="tp-sidebar__title">О себе</h2>
+      <div class="tp-bio-wrap">
+        <p class="tp-sidebar__bio tp-bio-text" data-bio-content>${escapeHtml(text)}</p>
+        <button class="tp-bio-toggle" data-bio-toggle>Развернуть</button>
+      </div>
+    `;
+
+    const contentEl = section.querySelector('[data-bio-content]');
+    const toggleBtn = section.querySelector('[data-bio-toggle]');
+
+    if (isLong) {
+      toggleBtn.classList.add('is-visible');
+      toggleBtn.addEventListener('click', () => {
+        const isExpanded = contentEl.classList.contains('is-expanded');
+        if (isExpanded) {
+          contentEl.classList.remove('is-expanded');
+          toggleBtn.textContent = 'Развернуть';
+        } else {
+          contentEl.classList.add('is-expanded');
+          toggleBtn.textContent = 'Свернуть';
+        }
+      });
+    } else {
+      contentEl.classList.add('is-expanded');
+    }
   }
 
   function renderGoals() {
