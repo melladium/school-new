@@ -45,10 +45,16 @@
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
     try {
-      currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
-    } catch (e) { currentUser = null; }
+      if (window.authAPI) {
+        currentUser = await window.authAPI.getCurrentUser();
+      }
+    } catch (e) {
+      console.warn('Ошибка получения пользователя:', e);
+      currentUser = null;
+    }
 
-    if (currentUser) {
+    // Обновляем шапку, если залогинен. НИКАКИХ РЕДИРЕКТОВ.
+    if (currentUser && currentUser.profile) {
       const role = currentUser.profile.role;
       const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
       const name = currentUser.profile.name || 'Профиль';
@@ -71,11 +77,14 @@
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    if (currentUser && currentUser.user.id !== teacher.id) {
-      await window.supabaseClient.rpc('increment_teacher_view', {
-        p_teacher_id: teacher.id,
-        p_viewer_id: currentUser.user.id
-      });
+    // Фиксируем просмотр
+    if (currentUser && currentUser.user && currentUser.user.id !== teacher.id) {
+      try {
+        await window.supabaseClient.rpc('increment_teacher_view', {
+          p_teacher_id: teacher.id,
+          p_viewer_id: currentUser.user.id
+        });
+      } catch (e) { /* Игнорируем ошибки счетчика */ }
     }
 
     renderHero();
@@ -140,6 +149,7 @@
     if (!section) return;
 
     const text = teacher.bio.trim();
+    // Жестко режем если больше 120 символов или больше 4 строк
     const isLong = text.length > 120 || text.split('\n').length > 4;
 
     section.hidden = false;
@@ -147,16 +157,15 @@
     section.innerHTML = `
       <h2 class="tp-sidebar__title">О себе</h2>
       <div class="tp-bio-wrap">
-        <p class="tp-sidebar__bio tp-bio-text" data-bio-content>${escapeHtml(text)}</p>
-        <button class="tp-bio-toggle" data-bio-toggle>Развернуть</button>
+        <p class="tp-sidebar__bio tp-bio-text ${isLong ? '' : 'is-expanded'}" data-bio-content>${escapeHtml(text)}</p>
+        ${isLong ? `<button class="tp-bio-toggle is-visible" data-bio-toggle>Развернуть</button>` : ''}
       </div>
     `;
 
-    const contentEl = section.querySelector('[data-bio-content]');
-    const toggleBtn = section.querySelector('[data-bio-toggle]');
-
     if (isLong) {
-      toggleBtn.classList.add('is-visible');
+      const contentEl = section.querySelector('[data-bio-content]');
+      const toggleBtn = section.querySelector('[data-bio-toggle]');
+      
       toggleBtn.addEventListener('click', () => {
         const isExpanded = contentEl.classList.contains('is-expanded');
         if (isExpanded) {
@@ -167,8 +176,6 @@
           toggleBtn.textContent = 'Свернуть';
         }
       });
-    } else {
-      contentEl.classList.add('is-expanded');
     }
   }
 
