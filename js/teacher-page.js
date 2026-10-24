@@ -7,7 +7,6 @@
   let teacher = null;
   let selectedCell = null;
   let currentUser = null;
-  let initialized = false;
 
   const DAYS = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
   const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -30,34 +29,46 @@
   const STATUS_LABELS = { free: 'Свободно', busy: 'Занято', off: 'Не работает' };
 
   function escapeHtml(str) {
-    if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   async function init() {
-    if (initialized) return;
-    initialized = true;
-
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    try {
-      currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
-    } catch (e) { currentUser = null; }
+    currentUser = await window.authAPI.getCurrentUser();
 
-    await loadTeacher(id);
-    if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
+    // Пытаемся загрузить учителя
+    const { data, error } = await window.supabaseClient
+      .from('teachers')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (currentUser && currentUser.user && currentUser.user.id !== teacher.id) {
-      try {
-        await window.supabaseClient.rpc('increment_teacher_view', {
-          p_teacher_id: teacher.id,
-          p_viewer_id: currentUser.user.id
-        });
-      } catch (e) { /* ignore */ }
+    if (error || !data) {
+      console.error('Ошибка загрузки учителя:', error);
+      setText('[data-hero-name]', 'Репетитор не найден');
+      return;
+    }
+
+    const { data: profile } = await window.supabaseClient
+      .from('profiles').select('name, gender').eq('id', id).single();
+
+    teacher = {
+      ...data,
+      name: profile ? profile.name : 'Репетитор',
+      subjectLabel: SUBJECT_LABELS[data.subject] || data.subject,
+      goals: Array.isArray(data.goals) ? data.goals : []
+    };
+
+    // Фиксируем просмотр (если это не сам учитель)
+    if (currentUser && currentUser.user.id !== teacher.id) {
+      await window.supabaseClient.rpc('increment_teacher_view', {
+        p_teacher_id: teacher.id,
+        p_viewer_id: currentUser.user.id
+      });
     }
 
     renderHero();
@@ -72,32 +83,13 @@
     initLightboxes();
   }
 
-  async function loadTeacher(id) {
-    // Убрали .eq('is_active', true), чтобы можно было открыть свою анкету даже до активации
-    const { data, error } = await window.supabaseClient
-      .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals, gender, views_count, is_active')
-      .eq('id', id).single();
-    if (error || !data) return;
-
-    const { data: profile } = await window.supabaseClient
-      .from('profiles').select('name, gender').eq('id', id).single();
-
-    teacher = {
-      ...data,
-      name: (profile && profile.name) || 'Репетитор',
-      subjectLabel: SUBJECT_LABELS[data.subject] || data.subject,
-      goals: Array.isArray(data.goals) ? data.goals : []
-    };
-  }
-
   function renderHero() {
     document.title = teacher.name + ' — Школа Кузнечевского';
     const initials = teacher.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
     const avatarEl = document.querySelector('[data-hero-avatar]');
     if (avatarEl) {
-      if (teacher.avatar_url) avatarEl.innerHTML = `<img src="${escapeHtml(teacher.avatar_url)}" alt="" loading="lazy">`;
+      if (teacher.avatar_url) avatarEl.innerHTML = `<img src="${escapeHtml(teacher.avatar_url)}" alt="">`;
       else avatarEl.textContent = initials;
     }
 
@@ -112,7 +104,7 @@
       const viewsHtml = document.createElement('span');
       viewsHtml.className = 'tp-sidebar__views';
       viewsHtml.style.cssText = 'margin-left: 8px; color: var(--text-mute); display: inline-flex; align-items: center; gap: 4px;';
-      viewsHtml.innerHTML = `· <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${teacher.views_count || 0}`;
+      viewsHtml.innerHTML = `· <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${teacher.views_count || 0}`;
       ratingBlock.appendChild(viewsHtml);
     }
   }
@@ -122,13 +114,11 @@
     const section = document.querySelector('[data-section-bio]');
     if (!section) return;
 
-    const text = teacher.bio.trim();
     section.hidden = false;
-
     section.innerHTML = `
       <h2 class="tp-sidebar__title">О себе</h2>
       <div class="tp-bio-wrap">
-        <p class="tp-sidebar__bio tp-bio-text" data-bio-content>${escapeHtml(text)}</p>
+        <p class="tp-sidebar__bio tp-bio-text" data-bio-content>${escapeHtml(teacher.bio)}</p>
         <button class="tp-bio-toggle" data-bio-toggle style="display: none;">Развернуть</button>
       </div>
     `;
@@ -141,25 +131,19 @@
         toggleBtn.style.display = 'inline-block';
         toggleBtn.addEventListener('click', () => {
           const isExpanded = contentEl.classList.contains('is-expanded');
-          if (isExpanded) {
-            contentEl.classList.remove('is-expanded');
-            toggleBtn.textContent = 'Развернуть';
-          } else {
-            contentEl.classList.add('is-expanded');
-            toggleBtn.textContent = 'Свернуть';
-          }
+          contentEl.classList.toggle('is-expanded');
+          toggleBtn.textContent = isExpanded ? 'Развернуть' : 'Свернуть';
         });
       }
     }, 100);
   }
 
   function renderGoals() {
-    if (!teacher.goals || !teacher.goals.length) return;
+    if (!teacher.goals.length) return;
     const sec = document.querySelector('[data-section-goals]');
     const list = document.querySelector('[data-goals-list]');
     if (!sec || !list) return;
-    const labels = teacher.goals.map(g => GOAL_LABELS[g] || g);
-    list.innerHTML = labels.map(l => `<span class="tag">${escapeHtml(l)}</span>`).join('');
+    list.innerHTML = teacher.goals.map(g => `<span class="tag">${escapeHtml(GOAL_LABELS[g] || g)}</span>`).join('');
     sec.hidden = false;
   }
 
@@ -168,12 +152,9 @@
     const img2 = document.querySelector('[data-portfolio-image-2]');
     let hasAny = false;
 
-    if (teacher.portfolio_url && img1) {
-      img1.src = teacher.portfolio_url; img1.hidden = false; hasAny = true;
-    }
-    if (teacher.portfolio_url_2 && img2) {
-      img2.src = teacher.portfolio_url_2; img2.hidden = false; hasAny = true;
-    }
+    if (teacher.portfolio_url && img1) { img1.src = teacher.portfolio_url; img1.hidden = false; hasAny = true; }
+    if (teacher.portfolio_url_2 && img2) { img2.src = teacher.portfolio_url_2; img2.hidden = false; hasAny = true; }
+    
     if (hasAny) {
       const sec = document.querySelector('[data-section-portfolio]');
       if (sec) sec.hidden = false;
@@ -185,23 +166,12 @@
 
     if (teacher.telegram) {
       const el = document.querySelector('[data-contact-telegram]');
-      if (el) {
-        el.hidden = false;
-        el.href = 'https://t.me/' + encodeURIComponent(teacher.telegram.replace('@', ''));
-        hasAny = true;
-      }
+      if (el) { el.hidden = false; el.href = 'https://t.me/' + encodeURIComponent(teacher.telegram.replace('@', '')); hasAny = true; }
     }
-
     if (teacher.whatsapp) {
       const el = document.querySelector('[data-contact-whatsapp]');
-      if (el) {
-        el.hidden = false;
-        const wa = teacher.whatsapp.replace(/[^\d]/g, '');
-        el.href = 'https://wa.me/' + encodeURIComponent(wa);
-        hasAny = true;
-      }
+      if (el) { el.hidden = false; el.href = 'https://wa.me/' + encodeURIComponent(teacher.whatsapp.replace(/[^\d]/g, '')); hasAny = true; }
     }
-
     if (teacher.phone) {
       const el = document.querySelector('[data-contact-phone]');
       if (el) { el.hidden = false; hasAny = true; }
@@ -216,58 +186,34 @@
     const modal = document.querySelector('[data-modal="phone"]');
     if (!phoneBtn || !modal) return;
 
-    const numberEl = modal.querySelector('[data-phone-number]');
-    const copyBtn = modal.querySelector('[data-phone-copy]');
-
     phoneBtn.addEventListener('click', () => {
-      if (numberEl) numberEl.textContent = teacher.phone || '—';
+      modal.querySelector('[data-phone-number]').textContent = teacher.phone || '—';
       modal.hidden = false;
       document.body.style.overflow = 'hidden';
     });
 
-    if (copyBtn) {
-      copyBtn.addEventListener('click', async () => {
-        if (!teacher.phone) return;
-        try {
-          await navigator.clipboard.writeText(teacher.phone);
-          copyBtn.textContent = 'Скопировано ✓';
-          setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1500);
-        } catch (e) {
-          const ta = document.createElement('textarea');
-          ta.value = teacher.phone;
-          document.body.appendChild(ta);
-          ta.select();
-          try { document.execCommand('copy'); copyBtn.textContent = 'Скопировано ✓'; }
-          catch { copyBtn.textContent = 'Не удалось'; }
-          ta.remove();
-          setTimeout(() => { copyBtn.textContent = 'Скопировать'; }, 1500);
-        }
-      });
-    }
+    modal.querySelector('[data-phone-copy]').addEventListener('click', async () => {
+      if (!teacher.phone) return;
+      await navigator.clipboard.writeText(teacher.phone);
+      const btn = modal.querySelector('[data-phone-copy]');
+      btn.textContent = 'Скопировано ✓';
+      setTimeout(() => { btn.textContent = 'Скопировать'; }, 1500);
+    });
   }
 
   async function renderSchedule(teacherId) {
     const el = document.querySelector('[data-schedule]');
     if (!el) return;
 
-    const { data, error } = await window.supabaseClient
-      .from('schedule_template')
-      .select('weekday, time, status, student_name')
+    const { data } = await window.supabaseClient
+      .from('schedule_template').select('weekday, time, status, student_name')
       .eq('teacher_id', teacherId)
-      .order('weekday', { ascending: true })
-      .order('time', { ascending: true });
+      .order('weekday', { ascending: true }).order('time', { ascending: true });
 
-    if (error) { el.innerHTML = '<div class="tp-schedule__loading">Ошибка загрузки расписания</div>'; return; }
     if (!data || !data.length) { el.innerHTML = '<div class="tp-schedule__empty">Репетитор пока не добавил расписание</div>'; return; }
 
     const cellsMap = {};
-    data.forEach(item => {
-      cellsMap[item.weekday + '|' + item.time] = {
-        status: item.status || 'free',
-        time: item.time,
-        studentName: item.student_name || ''
-      };
-    });
+    data.forEach(item => { cellsMap[item.weekday + '|' + item.time] = item; });
 
     let maxRows = 1;
     DAY_ORDER.forEach(day => {
@@ -283,15 +229,15 @@
         .sort((a, b) => a.time.localeCompare(b.time));
 
       const cellsHtml = dayCells.length
-        ? dayCells.map(c => renderCell(day, c)).join('')
+        ? dayCells.map(c => `
+            <div class="week-cell week-cell--${escapeHtml(c.status)} ${c.status === 'free' ? 'is-clickable' : ''}" data-day="${day}" data-time="${c.time}">
+              <div class="week-cell__time">${c.time}</div>
+              <div class="week-cell__status">${STATUS_LABELS[c.status] || c.status}</div>
+            </div>
+          `).join('')
         : '<div class="week-day__empty">—</div>';
 
-      html += `
-        <div class="week-day">
-          <div class="week-day__head">${DAYS[day]}</div>
-          <div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div>
-        </div>
-      `;
+      html += `<div class="week-day"><div class="week-day__head">${DAYS[day]}</div><div class="week-day__body" style="--week-rows:${maxRows}">${cellsHtml}</div></div>`;
     });
     html += '</div>';
     el.innerHTML = html;
@@ -299,19 +245,6 @@
     el.querySelectorAll('.week-cell--free').forEach(cell => {
       cell.addEventListener('click', () => openRequestModal(cell));
     });
-  }
-
-  function renderCell(day, cell) {
-    const clickable = cell.status === 'free';
-    const statusText = STATUS_LABELS[cell.status] || cell.status;
-
-    return `
-      <div class="week-cell week-cell--${escapeHtml(cell.status)} ${clickable ? 'is-clickable' : ''}"
-           data-day="${escapeHtml(day)}" data-time="${escapeHtml(cell.time)}" data-status="${escapeHtml(cell.status)}">
-        <div class="week-cell__time">${escapeHtml(cell.time)}</div>
-        <div class="week-cell__status">${escapeHtml(statusText)}</div>
-      </div>
-    `;
   }
 
   function initModals() {
@@ -327,10 +260,8 @@
   }
 
   async function openRequestModal(cell) {
-    let cu = null;
-    try { cu = window.authAPI ? await window.authAPI.getCurrentUser() : null; } catch(e){}
-    if (!cu) { window.location.href = 'login.html'; return; }
-    if (cu.profile.role !== 'student') { alert('Только ученик может оставить заявку.'); return; }
+    if (!currentUser) { window.location.href = 'login.html'; return; }
+    if (currentUser.profile.role !== 'student') { alert('Только ученик может оставить заявку.'); return; }
 
     const day = parseInt(cell.dataset.day, 10);
     const time = cell.dataset.time;
@@ -341,41 +272,23 @@
     setText('[data-request-time]', DAYS[day] + ' · ' + time);
     setText('[data-request-price]', teacher.price + ' ₽');
 
-    const errEl = document.querySelector('[data-request-error]');
-    if (errEl) errEl.textContent = '';
-
+    document.querySelector('[data-request-error]').textContent = '';
     document.querySelector('[data-modal="request"]').hidden = false;
     document.body.style.overflow = 'hidden';
   }
 
   async function sendRequest() {
-    let cu = null;
-    try { cu = window.authAPI ? await window.authAPI.getCurrentUser() : null; } catch(e){}
-    if (!cu) { window.location.href = 'login.html'; return; }
-
+    if (!selectedCell || !currentUser) return;
     const errEl = document.querySelector('[data-request-error]');
     const btn = document.querySelector('[data-request-send]');
-    errEl.textContent = '';
-    btn.disabled = true;
-    btn.textContent = 'Отправляем…';
-
-    const { data: existing } = await window.supabaseClient
-      .from('booking_requests').select('id')
-      .eq('student_id', cu.user.id)
-      .eq('teacher_id', teacher.id)
-      .eq('weekday', selectedCell.day)
-      .eq('time', selectedCell.time)
-      .in('status', ['pending', 'approved'])
-      .maybeSingle();
-
-    if (existing) { errEl.textContent = 'У вас уже есть заявка на это время.'; btn.disabled = false; btn.textContent = 'Отправить заявку'; return; }
+    btn.disabled = true; btn.textContent = 'Отправляем…';
 
     const { error } = await window.supabaseClient.from('booking_requests').insert({
-      student_id: cu.user.id, teacher_id: teacher.id,
+      student_id: currentUser.user.id, teacher_id: teacher.id,
       weekday: selectedCell.day, time: selectedCell.time, status: 'pending'
     });
-    btn.disabled = false;
-    btn.textContent = 'Отправить заявку';
+
+    btn.disabled = false; btn.textContent = 'Отправить заявку';
     if (error) { errEl.textContent = 'Ошибка: ' + error.message; return; }
 
     closeAllModals();
@@ -387,7 +300,7 @@
     const hero = document.querySelector('[data-hero-avatar]');
     if (hero) hero.addEventListener('click', () => {
       const img = hero.querySelector('img');
-      if (img && img.src) openLightbox(img.src);
+      if (img) openLightbox(img.src);
     });
     const p1 = document.querySelector('[data-portfolio-image]');
     if (p1) p1.addEventListener('click', () => { if (p1.src) openLightbox(p1.src); });
@@ -409,9 +322,5 @@
     if (el) el.textContent = val || '—';
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  init();
 })();
