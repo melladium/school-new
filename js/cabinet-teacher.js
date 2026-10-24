@@ -44,9 +44,7 @@
 
   function escapeHtml(str) {
     if (str === null || str === undefined) return '';
-    return String(str)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function cellDateTime(weekday, time) {
@@ -67,7 +65,6 @@
     currentUser = await window.authAPI.requireAuth('teacher');
     if (!currentUser) return;
 
-    // Отмечаем активность для алгоритма популярности
     await window.supabaseClient.from('teachers').update({ last_active: new Date().toISOString() }).eq('id', currentUser.user.id);
 
     const nameEl = document.querySelector('[data-user-name]');
@@ -502,7 +499,7 @@
 
     const avEl = document.querySelector('[data-preview-avatar]');
     if (avEl) {
-      if (data.avatar_url) avEl.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy">`;
+      if (data.avatar_url) avEl.innerHTML = `<img src="${escapeHtml(data.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="">`;
       else avEl.textContent = initials;
     }
 
@@ -549,11 +546,7 @@
 
     const map = {};
     data.forEach(item => {
-      map[item.weekday + '|' + item.time] = {
-        status: item.status || 'free',
-        time: item.time,
-        studentName: item.student_name || ''
-      };
+      map[item.weekday + '|' + item.time] = { status: item.status || 'free', time: item.time, studentName: item.student_name || '' };
     });
 
     let maxRows = 1;
@@ -601,12 +594,7 @@
     cellsMap = {};
     (data || []).forEach(item => {
       const key = item.weekday + '|' + item.time;
-      cellsMap[key] = {
-        id: item.id,
-        status: item.status || 'free',
-        note: item.text_content || '',
-        studentName: item.student_name || ''
-      };
+      cellsMap[key] = { id: item.id, status: item.status || 'free', note: item.text_content || '', studentName: item.student_name || '' };
     });
     renderWeekBoard();
   }
@@ -703,7 +691,6 @@
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
         
-        // Проверка на заметку при свободном статусе
         if (status === 'free' && (studentName || note)) {
           errorEl.textContent = 'Чтобы добавить имя или заметку, смените статус на "Занято".';
           return;
@@ -718,12 +705,7 @@
         }
 
         const { error } = await window.supabaseClient.from('schedule_template').upsert({
-          teacher_id: currentUser.user.id,
-          weekday: day,
-          time,
-          text_content: note,
-          student_name: studentName,
-          status
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: note, student_name: studentName, status
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -790,11 +772,7 @@
       .order('weekday', { ascending: true }).order('time', { ascending: true });
     if (error) return;
     (data || []).forEach(item => {
-      personalMap[item.weekday + '|' + item.time] = {
-        id: item.id,
-        note: item.text_content || '',
-        studentName: item.student_name || ''
-      };
+      personalMap[item.weekday + '|' + item.time] = { id: item.id, note: item.text_content || '', studentName: item.student_name || '' };
     });
     renderPersonalBoard();
   }
@@ -859,11 +837,7 @@
         }
 
         const { error } = await window.supabaseClient.from('personal_schedule').upsert({
-          teacher_id: currentUser.user.id,
-          weekday: day,
-          time,
-          text_content: text,
-          student_name: studentName
+          teacher_id: currentUser.user.id, weekday: day, time, text_content: text, student_name: studentName
         }, { onConflict: 'teacher_id,weekday,time' });
 
         saveBtn.disabled = false; saveBtn.textContent = 'Сохранить';
@@ -1079,8 +1053,7 @@
     const studentName = (profile && profile.name) || 'Ученик';
 
     await window.supabaseClient.from('schedule_template').upsert({
-      teacher_id: currentUser.user.id, weekday, time,
-      text_content: '', student_name: studentName, status: 'busy'
+      teacher_id: currentUser.user.id, weekday, time, text_content: '', student_name: studentName, status: 'busy'
     }, { onConflict: 'teacher_id,weekday,time' });
 
     await Promise.all([loadRequests(), loadCells()]);
