@@ -92,7 +92,6 @@
     }, { passive: true });
   }
 
-  /* CURSOR GLOW */
   const glow = document.querySelector('[data-cursor-glow]');
   if (glow && !prefersReducedMotion && isFinePointer && !isMobile) {
     let gx = 0, gy = 0, tx = 0, ty = 0, rafId = null, running = false;
@@ -178,16 +177,22 @@
       ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${escapeHtml(t.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy"></div>`
       : `<div class="teacher-card__avatar">${escapeHtml(initials)}</div>`;
 
-    // Убрали дублирование предмета в тегах
+    // ДОБАВЛЕН СЧЕТЧИК ПРОСМОТРОВ
     return `
       <a class="teacher-card reveal" href="teacher.html?id=${encodeURIComponent(t.id)}" data-teacher-id="${escapeHtml(t.id)}">
         <div class="teacher-card__head">
           ${avatarHtml}
-          <div>
+          <div style="flex:1;">
             <div class="teacher-card__name">${safeName}</div>
             <div class="teacher-card__subject">${safeSubject}</div>
           </div>
-          <div class="teacher-card__rating">★ ${escapeHtml(t.rating || '—')}</div>
+          <div class="teacher-card__meta" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; font-size:11px; color:var(--text-mute); font-family:var(--font-mono);">
+            <div class="teacher-card__rating" style="margin-left:0;">★ ${escapeHtml(t.rating || '—')}</div>
+            <div class="teacher-card__views" style="display:flex; align-items:center; gap:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              ${escapeHtml(t.views_count || 0)}
+            </div>
+          </div>
         </div>
         <div class="teacher-card__slots">${slotsHtml}</div>
         <div class="teacher-card__foot">
@@ -201,11 +206,14 @@
   async function loadTeachersFromDB() {
     if (!window.supabaseClient) return [];
     try {
+      // Запрашиваем данные включая views_count
       const { data: teacherRows, error } = await window.supabaseClient
         .from('teachers')
-        .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals')
+        .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals, views_count')
         .eq('is_active', true)
-        .order('rating', { ascending: false });
+        // Умная сортировка на основе рейтинга и отзывов (гибрид)
+        .order('rating', { ascending: false })
+        .order('reviews_count', { ascending: false });
 
       if (error || !teacherRows || !teacherRows.length) { window.TEACHERS = []; return []; }
 
@@ -239,6 +247,7 @@
           price: t.price,
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
+          views_count: t.views_count || 0, // Прокидываем счетчик
           bio: t.bio || '',
           avatar_url: t.avatar_url || '',
           slots: slots
@@ -364,7 +373,6 @@
       list = list.filter(t => t.price <= max);
     }
 
-    list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
     podborAllResults = list;
     podborState.shown = PAGE_SIZE;
 
@@ -435,7 +443,6 @@
   observeReveals();
   initMagnetic();
 
-  /* AUTH HEADER */
   async function initAuthHeader() {
     if (!window.authAPI) return;
     const current = await window.authAPI.getCurrentUser();
