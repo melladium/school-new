@@ -44,12 +44,10 @@
     const id = params.get('id');
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    // Используем getCurrentUser БЕЗ принудительного requireAuth
     try {
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
-    // Обновляем шапку, если залогинен
     if (currentUser) {
       const role = currentUser.profile.role;
       const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
@@ -73,7 +71,6 @@
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    // Фиксируем уникальный просмотр
     if (currentUser && currentUser.user.id !== teacher.id) {
       await window.supabaseClient.rpc('increment_teacher_view', {
         p_teacher_id: teacher.id,
