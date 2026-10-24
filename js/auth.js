@@ -96,10 +96,17 @@
     const form = document.querySelector('[data-register-form]');
     if (!form) return;
     const agree = form.querySelector('[data-agree]');
+    const genderSelect = form.querySelector('#gender');
     const submit = form.querySelector('[data-submit]');
-    if (!agree || !submit) return;
-    const sync = () => { submit.disabled = !agree.checked; };
+    if (!agree || !submit || !genderSelect) return;
+
+    const sync = () => {
+      // Кнопка активна только если галочка стоит и пол выбран
+      submit.disabled = !agree.checked || !genderSelect.value;
+    };
+
     agree.addEventListener('change', sync);
+    genderSelect.addEventListener('change', sync);
     sync();
   }
 
@@ -140,6 +147,7 @@
     const errorEl = form.querySelector('[data-error]');
     const submitBtn = form.querySelector('[type="submit"]');
     const agree = form.querySelector('[data-agree]');
+    const genderSelect = form.querySelector('#gender');
     let selectedRole = null;
 
     roleScreen.querySelectorAll('[data-pick-role]').forEach(card => {
@@ -160,7 +168,7 @@
         roleScreen.hidden = false;
         errorEl.textContent = '';
         form.reset();
-        if (agree && submitBtn) submitBtn.disabled = true;
+        if (submitBtn) submitBtn.disabled = true;
       });
     }
 
@@ -170,12 +178,13 @@
 
       if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
       if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами и политикой обработки ПД'; return; }
+      if (genderSelect && !genderSelect.value) { errorEl.textContent = 'Пожалуйста, выберите пол'; return; }
 
       const email = form.email.value.trim();
       const password = form.password.value;
       const password2 = form.password2 ? form.password2.value : password;
       const name = form.name.value.trim();
-      const gender = form.gender ? form.gender.value : 'male';
+      const gender = genderSelect ? genderSelect.value : 'male';
 
       if (!name) { errorEl.textContent = 'Введите имя'; return; }
       if (password.length < 6) { errorEl.textContent = 'Пароль минимум 6 символов'; return; }
