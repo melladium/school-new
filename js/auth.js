@@ -7,11 +7,10 @@
     try {
       const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
       if (error) return { error: { message: error.message } };
-      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
+      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт. Попробуйте другой email.' } };
 
       const userId = data.user.id;
 
-      // Сохраняем профиль с полом
       const { error: profileError } = await window.supabaseClient.from('profiles').insert({
         id: userId, email: email, role: role, name: name || email.split('@')[0], gender: gender || 'male'
       });
@@ -170,7 +169,7 @@
       errorEl.textContent = '';
 
       if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
-      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами'; return; }
+      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами и политикой обработки ПД'; return; }
 
       const email = form.email.value.trim();
       const password = form.password.value;
