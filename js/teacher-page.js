@@ -38,7 +38,9 @@
     const id = params.get('id');
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    currentUser = await window.authAPI.getCurrentUser();
+    try {
+      currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
+    } catch (e) { currentUser = null; }
 
     const { data, error } = await window.supabaseClient
       .from('teachers')
@@ -47,6 +49,7 @@
       .single();
 
     if (error || !data) {
+      console.error(error);
       setText('[data-hero-name]', 'Репетитор не найден');
       return;
     }
@@ -61,11 +64,13 @@
       goals: Array.isArray(data.goals) ? data.goals : []
     };
 
-    if (currentUser && currentUser.user.id !== teacher.id) {
-      await window.supabaseClient.rpc('increment_teacher_view', {
-        p_teacher_id: teacher.id,
-        p_viewer_id: currentUser.user.id
-      });
+    if (currentUser && currentUser.user && currentUser.user.id !== teacher.id) {
+      try {
+        await window.supabaseClient.rpc('increment_teacher_view', {
+          p_teacher_id: teacher.id,
+          p_viewer_id: currentUser.user.id
+        });
+      } catch (e) {}
     }
 
     renderHero();
