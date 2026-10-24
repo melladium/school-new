@@ -208,7 +208,7 @@
       const { data: teacherRows, error } = await window.supabaseClient
         .from('teachers')
         .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals, views_count, gender')
-        .eq('is_active', true)
+        .eq('is_active', true) // В поиске только активные!
         .order('rating', { ascending: false })
         .order('reviews_count', { ascending: false });
 
@@ -383,10 +383,10 @@
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     
-    // МЯГКИЙ ФИЛЬТР ПО ПОЛУ (если у учителя null — показываем)
+    // МЯГКИЙ ФИЛЬТР ПО ПОЛУ
     if (podborState.gender && podborState.gender !== 'any') {
       list = list.filter(t => {
-        if (!t.gender) return true;
+        if (!t.gender) return true; // Если пол не указан, показываем
         return t.gender === podborState.gender;
       });
     }
