@@ -48,22 +48,16 @@
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
-    // Инициализация хедера, чтобы не выкидывало
-    if (currentUser) {
-      const role = currentUser.profile.role;
-      const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
-      const name = currentUser.profile.name || 'Профиль';
-      const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-      const actions = document.querySelector('.nav__actions');
-      if (actions) actions.hidden = true;
-
-      const userMenu = document.querySelector('[data-user-menu]');
-      // На странице teacher.html нет user-menu, поэтому хедер просто не меняем
-    }
-
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
+
+    // НОВОЕ: Фиксируем уникальный просмотр
+    if (currentUser && currentUser.user.id !== teacher.id) {
+      await window.supabaseClient.rpc('increment_teacher_view', {
+        p_teacher_id: teacher.id,
+        p_viewer_id: currentUser.user.id
+      });
+    }
 
     renderHero();
     await renderSchedule(id);
@@ -80,12 +74,12 @@
   async function loadTeacher(id) {
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals')
+      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals, gender, views_count')
       .eq('id', id).eq('is_active', true).single();
     if (error || !data) return;
 
     const { data: profile } = await window.supabaseClient
-      .from('profiles').select('name').eq('id', id).single();
+      .from('profiles').select('name, gender').eq('id', id).single();
 
     teacher = {
       ...data,
@@ -110,6 +104,16 @@
     setText('[data-hero-price]', teacher.price + ' ₽ / урок');
     setText('[data-hero-rating]', teacher.rating || '—');
     setText('[data-hero-reviews]', `· ${teacher.reviews_count || 0} отзывов`);
+
+    // Вставляем счетчик просмотров в херо-блок
+    const ratingBlock = document.querySelector('.tp-sidebar__rating');
+    if (ratingBlock && !ratingBlock.querySelector('.tp-sidebar__views')) {
+      const viewsHtml = document.createElement('span');
+      viewsHtml.className = 'tp-sidebar__views';
+      viewsHtml.style.cssText = 'margin-left: 8px; color: var(--text-mute); display: inline-flex; align-items: center; gap: 4px;';
+      viewsHtml.innerHTML = `· <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> ${teacher.views_count || 0}`;
+      ratingBlock.appendChild(viewsHtml);
+    }
   }
 
   function renderBio() {
