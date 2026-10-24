@@ -10,7 +10,8 @@
       if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
 
       const userId = data.user.id;
-      const finalGender = (role === 'teacher') ? (gender || null) : null;
+      // Если ученик — ставим male (чтобы не было null), если репетитор — выбранный
+      const finalGender = (role === 'teacher') ? (gender || 'male') : 'male';
 
       const { error: profileError } = await window.supabaseClient.from('profiles').insert({
         id: userId, email: email, role: role, name: name || email.split('@')[0], gender: finalGender
@@ -192,7 +193,7 @@
       const password = form.password.value;
       const password2 = form.password2 ? form.password2.value : password;
       const name = form.name.value.trim();
-      const gender = selectedRole === 'teacher' ? genderSelect.value : null;
+      const gender = selectedRole === 'teacher' ? genderSelect.value : 'male';
 
       if (!name) { errorEl.textContent = 'Введите имя'; return; }
       if (password.length < 6) { errorEl.textContent = 'Пароль минимум 6 символов'; return; }
