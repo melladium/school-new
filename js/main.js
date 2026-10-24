@@ -322,4 +322,180 @@
     });
   }
 
-  function
+  function updatePodborUI() {
+    podborSteps.forEach(s => s.classList.toggle('is-active', +s.dataset.step === podborState.step));
+    if (podborBar) podborBar.style.width = (podborState.step / 4 * 100) + '%';
+    if (podborBack) podborBack.disabled = podborState.step === 1;
+    if (podborNext) podborNext.textContent = podborState.step === 4 ? 'Показать репетиторов' : 'Далее';
+  }
+
+  function shakeChips(selector) {
+    const chips = document.querySelectorAll(selector + ' .chip');
+    chips.forEach(c => {
+      c.classList.add('is-shake');
+      setTimeout(() => c.classList.remove('is-shake'), 400);
+    });
+  }
+
+  if (podborBack) {
+    podborBack.addEventListener('click', () => {
+      if (podborState.step > 1) { podborState.step--; updatePodborUI(); }
+    });
+  }
+
+  if (podborNext) {
+    podborNext.addEventListener('click', async () => {
+      if (podborState.step === 1 && !podborState.subject) {
+        if (hintSubject) hintSubject.hidden = false;
+        shakeChips('.podbor [data-field="subject"]');
+        return;
+      }
+      if (podborState.step === 2 && !podborState.goal) {
+        if (hintGoal) hintGoal.hidden = false;
+        shakeChips('.podbor [data-field="goal"]');
+        return;
+      }
+      if (podborState.step === 3 && !podborState.budget) {
+        if (hintBudget) hintBudget.hidden = false;
+        shakeChips('.podbor [data-field="budget"]');
+        return;
+      }
+      if (podborState.step === 4 && !podborState.gender) {
+        if (hintGender) hintGender.hidden = false;
+        shakeChips('.podbor [data-field="gender"]');
+        return;
+      }
+      if (podborState.step < 4) { podborState.step++; updatePodborUI(); }
+      else { await runPodbor(); }
+    });
+  }
+
+  let podborAllResults = [];
+
+  async function runPodbor() {
+    if (!podborGrid) return;
+    podborNext.disabled = true;
+    podborNext.textContent = 'Ищем…';
+
+    const all = await loadTeachersFromDB();
+    let list = [...all];
+
+    if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
+    if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
+    
+    // УМНЫЙ ФИЛЬТР ПО ПОЛУ (если у учителя null, показываем)
+    if (podborState.gender && podborState.gender !== 'any') {
+      list = list.filter(t => {
+        if (!t.gender) return true; // Если пол не указан, показываем
+        return t.gender === podborState.gender;
+      });
+    }
+    
+    if (podborState.budget && podborState.budget !== 'any') {
+      const max = +podborState.budget;
+      list = list.filter(t => t.price <= max);
+    }
+
+    podborAllResults = list;
+    podborState.shown = PAGE_SIZE;
+
+    podborNext.disabled = false;
+    podborNext.textContent = 'Показать репетиторов';
+    renderPodborResults();
+    podborCard.style.display = 'none';
+    podborResults.hidden = false;
+    podborResults.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    observeReveals();
+    initMagnetic();
+  }
+
+  function renderPodborResults() {
+    if (!podborGrid) return;
+    const total = podborAllResults.length;
+
+    if (!total) {
+      podborGrid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state__icon">😕</div>
+          <div class="empty-state__title">Пока никого нет</div>
+          <div class="empty-state__desc">Попробуйте изменить задачу или увеличить бюджет.</div>
+        </div>
+      `;
+      return;
+    }
+
+    const shown = podborAllResults.slice(0, podborState.shown);
+    let html = shown.map(teacherCard).join('');
+
+    if (podborState.shown < total) {
+      html += `<div class="podbor__more"><button class="btn btn--ghost" data-podbor-more>Показать ещё (${total - podborState.shown})</button></div>`;
+    }
+
+    podborGrid.innerHTML = html;
+
+    const moreBtn = podborGrid.querySelector('[data-podbor-more]');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        podborState.shown += PAGE_SIZE;
+        renderPodborResults();
+        observeReveals();
+      });
+    }
+  }
+
+  function resetPodbor() {
+    podborState.step = 1;
+    podborState.subject = null;
+    podborState.goal = null;
+    podborState.budget = null;
+    podborState.gender = null;
+    podborState.shown = PAGE_SIZE;
+    document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
+    if (hintSubject) hintSubject.hidden = true;
+    if (hintGoal) hintGoal.hidden = true;
+    if (hintBudget) hintBudget.hidden = true;
+    if (hintGender) hintGender.hidden = true;
+    podborCard.style.display = '';
+    podborResults.hidden = true;
+    renderGoalChips();
+    updatePodborUI();
+    const s = document.querySelector('#podbor');
+    if (s) s.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+  }
+
+  if (podborReset) podborReset.addEventListener('click', resetPodbor);
+  renderGoalChips();
+  updatePodborUI();
+  observeReveals();
+  initMagnetic();
+
+  async function initAuthHeader() {
+    if (!window.authAPI) return;
+    const current = await window.authAPI.getCurrentUser();
+    if (!current) return;
+
+    const role = current.profile.role;
+    const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+    const name = current.profile.name || current.profile.email || 'Профиль';
+    const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+    const actions = document.querySelector('[data-nav-actions]');
+    if (actions) actions.hidden = true;
+
+    const userMenu = document.querySelector('[data-user-menu]');
+    const link = document.querySelector('[data-user-link]');
+    const nameEl = document.querySelector('[data-user-name]');
+    const avatarEl = document.querySelector('[data-user-avatar]');
+
+    if (userMenu) userMenu.hidden = false;
+    if (link) link.href = cabinetHref;
+    if (nameEl) nameEl.textContent = current.profile.name || 'Профиль';
+    if (avatarEl) avatarEl.textContent = initials;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthHeader);
+  } else {
+    initAuthHeader();
+  }
+})();
