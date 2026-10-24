@@ -40,7 +40,6 @@
 
     currentUser = await window.authAPI.getCurrentUser();
 
-    // Пытаемся загрузить учителя
     const { data, error } = await window.supabaseClient
       .from('teachers')
       .select('*')
@@ -63,7 +62,6 @@
       goals: Array.isArray(data.goals) ? data.goals : []
     };
 
-    // Фиксируем просмотр (если это не сам учитель)
     if (currentUser && currentUser.user.id !== teacher.id) {
       await window.supabaseClient.rpc('increment_teacher_view', {
         p_teacher_id: teacher.id,
