@@ -70,6 +70,8 @@
     } catch (e) { return null; }
   }
 
+  // Теперь requireAuth не делает редирект, если сессии нет — он просто возвращает null.
+  // Редирект на логин оставлен только для тех мест, где явно нужна защита.
   async function requireAuth(requiredRole) {
     const current = await getCurrentUser();
     if (!current) { window.location.href = 'login.html'; return null; }
