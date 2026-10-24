@@ -84,9 +84,10 @@
             <input type="text" id="name" name="name" placeholder="Анна" required autocomplete="name">
           </div>
 
-          <div class="field">
-            <label for="gender">Пол</label>
-            <select id="gender" name="gender" required>
+          <!-- Поле пола скрыто по умолчанию, показывается только для репетитора -->
+          <div class="field" data-gender-field hidden>
+            <label for="gender">Ваш пол</label>
+            <select id="gender" name="gender">
               <option value="" disabled selected>Выберите пол</option>
               <option value="male">Мужской</option>
               <option value="female">Женский</option>
@@ -124,8 +125,7 @@
 
           <div class="auth-form__error" data-error></div>
 
-          <!-- Кнопка disabled по умолчанию -->
-          <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit disabled>
+          <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit>
             Зарегистрироваться
           </button>
         </form>
