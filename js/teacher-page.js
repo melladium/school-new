@@ -45,21 +45,17 @@
     if (!id) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
     try {
-      if (window.authAPI) {
-        currentUser = await window.authAPI.getCurrentUser();
-      }
-    } catch (e) {
-      console.warn('Ошибка получения пользователя:', e);
-      currentUser = null;
-    }
+      currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
+    } catch (e) { currentUser = null; }
 
+    // Обновляем шапку, только если пользователь залогинен
     if (currentUser && currentUser.profile) {
       const role = currentUser.profile.role;
       const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
       const name = currentUser.profile.name || 'Профиль';
       const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
-      const actions = document.querySelector('.nav__actions');
+      const actions = document.querySelector('[data-nav-actions]');
       if (actions) actions.hidden = true;
 
       const userMenu = document.querySelector('[data-user-menu]');
@@ -147,8 +143,9 @@
     if (!section) return;
 
     const text = teacher.bio.trim();
-    
-    // Принудительно формируем HTML с обрезанным текстом
+    section.hidden = false;
+
+    // Формируем HTML с обрезкой
     section.innerHTML = `
       <h2 class="tp-sidebar__title">О себе</h2>
       <div class="tp-bio-wrap">
@@ -157,13 +154,10 @@
       </div>
     `;
 
-    section.hidden = false;
-
     const contentEl = section.querySelector('[data-bio-content]');
     const toggleBtn = section.querySelector('[data-bio-toggle]');
 
-    // Проверяем, есть ли переполнение (высота текста больше контейнера)
-    // Вызываем после того, как элемент отрисован
+    // Проверяем после отрисовки, есть ли переполнение
     setTimeout(() => {
       if (contentEl.scrollHeight > contentEl.clientHeight) {
         toggleBtn.style.display = 'inline-block';
