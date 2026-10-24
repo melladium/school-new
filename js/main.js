@@ -22,74 +22,218 @@
   };
 
   const PAGE_SIZE = 9;
-  let podborState = { step: 1, subject: null, goal: null, gender: null, budget: null, shown: PAGE_SIZE };
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isFinePointer = window.matchMedia('(pointer: fine)').matches;
+  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 
   function escapeHtml(str) {
-    if (!str) return '';
+    if (str === null || str === undefined) return '';
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  // --- АВТОПОДБОР ---
+  document.body.classList.add('is-loading');
+  const loader = document.querySelector('[data-loader]');
+  const logo = document.querySelector('[data-logo]');
+
+  function hideLoader() {
+    if (loader) loader.classList.add('is-done');
+    if (logo) logo.classList.add('is-ready');
+    document.body.classList.remove('is-loading');
+    document.querySelectorAll('[data-hero-el]').forEach(el => el.classList.add('is-visible'));
+  }
+
+  if (document.readyState === 'complete') setTimeout(hideLoader, 1100);
+  else window.addEventListener('load', () => setTimeout(hideLoader, 1100));
+
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('is-scrolled', window.scrollY > 40);
+    }, { passive: true });
+  }
+
+  const glow = document.querySelector('[data-cursor-glow]');
+  if (glow && !prefersReducedMotion && isFinePointer && !isMobile) {
+    let gx = 0, gy = 0, tx = 0, ty = 0, rafId = null, running = false;
+
+    function loop() {
+      gx += (tx - gx) * 0.15;
+      gy += (ty - gy) * 0.15;
+      glow.style.transform = `translate(${gx}px, ${gy}px) translate(-50%, -50%)`;
+      if (Math.abs(tx - gx) > 0.5 || Math.abs(ty - gy) > 0.5) {
+        rafId = requestAnimationFrame(loop);
+      } else {
+        running = false;
+      }
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      tx = e.clientX; ty = e.clientY;
+      glow.classList.add('is-active');
+      if (!running) { running = true; rafId = requestAnimationFrame(loop); }
+    }, { passive: true });
+
+    document.addEventListener('mouseleave', () => {
+      glow.classList.remove('is-active');
+      if (rafId) cancelAnimationFrame(rafId);
+      running = false;
+    });
+  } else if (glow) {
+    glow.style.display = 'none';
+  }
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+  function observeReveals() {
+    document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
+  }
+
+  function teacherCard(t) {
+    const safeName = escapeHtml(t.name || 'Репетитор');
+    const safeSubject = escapeHtml(t.subjectLabel || '');
+    const initials = (t.name || 'Р').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    
+    const avatarHtml = t.avatar_url
+      ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${escapeHtml(t.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy"></div>`
+      : `<div class="teacher-card__avatar">${escapeHtml(initials)}</div>`;
+
+    return `
+      <a class="teacher-card reveal" href="teacher.html?id=${encodeURIComponent(t.id)}" data-teacher-id="${escapeHtml(t.id)}">
+        <div class="teacher-card__head">
+          ${avatarHtml}
+          <div style="flex:1;">
+            <div class="teacher-card__name">${safeName}</div>
+            <div class="teacher-card__subject">${safeSubject}</div>
+          </div>
+          <div class="teacher-card__meta" style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; font-size:11px; color:var(--text-mute); font-family:var(--font-mono);">
+            <div class="teacher-card__rating" style="margin-left:0;">★ ${escapeHtml(t.rating || '—')}</div>
+            <div class="teacher-card__views" style="display:flex; align-items:center; gap:4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              ${escapeHtml(t.views_count || 0)}
+            </div>
+          </div>
+        </div>
+        <div class="teacher-card__foot">
+          <div class="teacher-card__price">${escapeHtml(t.price)} ₽<span> / урок</span></div>
+          <div class="teacher-card__cta">Подробнее →</div>
+        </div>
+      </a>
+    `;
+  }
+
+  const podborState = { step: 1, subject: null, goal: null, gender: null, budget: null, shown: PAGE_SIZE };
   const podborNext = document.querySelector('[data-podbor-next]');
   const podborBack = document.querySelector('[data-podbor-back]');
+  const podborResults = document.querySelector('[data-podbor-results]');
+  const podborGrid = document.querySelector('[data-podbor-grid]');
+  const podborCard = document.querySelector('.podbor__card');
   const goalChips = document.querySelector('[data-goal-chips]');
-  
-  document.querySelectorAll('.teacher-card').forEach(c => c.style.display = 'none'); // Прячем статику
+  const hintSubject = document.querySelector('[data-hint="subject"]');
+  const hintGoal = document.querySelector('[data-hint="goal"]');
+  const hintGender = document.querySelector('[data-hint="gender"]');
+  const hintBudget = document.querySelector('[data-hint="budget"]');
+
+  function renderGoalChips() {
+    if (!goalChips) return;
+    const goals = SUBJECT_GOALS[podborState.subject] || [];
+    if (!goals.length) {
+      goalChips.innerHTML = '<span style="color:var(--text-mute);font-size:14px;">Сначала выберите предмет</span>';
+      return;
+    }
+    goalChips.innerHTML = goals.map(g => `<button class="chip" data-value="${escapeHtml(g.value)}">${escapeHtml(g.label)}</button>`).join('');
+  }
+
+  const podborRoot = document.querySelector('.podbor');
+  if (podborRoot) {
+    podborRoot.addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      const field = chip.closest('.chips').dataset.field;
+
+      chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+
+      if (field === 'subject') {
+        podborState.subject = chip.dataset.value;
+        podborState.goal = null;
+        if (hintSubject) hintSubject.hidden = true;
+        renderGoalChips();
+      } else if (field === 'goal') {
+        podborState.goal = chip.dataset.value;
+        if (hintGoal) hintGoal.hidden = true;
+      } else if (field === 'gender') {
+        podborState.gender = chip.dataset.value;
+        if (hintGender) hintGender.hidden = true;
+      } else if (field === 'budget') {
+        podborState.budget = chip.dataset.value;
+        if (hintBudget) hintBudget.hidden = true;
+      }
+    });
+  }
 
   function updatePodborUI() {
     document.querySelectorAll('.podbor__step').forEach(s => s.classList.toggle('is-active', +s.dataset.step === podborState.step));
-    document.querySelector('.podbor__bar').style.width = (podborState.step / 4 * 100) + '%';
+    const bar = document.querySelector('.podbor__bar');
+    if (bar) bar.style.width = (podborState.step / 4 * 100) + '%';
     if (podborBack) podborBack.disabled = podborState.step === 1;
     if (podborNext) podborNext.textContent = podborState.step === 4 ? 'Показать репетиторов' : 'Далее';
   }
 
-  document.querySelector('.podbor').addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    const field = chip.closest('.chips').dataset.field;
-    
-    chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
-    chip.classList.add('is-active');
+  if (podborBack) {
+    podborBack.addEventListener('click', () => {
+      if (podborState.step > 1) { podborState.step--; updatePodborUI(); }
+    });
+  }
 
-    if (field === 'subject') {
-      podborState.subject = chip.dataset.value;
-      podborState.goal = null;
-      const goals = SUBJECT_GOALS[podborState.subject] || [];
-      goalChips.innerHTML = goals.map(g => `<button class="chip" data-value="${g.value}">${g.label}</button>`).join('');
-    } else if (field === 'goal') {
-      podborState.goal = chip.dataset.value;
-    } else if (field === 'gender') {
-      podborState.gender = chip.dataset.value;
-    } else if (field === 'budget') {
-      podborState.budget = chip.dataset.value;
-    }
-  });
-
-  if (podborBack) podborBack.addEventListener('click', () => { if (podborState.step > 1) { podborState.step--; updatePodborUI(); } });
-  
   if (podborNext) {
     podborNext.addEventListener('click', async () => {
+      if (podborState.step === 1 && !podborState.subject) {
+        if (hintSubject) hintSubject.hidden = false;
+        return;
+      }
+      if (podborState.step === 2 && !podborState.goal) {
+        if (hintGoal) hintGoal.hidden = false;
+        return;
+      }
+      if (podborState.step === 3 && !podborState.gender) {
+        if (hintGender) hintGender.hidden = false;
+        return;
+      }
+      if (podborState.step === 4 && !podborState.budget) {
+        if (hintBudget) hintBudget.hidden = false;
+        return;
+      }
       if (podborState.step < 4) { podborState.step++; updatePodborUI(); }
       else { await runPodbor(); }
     });
   }
 
+  let podborAllResults = [];
+
   async function runPodbor() {
+    if (!podborGrid) return;
     podborNext.disabled = true;
     podborNext.textContent = 'Ищем…';
 
-    const { data: teachers } = await window.supabaseClient
+    const { data: teacherRows } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, rating, reviews_count, avatar_url, goals, gender, views_count, is_active')
-      .eq('is_active', true);
+      .select('id, subject, price, rating, reviews_count, avatar_url, goals, views_count, gender')
+      .eq('is_active', true)
+      .order('rating', { ascending: false });
 
-    let list = teachers || [];
-    
-    // ФИЛЬТР
+    let list = teacherRows || [];
+
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
-    if (podborState.goal) list = list.filter(t => t.goals && t.goals.includes(podborState.goal));
+    if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     
-    // МЯГКИЙ ФИЛЬТР ПО ПОЛУ (если выбрано "Не важно" — пропускаем всех)
+    // Мягкий фильтр по полу
     if (podborState.gender && podborState.gender !== 'any') {
       list = list.filter(t => !t.gender || t.gender === podborState.gender);
     }
@@ -98,50 +242,65 @@
       list = list.filter(t => t.price <= +podborState.budget);
     }
 
-    // Загружаем имена
-    const ids = list.map(t => t.id);
-    if (ids.length > 0) {
+    if (list.length > 0) {
+      const ids = list.map(t => t.id);
       const { data: profiles } = await window.supabaseClient.from('profiles').select('id, name').in('id', ids);
       const pMap = {};
       profiles.forEach(p => pMap[p.id] = p.name);
-      list.forEach(t => t.name = pMap[t.id] || 'Репетитор');
+      list.forEach(t => {
+        t.name = pMap[t.id] || 'Репетитор';
+        t.subjectLabel = SUBJECT_LABELS[t.subject] || t.subject;
+      });
     }
+
+    podborAllResults = list;
+    podborState.shown = PAGE_SIZE;
 
     podborNext.disabled = false;
     podborNext.textContent = 'Показать репетиторов';
-    
-    document.querySelector('.podbor__card').style.display = 'none';
-    document.querySelector('[data-podbor-results]').hidden = false;
-    
-    renderResults(list);
+    renderPodborResults();
+    podborCard.style.display = 'none';
+    podborResults.hidden = false;
+    podborResults.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+    observeReveals();
   }
 
-  function renderResults(list) {
-    const grid = document.querySelector('[data-podbor-grid]');
-    if (list.length === 0) {
-      grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-mute);">Никого не нашли по этим критериям</div>`;
+  function renderPodborResults() {
+    if (!podborGrid) return;
+    const total = podborAllResults.length;
+
+    if (!total) {
+      podborGrid.innerHTML = `<div class="empty-state"><div class="empty-state__icon">😕</div><div class="empty-state__title">Пока никого нет</div><div class="empty-state__desc">Попробуйте изменить задачу или увеличить бюджет.</div></div>`;
       return;
     }
-    
-    grid.innerHTML = list.map(t => `
-      <a href="teacher.html?id=${t.id}" class="teacher-card" style="display: flex;">
-        <div class="teacher-card__head">
-          <div class="teacher-card__avatar">${t.avatar_url ? `<img src="${escapeHtml(t.avatar_url)}">` : escapeHtml(t.name[0])}</div>
-          <div>
-            <div class="teacher-card__name">${escapeHtml(t.name)}</div>
-            <div class="teacher-card__subject">${SUBJECT_LABELS[t.subject] || t.subject}</div>
-          </div>
-          <div class="teacher-card__rating">★ ${t.rating || '—'}</div>
-        </div>
-        <div class="teacher-card__foot">
-          <div class="teacher-card__price">${t.price} ₽<span> / урок</span></div>
-          <div class="teacher-card__cta">Подробнее →</div>
-        </div>
-      </a>
-    `).join('');
+
+    const shown = podborAllResults.slice(0, podborState.shown);
+    let html = shown.map(teacherCard).join('');
+
+    if (podborState.shown < total) {
+      html += `<div class="podbor__more"><button class="btn btn--ghost" data-podbor-more>Показать ещё (${total - podborState.shown})</button></div>`;
+    }
+
+    podborGrid.innerHTML = html;
+
+    const moreBtn = podborGrid.querySelector('[data-podbor-more]');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        podborState.shown += PAGE_SIZE;
+        renderPodborResults();
+        observeReveals();
+      });
+    }
   }
 
-  // --- ХЕДЕР ---
+  document.querySelector('[data-podbor-reset]')?.addEventListener('click', () => {
+    window.location.reload();
+  });
+
+  renderGoalChips();
+  updatePodborUI();
+  observeReveals();
+
   async function initAuthHeader() {
     if (!window.authAPI) return;
     const current = await window.authAPI.getCurrentUser();
@@ -163,8 +322,9 @@
     if (avatarEl) avatarEl.textContent = (current.profile.name || 'П')[0].toUpperCase();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthHeader);
+  } else {
     initAuthHeader();
-    updatePodborUI();
-  });
+  }
 })();
