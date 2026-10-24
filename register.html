@@ -84,7 +84,7 @@
             <input type="text" id="name" name="name" placeholder="Анна" required autocomplete="name">
           </div>
 
-          <!-- Поле пола скрыто по умолчанию, показывается только для репетитора -->
+          <!-- Поле пола показывается только репетиторам -->
           <div class="field" data-gender-field hidden>
             <label for="gender">Ваш пол</label>
             <select id="gender" name="gender">
@@ -125,7 +125,7 @@
 
           <div class="auth-form__error" data-error></div>
 
-          <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit>
+          <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit disabled>
             Зарегистрироваться
           </button>
         </form>
