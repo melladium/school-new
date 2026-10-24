@@ -261,7 +261,7 @@
     }
   }
 
-  const podborState = { step: 1, subject: null, goal: null, budget: null, gender: null, shown: PAGE_SIZE };
+  const podborState = { step: 1, subject: null, goal: null, gender: null, budget: null, shown: PAGE_SIZE };
   const podborSteps = document.querySelectorAll('.podbor__step');
   const podborBar = document.querySelector('.podbor__bar');
   const podborNext = document.querySelector('[data-podbor-next]');
@@ -273,8 +273,8 @@
   const goalChips = document.querySelector('[data-goal-chips]');
   const hintSubject = document.querySelector('[data-hint="subject"]');
   const hintGoal = document.querySelector('[data-hint="goal"]');
-  const hintBudget = document.querySelector('[data-hint="budget"]');
   const hintGender = document.querySelector('[data-hint="gender"]');
+  const hintBudget = document.querySelector('[data-hint="budget"]');
 
   function renderGoalChips() {
     if (!goalChips) return;
@@ -312,12 +312,12 @@
       } else if (field === 'goal') {
         podborState.goal = chip.dataset.value;
         if (hintGoal) hintGoal.hidden = true;
-      } else if (field === 'budget') {
-        podborState.budget = chip.dataset.value;
-        if (hintBudget) hintBudget.hidden = true;
       } else if (field === 'gender') {
         podborState.gender = chip.dataset.value;
         if (hintGender) hintGender.hidden = true;
+      } else if (field === 'budget') {
+        podborState.budget = chip.dataset.value;
+        if (hintBudget) hintBudget.hidden = true;
       }
     });
   }
@@ -355,14 +355,14 @@
         shakeChips('.podbor [data-field="goal"]');
         return;
       }
-      if (podborState.step === 3 && !podborState.budget) {
-        if (hintBudget) hintBudget.hidden = false;
-        shakeChips('.podbor [data-field="budget"]');
-        return;
-      }
-      if (podborState.step === 4 && !podborState.gender) {
+      if (podborState.step === 3 && !podborState.gender) {
         if (hintGender) hintGender.hidden = false;
         shakeChips('.podbor [data-field="gender"]');
+        return;
+      }
+      if (podborState.step === 4 && !podborState.budget) {
+        if (hintBudget) hintBudget.hidden = false;
+        shakeChips('.podbor [data-field="budget"]');
         return;
       }
       if (podborState.step < 4) { podborState.step++; updatePodborUI(); }
@@ -383,10 +383,10 @@
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     
-    // УМНЫЙ ФИЛЬТР ПО ПОЛУ (если у учителя null, показываем)
+    // МЯГКИЙ ФИЛЬТР ПО ПОЛУ (если у учителя null — показываем)
     if (podborState.gender && podborState.gender !== 'any') {
       list = list.filter(t => {
-        if (!t.gender) return true; // Если пол не указан, показываем
+        if (!t.gender) return true;
         return t.gender === podborState.gender;
       });
     }
@@ -447,14 +447,14 @@
     podborState.step = 1;
     podborState.subject = null;
     podborState.goal = null;
-    podborState.budget = null;
     podborState.gender = null;
+    podborState.budget = null;
     podborState.shown = PAGE_SIZE;
     document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
     if (hintSubject) hintSubject.hidden = true;
     if (hintGoal) hintGoal.hidden = true;
-    if (hintBudget) hintBudget.hidden = true;
     if (hintGender) hintGender.hidden = true;
+    if (hintBudget) hintBudget.hidden = true;
     podborCard.style.display = '';
     podborResults.hidden = true;
     renderGoalChips();
