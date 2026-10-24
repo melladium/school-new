@@ -86,25 +86,20 @@
 }
 .tp-sidebar__bio { color: var(--text-dim); font-size: 13.5px; line-height: 1.55; }
 
-/* --- Анимация раскрытия текста --- */
+/* --- РЕАЛЬНАЯ ОБРЕЗКА ТЕКСТА --- */
 .tp-bio-wrap { position: relative; }
 .tp-bio-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* Ограничиваем 4 строками */
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-  max-height: 85px;
-  position: relative;
+  transition: all 0.3s ease;
 }
-.tp-bio-text::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 40px;
-  background: linear-gradient(to bottom, transparent, var(--surface-1));
-  pointer-events: none;
-  transition: opacity 0.3s var(--ease);
+.tp-bio-text.is-expanded {
+  -webkit-line-clamp: 999; /* Убираем ограничение */
 }
-.tp-bio-text.is-expanded { max-height: 2000px; }
-.tp-bio-text.is-expanded::after { opacity: 0; }
 .tp-bio-toggle {
-  display: none;
+  display: inline-block;
   margin-top: 8px;
   font-size: 12px;
   color: var(--accent);
@@ -114,7 +109,6 @@
   padding: 0;
   text-align: left;
 }
-.tp-bio-toggle.is-visible { display: block; }
 .tp-bio-toggle:hover { text-decoration: underline; }
 
 .tp-contacts {
