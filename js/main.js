@@ -82,6 +82,35 @@
     glow.style.display = 'none';
   }
 
+  function initMagnetic() {
+    if (prefersReducedMotion || !isFinePointer || isMobile) return;
+    document.querySelectorAll('[data-magnetic]').forEach(btn => {
+      if (btn.dataset.magneticBound) return;
+      btn.dataset.magneticBound = '1';
+      btn.addEventListener('mousemove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const x = e.clientX - r.left - r.width / 2;
+        const y = e.clientY - r.top - r.height / 2;
+        btn.style.transform = `translate(${x * 0.12}px, ${y * 0.25}px)`;
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  }
+
+  const parallaxEl = document.querySelector('[data-parallax]');
+  if (parallaxEl && !prefersReducedMotion && !isMobile) {
+    let rafPending = false;
+    window.addEventListener('scroll', () => {
+      if (rafPending) return;
+      rafPending = true;
+      requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (y < window.innerHeight) parallaxEl.style.transform = `translateY(${y * 0.3}px)`;
+        rafPending = false;
+      });
+    }, { passive: true });
+  }
+
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -222,26 +251,38 @@
     podborNext.disabled = true;
     podborNext.textContent = 'Ищем…';
 
+    // Берем всех учителей
     const { data: teacherRows } = await window.supabaseClient
       .from('teachers')
       .select('id, subject, price, rating, reviews_count, avatar_url, goals, views_count, gender')
-      .eq('is_active', true)
       .order('rating', { ascending: false });
 
     let list = teacherRows || [];
 
-    if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
-    if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
-    
-    // Мягкий фильтр по полу
-    if (podborState.gender && podborState.gender !== 'any') {
-      list = list.filter(t => !t.gender || t.gender === podborState.gender);
+    // Фильтр по предмету
+    if (podborState.subject) {
+      list = list.filter(t => t.subject === podborState.subject);
     }
-    
+
+    // Фильтр по цели
+    if (podborState.goal) {
+      list = list.filter(t => !t.goals || t.goals.length === 0 || t.goals.includes(podborState.goal));
+    }
+
+    // ЖЕСТКИЙ фильтр по полу. Если у учителя пусто — считаем его 'male'
+    if (podborState.gender && podborState.gender !== 'any') {
+      list = list.filter(t => {
+        const teacherGender = t.gender || 'male'; // Если null, то это мужчина по умолчанию
+        return teacherGender === podborState.gender;
+      });
+    }
+
+    // Фильтр по бюджету
     if (podborState.budget && podborState.budget !== 'any') {
       list = list.filter(t => t.price <= +podborState.budget);
     }
 
+    // Подтягиваем имена
     if (list.length > 0) {
       const ids = list.map(t => t.id);
       const { data: profiles } = await window.supabaseClient.from('profiles').select('id, name').in('id', ids);
@@ -300,6 +341,7 @@
   renderGoalChips();
   updatePodborUI();
   observeReveals();
+  initMagnetic();
 
   async function initAuthHeader() {
     if (!window.authAPI) return;
