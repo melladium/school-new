@@ -177,7 +177,6 @@
       ? `<div class="teacher-card__avatar" style="overflow:hidden;padding:0;"><img src="${escapeHtml(t.avatar_url)}" style="width:100%;height:100%;object-fit:cover;" alt="" loading="lazy"></div>`
       : `<div class="teacher-card__avatar">${escapeHtml(initials)}</div>`;
 
-    // ДОБАВЛЕН СЧЕТЧИК ПРОСМОТРОВ
     return `
       <a class="teacher-card reveal" href="teacher.html?id=${encodeURIComponent(t.id)}" data-teacher-id="${escapeHtml(t.id)}">
         <div class="teacher-card__head">
@@ -206,12 +205,10 @@
   async function loadTeachersFromDB() {
     if (!window.supabaseClient) return [];
     try {
-      // Запрашиваем данные включая views_count
       const { data: teacherRows, error } = await window.supabaseClient
         .from('teachers')
-        .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals, views_count')
+        .select('id, subject, price, bio, rating, reviews_count, avatar_url, goals, views_count, gender')
         .eq('is_active', true)
-        // Умная сортировка на основе рейтинга и отзывов (гибрид)
         .order('rating', { ascending: false })
         .order('reviews_count', { ascending: false });
 
@@ -247,7 +244,8 @@
           price: t.price,
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
-          views_count: t.views_count || 0, // Прокидываем счетчик
+          views_count: t.views_count || 0,
+          gender: t.gender || 'male',
           bio: t.bio || '',
           avatar_url: t.avatar_url || '',
           slots: slots
@@ -263,7 +261,7 @@
     }
   }
 
-  const podborState = { step: 1, subject: null, goal: null, budget: null, shown: PAGE_SIZE };
+  const podborState = { step: 1, subject: null, goal: null, budget: null, gender: null, shown: PAGE_SIZE };
   const podborSteps = document.querySelectorAll('.podbor__step');
   const podborBar = document.querySelector('.podbor__bar');
   const podborNext = document.querySelector('[data-podbor-next]');
@@ -275,6 +273,8 @@
   const goalChips = document.querySelector('[data-goal-chips]');
   const hintSubject = document.querySelector('[data-hint="subject"]');
   const hintGoal = document.querySelector('[data-hint="goal"]');
+  const hintBudget = document.querySelector('[data-hint="budget"]');
+  const hintGender = document.querySelector('[data-hint="gender"]');
 
   function renderGoalChips() {
     if (!goalChips) return;
@@ -314,15 +314,19 @@
         if (hintGoal) hintGoal.hidden = true;
       } else if (field === 'budget') {
         podborState.budget = chip.dataset.value;
+        if (hintBudget) hintBudget.hidden = true;
+      } else if (field === 'gender') {
+        podborState.gender = chip.dataset.value;
+        if (hintGender) hintGender.hidden = true;
       }
     });
   }
 
   function updatePodborUI() {
     podborSteps.forEach(s => s.classList.toggle('is-active', +s.dataset.step === podborState.step));
-    if (podborBar) podborBar.style.width = (podborState.step / 3 * 100) + '%';
+    if (podborBar) podborBar.style.width = (podborState.step / 4 * 100) + '%';
     if (podborBack) podborBack.disabled = podborState.step === 1;
-    if (podborNext) podborNext.textContent = podborState.step === 3 ? 'Показать репетиторов' : 'Далее';
+    if (podborNext) podborNext.textContent = podborState.step === 4 ? 'Показать репетиторов' : 'Далее';
   }
 
   function shakeChips(selector) {
@@ -351,7 +355,17 @@
         shakeChips('.podbor [data-field="goal"]');
         return;
       }
-      if (podborState.step < 3) { podborState.step++; updatePodborUI(); }
+      if (podborState.step === 3 && !podborState.budget) {
+        if (hintBudget) hintBudget.hidden = false;
+        shakeChips('.podbor [data-field="budget"]');
+        return;
+      }
+      if (podborState.step === 4 && !podborState.gender) {
+        if (hintGender) hintGender.hidden = false;
+        shakeChips('.podbor [data-field="gender"]');
+        return;
+      }
+      if (podborState.step < 4) { podborState.step++; updatePodborUI(); }
       else { await runPodbor(); }
     });
   }
@@ -368,6 +382,12 @@
 
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
+    
+    // ЖЕСТКАЯ ФИЛЬТРАЦИЯ ПО ПОЛУ
+    if (podborState.gender && podborState.gender !== 'any') {
+      list = list.filter(t => t.gender === podborState.gender);
+    }
+    
     if (podborState.budget && podborState.budget !== 'any') {
       const max = +podborState.budget;
       list = list.filter(t => t.price <= max);
@@ -425,10 +445,13 @@
     podborState.subject = null;
     podborState.goal = null;
     podborState.budget = null;
+    podborState.gender = null;
     podborState.shown = PAGE_SIZE;
     document.querySelectorAll('.podbor .chip').forEach(c => c.classList.remove('is-active'));
     if (hintSubject) hintSubject.hidden = true;
     if (hintGoal) hintGoal.hidden = true;
+    if (hintBudget) hintBudget.hidden = true;
+    if (hintGender) hintGender.hidden = true;
     podborCard.style.display = '';
     podborResults.hidden = true;
     renderGoalChips();
