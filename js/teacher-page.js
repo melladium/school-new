@@ -42,6 +42,7 @@
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
+    // УБИРАЕМ проверку is_active! Просто ищем по ID.
     const { data, error } = await window.supabaseClient
       .from('teachers')
       .select('*')
@@ -49,7 +50,7 @@
       .single();
 
     if (error || !data) {
-      console.error(error);
+      console.error('Ошибка загрузки учителя:', error);
       setText('[data-hero-name]', 'Репетитор не найден');
       return;
     }
