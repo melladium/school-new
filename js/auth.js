@@ -4,38 +4,52 @@
   if (window.authAPI) return;
 
   async function signUp(email, password, role, name, gender) {
-    const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
-    if (error) return { error: { message: error.message } };
-    if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
+    try {
+      const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+      if (error) return { error: { message: error.message } };
+      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
 
-    const userId = data.user.id;
+      const userId = data.user.id;
+      const finalGender = (role === 'teacher') ? (gender || null) : null;
 
-    // Ученик — null, Репетитор — выбранный пол
-    const finalGender = role === 'teacher' ? gender : null;
-
-    await window.supabaseClient.from('profiles').insert({
-      id: userId, email: email, role: role, name: name || email.split('@')[0], gender: finalGender
-    });
-
-    if (role === 'teacher') {
-      await window.supabaseClient.from('teachers').insert({
-        id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false, gender: finalGender
+      const { error: profileError } = await window.supabaseClient.from('profiles').insert({
+        id: userId, email: email, role: role, name: name || email.split('@')[0], gender: finalGender
       });
-    } else {
-      await window.supabaseClient.from('students').insert({ id: userId, phone: '', grade: '' });
-    }
+      if (profileError) return { error: { message: 'Профиль: ' + profileError.message } };
 
-    return { data };
+      if (role === 'teacher') {
+        const { error: teacherError } = await window.supabaseClient.from('teachers').insert({
+          id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false, gender: finalGender
+        });
+        if (teacherError) return { error: { message: 'Репетитор: ' + teacherError.message } };
+      }
+
+      if (role === 'student') {
+        const { error: studentError } = await window.supabaseClient.from('students').insert({
+          id: userId, phone: '', grade: ''
+        });
+        if (studentError) return { error: { message: 'Ученик: ' + studentError.message } };
+      }
+
+      return { data };
+    } catch (e) {
+      return { error: { message: 'Критическая ошибка: ' + (e.message || 'неизвестная') } };
+    }
   }
 
   async function signIn(email, password) {
-    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) return { error: { message: error.message } };
+    try {
+      const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+      if (error) return { error: { message: error.message } };
 
-    const { data: profile } = await window.supabaseClient
-      .from('profiles').select('role').eq('id', data.user.id).single();
+      const { data: profile, error: profileError } = await window.supabaseClient
+        .from('profiles').select('role').eq('id', data.user.id).single();
+      if (profileError) return { error: { message: 'Профиль не найден' } };
 
-    return { data, role: profile.role };
+      return { data, role: profile.role };
+    } catch (e) {
+      return { error: { message: 'Критическая ошибка: ' + (e.message || 'неизвестная') } };
+    }
   }
 
   async function signOut() {
@@ -44,13 +58,16 @@
   }
 
   async function getCurrentUser() {
-    const { data: { session } } = await window.supabaseClient.auth.getSession();
-    if (!session) return null;
-
-    const { data: profile } = await window.supabaseClient
-      .from('profiles').select('role, name, email, gender').eq('id', session.user.id).single();
-
-    return { user: session.user, profile };
+    try {
+      const { data: { session } } = await window.supabaseClient.auth.getSession();
+      if (!session || !session.user) return null;
+      
+      const { data: profile } = await window.supabaseClient
+        .from('profiles').select('role, name, email, gender').eq('id', session.user.id).single();
+      
+      if (!profile) return null;
+      return { user: session.user, profile };
+    } catch (e) { return null; }
   }
 
   async function requireAuth(requiredRole) {
@@ -63,7 +80,20 @@
   }
 
   function redirectByRole(role) {
-    window.location.href = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
+    if (role === 'teacher') window.location.href = 'cabinet-teacher.html';
+    else window.location.href = 'cabinet-student.html';
+  }
+
+  function initPasswordToggles() {
+    document.querySelectorAll('[data-toggle-password]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const inputId = btn.dataset.togglePassword;
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+        else { input.type = 'password'; btn.textContent = '👁'; }
+      });
+    });
   }
 
   function initLoginForm() {
@@ -78,7 +108,9 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Входим…';
 
-      const result = await signIn(form.email.value.trim(), form.password.value);
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const result = await signIn(email, password);
 
       if (result.error) {
         errorEl.textContent = result.error.message || 'Неверный email или пароль';
@@ -91,11 +123,11 @@
   }
 
   function initRegisterForm() {
-    const form = document.querySelector('[data-register-form]');
-    if (!form) return; // Если это не страница регистрации — выходим.
-
     const roleScreen = document.querySelector('[data-role-screen]');
     const formScreen = document.querySelector('[data-form-screen]');
+    const form = document.querySelector('[data-register-form]');
+    if (!form || !roleScreen || !formScreen) return;
+
     const roleLabel = document.querySelector('[data-role-label]');
     const backBtn = document.querySelector('[data-back-to-roles]');
     const genderField = form.querySelector('[data-gender-field]');
@@ -106,36 +138,41 @@
     const agree = form.querySelector('[data-agree]');
     let selectedRole = null;
 
-    function updateBtn() {
+    function syncSubmitState() {
+      if (!submitBtn) return;
       const agreeOk = agree ? agree.checked : true;
-      const genderOk = selectedRole === 'teacher' ? (genderSelect && genderSelect.value) : true;
+      const genderOk = (selectedRole === 'teacher') ? (genderSelect && genderSelect.value) : true;
       submitBtn.disabled = !(agreeOk && genderOk);
     }
 
-    document.querySelectorAll('[data-pick-role]').forEach(card => {
+    roleScreen.querySelectorAll('[data-pick-role]').forEach(card => {
       card.addEventListener('click', () => {
         selectedRole = card.dataset.pickRole;
         if (roleLabel) roleLabel.textContent = selectedRole === 'teacher' ? 'репетитор' : 'ученик';
         roleScreen.hidden = true;
         formScreen.hidden = false;
-        
+
         if (genderField) genderField.hidden = selectedRole !== 'teacher';
         if (genderSelect) genderSelect.value = '';
-        updateBtn();
+        syncSubmitState();
+
+        const nameInput = form.querySelector('#name');
+        if (nameInput) setTimeout(() => nameInput.focus(), 200);
       });
     });
 
-    if (agree) agree.addEventListener('change', updateBtn);
-    if (genderSelect) genderSelect.addEventListener('change', updateBtn);
+    if (agree) agree.addEventListener('change', syncSubmitState);
+    if (genderSelect) genderSelect.addEventListener('change', syncSubmitState);
 
     if (backBtn) {
       backBtn.addEventListener('click', () => {
         selectedRole = null;
         formScreen.hidden = true;
         roleScreen.hidden = false;
+        errorEl.textContent = '';
         form.reset();
         if (genderField) genderField.hidden = true;
-        updateBtn();
+        syncSubmitState();
       });
     }
 
@@ -143,41 +180,39 @@
       e.preventDefault();
       errorEl.textContent = '';
 
-      if (selectedRole === 'teacher' && !genderSelect.value) {
-        errorEl.textContent = 'Выберите пол'; return;
+      if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
+      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами'; return; }
+
+      if (selectedRole === 'teacher' && (!genderSelect || !genderSelect.value)) {
+        errorEl.textContent = 'Выберите пол';
+        return;
       }
+
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const password2 = form.password2 ? form.password2.value : password;
+      const name = form.name.value.trim();
+      const gender = selectedRole === 'teacher' ? genderSelect.value : null;
+
+      if (!name) { errorEl.textContent = 'Введите имя'; return; }
+      if (password.length < 6) { errorEl.textContent = 'Пароль минимум 6 символов'; return; }
+      if (form.password2 && password !== password2) { errorEl.textContent = 'Пароли не совпадают'; return; }
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Создаём аккаунт…';
-
-      const name = form.name.value.trim();
-      const email = form.email.value.trim();
-      const password = form.password.value;
-      const gender = selectedRole === 'teacher' ? genderSelect.value : null;
-
       const result = await signUp(email, password, selectedRole, name, gender);
 
       if (result.error) {
         errorEl.textContent = result.error.message || 'Ошибка регистрации';
         submitBtn.disabled = false;
         submitBtn.textContent = 'Зарегистрироваться';
+        syncSubmitState();
         return;
       }
       redirectByRole(selectedRole);
     });
 
-    updateBtn();
-  }
-
-  function initPasswordToggles() {
-    document.querySelectorAll('[data-toggle-password]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const input = document.getElementById(btn.dataset.togglePassword);
-        if (!input) return;
-        input.type = input.type === 'password' ? 'text' : 'password';
-        btn.textContent = input.type === 'password' ? '👁' : '🙈';
-      });
-    });
+    syncSubmitState();
   }
 
   document.addEventListener('DOMContentLoaded', () => {
