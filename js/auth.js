@@ -10,8 +10,7 @@
       if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
 
       const userId = data.user.id;
-      // Если ученик — ставим male (чтобы не было null), если репетитор — выбранный
-      const finalGender = (role === 'teacher') ? (gender || 'male') : 'male';
+      const finalGender = (role === 'teacher') ? gender : 'male';
 
       const { error: profileError } = await window.supabaseClient.from('profiles').insert({
         id: userId, email: email, role: role, name: name || email.split('@')[0], gender: finalGender
