@@ -48,27 +48,6 @@
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
-    // Обновляем шапку, только если пользователь залогинен
-    if (currentUser && currentUser.profile) {
-      const role = currentUser.profile.role;
-      const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
-      const name = currentUser.profile.name || 'Профиль';
-      const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-
-      const actions = document.querySelector('[data-nav-actions]');
-      if (actions) actions.hidden = true;
-
-      const userMenu = document.querySelector('[data-user-menu]');
-      const link = document.querySelector('[data-user-link]');
-      const nameEl = document.querySelector('[data-user-name]');
-      const avatarEl = document.querySelector('[data-user-avatar]');
-
-      if (userMenu) userMenu.hidden = false;
-      if (link) link.href = cabinetHref;
-      if (nameEl) nameEl.textContent = currentUser.profile.name;
-      if (avatarEl) avatarEl.textContent = initials;
-    }
-
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
@@ -94,10 +73,11 @@
   }
 
   async function loadTeacher(id) {
+    // Убрали .eq('is_active', true), чтобы можно было открыть свою анкету даже до активации
     const { data, error } = await window.supabaseClient
       .from('teachers')
-      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals, gender, views_count')
-      .eq('id', id).eq('is_active', true).single();
+      .select('id, subject, price, bio, rating, reviews_count, phone, telegram, whatsapp, avatar_url, portfolio_url, portfolio_url_2, goals, gender, views_count, is_active')
+      .eq('id', id).single();
     if (error || !data) return;
 
     const { data: profile } = await window.supabaseClient
@@ -145,7 +125,6 @@
     const text = teacher.bio.trim();
     section.hidden = false;
 
-    // Формируем HTML с обрезкой
     section.innerHTML = `
       <h2 class="tp-sidebar__title">О себе</h2>
       <div class="tp-bio-wrap">
@@ -157,7 +136,6 @@
     const contentEl = section.querySelector('[data-bio-content]');
     const toggleBtn = section.querySelector('[data-bio-toggle]');
 
-    // Проверяем после отрисовки, есть ли переполнение
     setTimeout(() => {
       if (contentEl.scrollHeight > contentEl.clientHeight) {
         toggleBtn.style.display = 'inline-block';
@@ -348,9 +326,11 @@
     document.body.style.overflow = '';
   }
 
-  function openRequestModal(cell) {
-    if (!currentUser) { window.location.href = 'login.html'; return; }
-    if (currentUser.profile.role !== 'student') { alert('Только ученик может оставить заявку.'); return; }
+  async function openRequestModal(cell) {
+    let cu = null;
+    try { cu = window.authAPI ? await window.authAPI.getCurrentUser() : null; } catch(e){}
+    if (!cu) { window.location.href = 'login.html'; return; }
+    if (cu.profile.role !== 'student') { alert('Только ученик может оставить заявку.'); return; }
 
     const day = parseInt(cell.dataset.day, 10);
     const time = cell.dataset.time;
@@ -369,7 +349,10 @@
   }
 
   async function sendRequest() {
-    if (!selectedCell || !currentUser) return;
+    let cu = null;
+    try { cu = window.authAPI ? await window.authAPI.getCurrentUser() : null; } catch(e){}
+    if (!cu) { window.location.href = 'login.html'; return; }
+
     const errEl = document.querySelector('[data-request-error]');
     const btn = document.querySelector('[data-request-send]');
     errEl.textContent = '';
@@ -378,7 +361,7 @@
 
     const { data: existing } = await window.supabaseClient
       .from('booking_requests').select('id')
-      .eq('student_id', currentUser.user.id)
+      .eq('student_id', cu.user.id)
       .eq('teacher_id', teacher.id)
       .eq('weekday', selectedCell.day)
       .eq('time', selectedCell.time)
@@ -388,7 +371,7 @@
     if (existing) { errEl.textContent = 'У вас уже есть заявка на это время.'; btn.disabled = false; btn.textContent = 'Отправить заявку'; return; }
 
     const { error } = await window.supabaseClient.from('booking_requests').insert({
-      student_id: currentUser.user.id, teacher_id: teacher.id,
+      student_id: cu.user.id, teacher_id: teacher.id,
       weekday: selectedCell.day, time: selectedCell.time, status: 'pending'
     });
     btn.disabled = false;
