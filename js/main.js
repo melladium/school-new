@@ -245,7 +245,7 @@
           rating: t.rating || 0,
           reviewsCount: t.reviews_count || 0,
           views_count: t.views_count || 0,
-          gender: t.gender || 'male',
+          gender: t.gender || null, // Если пола нет — ставим null
           bio: t.bio || '',
           avatar_url: t.avatar_url || '',
           slots: slots
@@ -383,8 +383,13 @@
     if (podborState.subject) list = list.filter(t => t.subject === podborState.subject);
     if (podborState.goal) list = list.filter(t => Array.isArray(t.goals) && t.goals.includes(podborState.goal));
     
+    // МЯГКИЙ ФИЛЬТР ПО ПОЛУ
     if (podborState.gender && podborState.gender !== 'any') {
-      list = list.filter(t => t.gender === podborState.gender);
+      list = list.filter(t => {
+        // Если у учителя не указан пол, показываем его в любом случае, чтобы не было пустоты
+        if (!t.gender) return true;
+        return t.gender === podborState.gender;
+      });
     }
     
     if (podborState.budget && podborState.budget !== 'any') {
