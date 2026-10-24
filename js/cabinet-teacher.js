@@ -67,6 +67,9 @@
     currentUser = await window.authAPI.requireAuth('teacher');
     if (!currentUser) return;
 
+    // Отмечаем активность для алгоритма популярности
+    await window.supabaseClient.from('teachers').update({ last_active: new Date().toISOString() }).eq('id', currentUser.user.id);
+
     const nameEl = document.querySelector('[data-user-name]');
     if (nameEl) nameEl.textContent = currentUser.profile.name || currentUser.profile.email;
 
@@ -700,7 +703,7 @@
         if (!time) { errorEl.textContent = 'Укажите время'; return; }
         if (isNaN(day)) { errorEl.textContent = 'Выберите день'; return; }
         
-        // Новая проверка
+        // Проверка на заметку при свободном статусе
         if (status === 'free' && (studentName || note)) {
           errorEl.textContent = 'Чтобы добавить имя или заметку, смените статус на "Занято".';
           return;
