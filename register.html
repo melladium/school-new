@@ -87,6 +87,7 @@
           <div class="field">
             <label for="gender">Пол</label>
             <select id="gender" name="gender" required>
+              <option value="" disabled selected>Выберите пол</option>
               <option value="male">Мужской</option>
               <option value="female">Женский</option>
             </select>
@@ -123,6 +124,7 @@
 
           <div class="auth-form__error" data-error></div>
 
+          <!-- Кнопка disabled по умолчанию -->
           <button type="submit" class="btn btn--primary btn--lg auth-form__submit" data-submit disabled>
             Зарегистрироваться
           </button>
