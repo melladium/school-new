@@ -5,13 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Регистрация — Школа Кузнечевского</title>
   <meta name="description" content="Зарегистрируйтесь на площадке репетиторов «Школа Кузнечевского» как ученик или репетитор.">
-
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Школа Кузнечевского">
-  <meta property="og:title" content="Регистрация — Школа Кузнечевского">
-  <meta property="og:description" content="Создайте аккаунт ученика или репетитора. Бесплатно.">
-  <meta property="og:url" content="https://kuznechevsky.ru/register.html">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -90,6 +83,14 @@
           <div class="field">
             <label for="name">Имя</label>
             <input type="text" id="name" name="name" placeholder="Анна" required autocomplete="name">
+          </div>
+
+          <div class="field">
+            <label for="gender">Пол</label>
+            <select id="gender" name="gender" required>
+              <option value="male">Мужской</option>
+              <option value="female">Женский</option>
+            </select>
           </div>
 
           <div class="field">
