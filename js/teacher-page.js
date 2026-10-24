@@ -53,7 +53,6 @@
       currentUser = null;
     }
 
-    // Обновляем шапку, если залогинен. НИКАКИХ РЕДИРЕКТОВ.
     if (currentUser && currentUser.profile) {
       const role = currentUser.profile.role;
       const cabinetHref = role === 'teacher' ? 'cabinet-teacher.html' : 'cabinet-student.html';
@@ -77,14 +76,13 @@
     await loadTeacher(id);
     if (!teacher) { setText('[data-hero-name]', 'Репетитор не найден'); return; }
 
-    // Фиксируем просмотр
     if (currentUser && currentUser.user && currentUser.user.id !== teacher.id) {
       try {
         await window.supabaseClient.rpc('increment_teacher_view', {
           p_teacher_id: teacher.id,
           p_viewer_id: currentUser.user.id
         });
-      } catch (e) { /* Игнорируем ошибки счетчика */ }
+      } catch (e) { /* ignore */ }
     }
 
     renderHero();
@@ -149,34 +147,38 @@
     if (!section) return;
 
     const text = teacher.bio.trim();
-    // Жестко режем если больше 120 символов или больше 4 строк
-    const isLong = text.length > 120 || text.split('\n').length > 4;
-
-    section.hidden = false;
     
+    // Принудительно формируем HTML с обрезанным текстом
     section.innerHTML = `
       <h2 class="tp-sidebar__title">О себе</h2>
       <div class="tp-bio-wrap">
-        <p class="tp-sidebar__bio tp-bio-text ${isLong ? '' : 'is-expanded'}" data-bio-content>${escapeHtml(text)}</p>
-        ${isLong ? `<button class="tp-bio-toggle is-visible" data-bio-toggle>Развернуть</button>` : ''}
+        <p class="tp-sidebar__bio tp-bio-text" data-bio-content>${escapeHtml(text)}</p>
+        <button class="tp-bio-toggle" data-bio-toggle style="display: none;">Развернуть</button>
       </div>
     `;
 
-    if (isLong) {
-      const contentEl = section.querySelector('[data-bio-content]');
-      const toggleBtn = section.querySelector('[data-bio-toggle]');
-      
-      toggleBtn.addEventListener('click', () => {
-        const isExpanded = contentEl.classList.contains('is-expanded');
-        if (isExpanded) {
-          contentEl.classList.remove('is-expanded');
-          toggleBtn.textContent = 'Развернуть';
-        } else {
-          contentEl.classList.add('is-expanded');
-          toggleBtn.textContent = 'Свернуть';
-        }
-      });
-    }
+    section.hidden = false;
+
+    const contentEl = section.querySelector('[data-bio-content]');
+    const toggleBtn = section.querySelector('[data-bio-toggle]');
+
+    // Проверяем, есть ли переполнение (высота текста больше контейнера)
+    // Вызываем после того, как элемент отрисован
+    setTimeout(() => {
+      if (contentEl.scrollHeight > contentEl.clientHeight) {
+        toggleBtn.style.display = 'inline-block';
+        toggleBtn.addEventListener('click', () => {
+          const isExpanded = contentEl.classList.contains('is-expanded');
+          if (isExpanded) {
+            contentEl.classList.remove('is-expanded');
+            toggleBtn.textContent = 'Развернуть';
+          } else {
+            contentEl.classList.add('is-expanded');
+            toggleBtn.textContent = 'Свернуть';
+          }
+        });
+      }
+    }, 100);
   }
 
   function renderGoals() {
