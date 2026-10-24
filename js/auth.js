@@ -3,22 +3,23 @@
 
   if (window.authAPI) return;
 
-  async function signUp(email, password, role, name) {
+  async function signUp(email, password, role, name, gender) {
     try {
       const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
       if (error) return { error: { message: error.message } };
-      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт. Попробуйте другой email.' } };
+      if (!data || !data.user) return { error: { message: 'Не удалось создать аккаунт.' } };
 
       const userId = data.user.id;
 
+      // Сохраняем профиль с полом
       const { error: profileError } = await window.supabaseClient.from('profiles').insert({
-        id: userId, email: email, role: role, name: name || email.split('@')[0]
+        id: userId, email: email, role: role, name: name || email.split('@')[0], gender: gender || 'male'
       });
       if (profileError) return { error: { message: 'Профиль: ' + profileError.message } };
 
       if (role === 'teacher') {
         const { error: teacherError } = await window.supabaseClient.from('teachers').insert({
-          id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false
+          id: userId, subject: 'math', price: 1000, bio: '', rating: 0, reviews_count: 0, goals: [], is_active: false, gender: gender || 'male'
         });
         if (teacherError) return { error: { message: 'Репетитор: ' + teacherError.message } };
       }
@@ -61,7 +62,7 @@
       const { data: { user } } = await window.supabaseClient.auth.getUser();
       if (!user) return null;
       const { data: profile } = await window.supabaseClient
-        .from('profiles').select('role, name, email').eq('id', user.id).single();
+        .from('profiles').select('role, name, email, gender').eq('id', user.id).single();
       return { user, profile };
     } catch (e) { return null; }
   }
@@ -169,12 +170,13 @@
       errorEl.textContent = '';
 
       if (!selectedRole) { errorEl.textContent = 'Сначала выберите роль'; return; }
-      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами и политикой обработки ПД'; return; }
+      if (agree && !agree.checked) { errorEl.textContent = 'Подтвердите согласие с правилами'; return; }
 
       const email = form.email.value.trim();
       const password = form.password.value;
       const password2 = form.password2 ? form.password2.value : password;
       const name = form.name.value.trim();
+      const gender = form.gender ? form.gender.value : 'male';
 
       if (!name) { errorEl.textContent = 'Введите имя'; return; }
       if (password.length < 6) { errorEl.textContent = 'Пароль минимум 6 символов'; return; }
@@ -182,7 +184,7 @@
 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Создаём аккаунт…';
-      const result = await signUp(email, password, selectedRole, name);
+      const result = await signUp(email, password, selectedRole, name, gender);
 
       if (result.error) {
         errorEl.textContent = result.error.message || 'Ошибка регистрации';
