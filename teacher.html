@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Репетитор — Школа Кузнечевского</title>
+  <title>Кабинет репетитора — Школа Кузнечевского</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -11,10 +11,9 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/auth.css">
   <link rel="stylesheet" href="css/cabinet.css">
-  <link rel="stylesheet" href="css/teacher.css">
   <link rel="stylesheet" href="css/mobile.css">
 </head>
-<body class="page-teacher-profile">
+<body class="page-teacher">
 
   <div class="cursor-glow" data-cursor-glow></div>
 
@@ -23,150 +22,419 @@
       <a href="index.html" class="nav__logo">Школа Кузнечевского<span>.</span></a>
       <nav class="nav__links">
         <a href="index.html">Главная</a>
-        <a href="index.html#podbor">Автоподбор</a>
+        <a href="cabinet-teacher.html" class="is-current">Кабинет</a>
       </nav>
-      <div class="nav__actions">
-        <a href="login.html" class="btn btn--ghost">Войти</a>
-        <a href="register.html" class="btn btn--primary">Регистрация</a>
+
+      <div class="nav__user-menu" data-user-menu>
+        <a href="cabinet-teacher.html" class="nav__user-trigger">
+          <span class="nav__user-name" data-user-name>…</span>
+          <span class="nav__user-avatar" data-user-avatar>?</span>
+        </a>
+        <div style="position:relative;">
+          <button class="notif-bell" data-notif-bell aria-label="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.7 21a2 2 0 01-3.4 0"/>
+            </svg>
+            <span class="notif-bell__count" data-notif-count hidden>0</span>
+          </button>
+          <div class="notif-panel" data-notif-panel hidden></div>
+        </div>
       </div>
+
+      <button class="nav__burger" aria-label="Меню">
+        <span></span><span></span>
+      </button>
     </div>
+    <nav class="nav__mobile" data-nav-mobile hidden>
+      <a href="index.html">Главная</a>
+      <a href="cabinet-teacher.html" class="is-current">Кабинет</a>
+      <button class="btn btn--ghost" data-logout-mobile>Выйти</button>
+    </nav>
   </header>
 
-  <main class="tp-page" data-teacher-page>
+  <main class="cabinet">
+    <div class="cabinet__grid"></div>
 
-    <div class="tp-page__grid"></div>
-    <div class="tp-page__orb"></div>
+    <div class="container cabinet__inner">
+      <div class="cabinet__head">
+        <div class="cabinet__eyebrow">Кабинет репетитора</div>
+      </div>
 
-    <div class="container tp-page__inner">
-
-      <div class="tp-layout">
-
-        <aside class="tp-sidebar">
-
-          <div class="tp-card tp-card--profile">
-            <div class="tp-sidebar__avatar" data-hero-avatar>—</div>
-            <h1 class="tp-sidebar__name" data-hero-name>Загрузка…</h1>
-            <div class="tp-sidebar__subject" data-hero-subject>—</div>
-            <div class="tp-sidebar__price" data-hero-price>—</div>
-            <div class="tp-sidebar__rating">
-              <span class="tp-sidebar__star">★</span>
-              <span data-hero-rating>—</span>
-              <span class="tp-sidebar__reviews-count" data-hero-reviews>—</span>
-            </div>
-          </div>
-
-          <div class="tp-card" data-section-bio hidden>
-            <h2 class="tp-sidebar__title">О себе</h2>
-            <p class="tp-sidebar__bio" data-bio-text></p>
-          </div>
-
-          <div class="tp-card" data-section-goals hidden>
-            <h2 class="tp-sidebar__title">Что беру</h2>
-            <div class="tp-goals" data-goals-list></div>
-          </div>
-
-          <div class="tp-card" data-section-contacts hidden>
-            <h2 class="tp-sidebar__title">Связь</h2>
-            <div class="tp-contacts tp-contacts--row">
-
-              <a class="tp-contact" data-contact-telegram hidden target="_blank" rel="noopener">
-                <span class="tp-contact__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 4L2 12l6 2 2 6 4-5 6 4V4z"/>
-                  </svg>
-                </span>
-                <span class="tp-contact__label">Telegram</span>
-              </a>
-
-              <a class="tp-contact" data-contact-whatsapp hidden target="_blank" rel="noopener">
-                <span class="tp-contact__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 11.5a8.4 8.4 0 01-1.2 4.4L21 21l-5.3-1.3a8.5 8.5 0 01-12.3-7.5A8.5 8.5 0 0121 11.5z"/>
-                    <path d="M8.5 8.5c.3-.7 1-.5 1.3.1l.6 1.2c.2.4 0 .9-.4 1.1l-.6.4c.4 1 1.4 2 2.4 2.4l.4-.6c.2-.4.7-.6 1.1-.4l1.2.6c.6.3.8 1 .1 1.3-1.1.5-2.7.4-4-1-1.4-1.4-1.5-2.9-1-4z"/>
-                  </svg>
-                </span>
-                <span class="tp-contact__label">WhatsApp</span>
-              </a>
-
-              <button type="button" class="tp-contact" data-contact-phone hidden>
-                <span class="tp-contact__icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.4 2.1L8 10.2a16 16 0 006 6l1.4-1.4a2 2 0 012.1-.5c1 .3 2 .6 3 .7a2 2 0 011.7 2z"/>
-                  </svg>
-                </span>
-                <span class="tp-contact__label">Позвонить</span>
-              </button>
-
-            </div>
-          </div>
-
-        </aside>
-
-        <div class="tp-feed">
-
-          <section class="tp-card" id="schedule">
-            <h2 class="tp-feed__title">Расписание</h2>
-            <div class="tp-schedule" data-schedule>
-              <div class="tp-schedule__loading">Загружаем расписание…</div>
-            </div>
-          </section>
-
-          <section class="tp-card" data-section-portfolio hidden>
-            <h2 class="tp-feed__title">Достижения</h2>
-            <div class="tp-portfolio tp-portfolio--two">
-              <img data-portfolio-image src="" alt="Достижение 1" loading="lazy">
-              <img data-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden>
-            </div>
-          </section>
-
+      <div class="cabinet__head-row">
+        <h1 class="cabinet__title">Расписание и заявки</h1>
+        <div class="cabinet__head-actions">
+          <button type="button" class="btn btn--ghost" data-open-preview>Как видят ученики</button>
+          <button type="button" class="btn btn--ghost" data-open-profile>Редактировать профиль</button>
         </div>
+      </div>
+
+      <div class="cabinet__stats">
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="upcoming">0</div>
+          <div class="cabinet-stat__label">Предстоит</div>
+        </div>
+        <div class="cabinet-stat">
+          <div class="cabinet-stat__num" data-stat="done">0</div>
+          <div class="cabinet-stat__label">Проведено</div>
+        </div>
+      </div>
+
+      <div class="teacher-layout">
+
+        <div class="teacher-col-main">
+          <div class="cabinet__col-head cabinet__col-head--aligned">
+            <h2 class="cabinet__title cabinet__title--col">Расписание</h2>
+          </div>
+
+          <div class="teacher-tabs-row">
+            <div class="teacher-tabs">
+              <button class="teacher-tab is-active" data-tab="public">Публичное</button>
+              <button class="teacher-tab" data-tab="personal">Личное</button>
+            </div>
+            <div class="teacher-tabs-actions">
+              <button type="button" class="btn btn--ghost btn--sm" data-schedule-toggle disabled>Развернуть</button>
+              <button class="btn btn--primary btn--sm" data-add-cell>+ Ячейка</button>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel is-active" data-tab-panel="public">
+            <div class="info-panel">
+              <div class="info-panel__title">Что это</div>
+              <ul class="info-panel__list">
+                <li>Эти ячейки <strong>видят ученики</strong>.</li>
+                <li><span class="dot dot--free"></span> Свободно — можно оставить заявку.</li>
+                <li><span class="dot dot--busy"></span> Занято — время забронировано.</li>
+                <li><span class="dot dot--off"></span> Не работает — вы недоступны.</li>
+              </ul>
+            </div>
+            <div class="week-board" data-week-board>
+              <div class="week-board__loading">Загружаем…</div>
+            </div>
+          </div>
+
+          <div class="teacher-tab-panel" data-tab-panel="personal">
+            <div class="info-panel">
+              <div class="info-panel__title">Что это</div>
+              <ul class="info-panel__list">
+                <li>Это <strong>только для вас</strong>.</li>
+                <li>Ученики не видят.</li>
+                <li>Заметки для себя: имя, ссылка.</li>
+              </ul>
+            </div>
+            <div class="week-board week-board--personal" data-personal-board>
+              <div class="week-board__loading">Загружаем…</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="teacher-col-side">
+          <div style="position: relative;">
+            <div class="cabinet__col-head cabinet__col-head--aligned" style="margin-bottom: 0;">
+              <h2 class="cabinet__title cabinet__title--col">Заявки</h2>
+            </div>
+            <button type="button" class="btn btn--ghost btn--sm" data-bookings-toggle disabled style="position: absolute; top: 58px; right: 0;">Развернуть</button>
+          </div>
+          
+          <div class="teacher-bookings-wrapper">
+            <div class="cabinet__list" data-bookings-list>
+              <div class="cabinet__empty">
+                <div class="cabinet__empty-icon">📩</div>
+                <div class="cabinet__empty-title">Заявок пока нет</div>
+                <div class="cabinet__empty-desc">Когда ученик попросит место — заявка появится здесь</div>
+              </div>
+            </div>
+          </div>
+        </aside>
 
       </div>
 
+      <div class="cabinet__section">
+        <h2 class="cabinet__section-title">Опасная зона</h2>
+        <div class="danger-zone">
+          <p class="danger-zone__text">
+            Скрытие анкеты убирает вас из автоподбора. Ученики перестанут вас видеть.
+          </p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn--ghost" data-toggle-visibility>Скрыть анкету</button>
+            <button class="btn btn--ghost" data-logout>Выйти из аккаунта</button>
+            <button class="btn btn--danger" data-delete-account>Удалить аккаунт навсегда</button>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
-  <div class="modal" data-modal="request" hidden>
+  <!-- Модалки -->
+  <div class="modal" data-modal="preview" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel modal__panel--wide">
+      <div class="preview-banner">
+        <span class="preview-banner__icon">👁</span>
+        <span>Так вас видят ученики. Это предпросмотр — заявки здесь не работают.</span>
+      </div>
+      <div class="preview-body">
+        <aside class="preview-sidebar">
+          <div class="preview-card preview-card--profile">
+            <div class="preview-avatar" data-preview-avatar>—</div>
+            <h2 class="preview-name" data-preview-name>—</h2>
+            <div class="preview-subject" data-preview-subject>—</div>
+            <div class="preview-price" data-preview-price>—</div>
+            <div class="preview-rating">
+              <span class="preview-rating__star">★</span>
+              <span data-preview-rating>—</span>
+              <span class="preview-rating__count" data-preview-reviews>—</span>
+            </div>
+          </div>
+          <div class="preview-card" data-preview-bio-block hidden>
+            <h3 class="preview-card__title">О себе</h3>
+            <p class="preview-bio" data-preview-bio></p>
+          </div>
+          <div class="preview-card" data-preview-contacts-block hidden>
+            <h3 class="preview-card__title">Связь</h3>
+            <div class="preview-contacts preview-contacts--row">
+              <div class="preview-contact" data-preview-contact="telegram" hidden>
+                <span class="preview-contact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4L2 12l6 2 2 6 4-5 6 4V4z"/></svg></span>
+                <span class="preview-contact__label">Telegram</span>
+              </div>
+              <div class="preview-contact" data-preview-contact="whatsapp" hidden>
+                <span class="preview-contact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 01-1.2 4.4L21 21l-5.3-1.3a8.5 8.5 0 01-12.3-7.5A8.5 8.5 0 0121 11.5z"/></svg></span>
+                <span class="preview-contact__label">WhatsApp</span>
+              </div>
+              <div class="preview-contact" data-preview-contact="phone" hidden>
+                <span class="preview-contact__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3 19.5 19.5 0 01-6-6 19.8 19.8 0 01-3-8.7A2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .4 2 .7 3a2 2 0 01-.4 2.1L8 10.2a16 16 0 006 6l1.4-1.4a2 2 0 012.1-.5c1 .3 2 .6 3 .7a2 2 0 011.7 2z"/></svg></span>
+                <span class="preview-contact__label">Позвонить</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="preview-feed">
+          <section class="preview-card">
+            <h3 class="preview-card__title">Расписание</h3>
+            <div class="preview-schedule" data-preview-schedule>
+              <div class="preview-schedule__loading">Загружаем…</div>
+            </div>
+          </section>
+          <section class="preview-card" data-preview-portfolio-block hidden style="flex: 1; display: flex; flex-direction: column;">
+            <h3 class="preview-card__title">Достижения</h3>
+            <div class="preview-portfolio" style="flex: 1;">
+              <img data-preview-portfolio-image src="" alt="Достижение 1" loading="lazy" style="height: 100%; object-fit: cover;">
+              <img data-preview-portfolio-image-2 src="" alt="Достижение 2" loading="lazy" hidden style="height: 100%; object-fit: cover;">
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="modal-actions modal-actions--sticky">
+        <button type="button" class="btn btn--ghost" data-modal-close>Закрыть</button>
+        <button type="button" class="btn btn--primary" data-preview-edit style="margin-left:auto;">Редактировать профиль</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" data-modal="profile" hidden>
+    <div class="modal__backdrop" data-modal-close></div>
+    <div class="modal__panel" style="max-width: 680px;">
+      <div class="pay">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--border);">
+          <div class="pay__title" style="margin:0;padding:0;border:0;">Редактировать профиль</div>
+          <button type="button" class="btn btn--icon" data-modal-close aria-label="Закрыть">✕</button>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Главное фото (аватар)</label>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div data-avatar-preview style="width:72px;height:72px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--cabinet-accent,var(--magenta));overflow:hidden;flex-shrink:0;">👤</div>
+            <div>
+              <input type="file" accept="image/*" data-avatar-input style="display:none;">
+              <button type="button" class="btn btn--ghost" data-avatar-button>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 2 МБ.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Фото достижений — 1</label>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div data-portfolio-preview style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--cabinet-accent,var(--magenta));overflow:hidden;flex-shrink:0;">🖼</div>
+            <div>
+              <input type="file" accept="image/*" data-portfolio-input style="display:none;">
+              <button type="button" class="btn btn--ghost" data-portfolio-button>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Фото достижений — 2</label>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div data-portfolio-preview-2 style="width:72px;height:72px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--cabinet-accent,var(--magenta));overflow:hidden;flex-shrink:0;">🖼</div>
+            <div>
+              <input type="file" accept="image/*" data-portfolio-input-2 style="display:none;">
+              <button type="button" class="btn btn--ghost" data-portfolio-button-2>Загрузить фото</button>
+              <div style="font-size:12px;color:var(--text-mute);margin-top:6px;">JPG, PNG. До 5 МБ.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Предмет</label>
+          <select data-edit-subject>
+            <option value="math">Математика</option>
+            <option value="russian">Русский</option>
+            <option value="physics">Физика</option>
+            <option value="chemistry">Химия</option>
+            <option value="biology">Биология</option>
+            <option value="it">Информатика</option>
+            <option value="english">Английский</option>
+            <option value="history">История</option>
+            <option value="social">Обществознание</option>
+            <option value="geography">География</option>
+          </select>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Какие задачи беру</label>
+          <div class="profile-goals" data-goals-list></div>
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Цена за урок (₽)</label>
+          <input type="number" min="0" step="100" data-edit-price placeholder="1000">
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Телефон</label>
+          <input type="tel" data-edit-phone placeholder="+7 999 123-45-67">
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>Telegram</label>
+          <input type="text" data-edit-telegram placeholder="@username">
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>WhatsApp</label>
+          <input type="tel" data-edit-whatsapp placeholder="+7 999 123-45-67">
+        </div>
+
+        <div class="field" style="margin-bottom:14px;">
+          <label>О себе</label>
+          <textarea data-edit-bio rows="4" placeholder="МГУ, мехмат..."></textarea>
+        </div>
+
+        <div class="auth-form__error" data-profile-error></div>
+        <div class="modal-actions">
+          <button class="btn btn--ghost" data-profile-cancel>Отмена</button>
+          <button class="btn btn--primary" data-profile-save style="margin-left:auto;">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" data-modal="request-link" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
       <div class="pay">
-        <div class="pay__title">Заявка на место</div>
+        <div class="pay__title">Ссылка на урок</div>
         <div class="pay__lesson">
-          <div class="pay__row"><span class="pay__row-label">Репетитор</span><span class="pay__row-value" data-request-teacher>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Предмет</span><span class="pay__row-value" data-request-subject>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-time>—</span></div>
-          <div class="pay__row"><span class="pay__row-label">Цена</span><span class="pay__row-value" data-request-price>—</span></div>
+          <div class="pay__row"><span class="pay__row-label">Ученик</span><span class="pay__row-value" data-request-link-student>—</span></div>
+          <div class="pay__row"><span class="pay__row-label">Время</span><span class="pay__row-value" data-request-link-time>—</span></div>
         </div>
-        <div class="pay__free-note">Репетитор подтвердит заявку. Уведомление придёт в колокольчик.</div>
-        <div class="auth-form__error" data-request-error></div>
-        <button class="btn btn--primary btn--lg" style="width:100%;" data-request-send>Отправить заявку</button>
+        <div class="pay__free-note">Ссылку увидит только этот ученик.</div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Ссылка (https://)</label>
+          <input type="url" data-request-link-input placeholder="https://...">
+        </div>
+        <div class="auth-form__error" data-request-link-error></div>
+        <div class="modal-actions">
+          <button class="btn btn--ghost" data-request-link-remove hidden>Удалить ссылку</button>
+          <button class="btn btn--primary" data-request-link-save style="margin-left:auto;">Сохранить</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" data-modal="success" hidden>
+  <div class="modal" data-modal="cell-edit" hidden>
     <div class="modal__backdrop" data-modal-close></div>
     <div class="modal__panel">
       <div class="pay">
-        <div class="pay__success">
-          <div class="pay__success-icon">✓</div>
-          <h3>Заявка отправлена</h3>
-          <p>Репетитор подтвердит её в кабинете.<br>Ссылка на урок появится в вашей заявке.</p>
-          <button class="btn btn--ghost btn--lg" data-modal-close>Понятно</button>
+        <div class="pay__title" data-cell-title>Новая ячейка</div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>День недели</label>
+          <select data-cell-day>
+            <option value="" disabled selected>Не выбрано</option>
+            <option value="1">Понедельник</option>
+            <option value="2">Вторник</option>
+            <option value="3">Среда</option>
+            <option value="4">Четверг</option>
+            <option value="5">Пятница</option>
+            <option value="6">Суббота</option>
+            <option value="0">Воскресенье</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Время</label>
+          <input type="time" data-cell-time>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Статус</label>
+          <select data-cell-status>
+            <option value="free">Свободно</option>
+            <option value="busy">Занято</option>
+            <option value="off">Не работает</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Имя и фамилия ученика (до 30 символов)</label>
+          <input type="text" maxlength="30" data-cell-student-name placeholder="Иванов Иван">
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Ссылка на урок или пометка (до 50 символов)</label>
+          <input type="text" maxlength="50" data-cell-note placeholder="Zoom, Телемост, ссылка…">
+        </div>
+        <div class="auth-form__error" data-cell-error></div>
+        <div class="modal-actions">
+          <button class="btn btn--primary" style="flex:1;" data-cell-save>Сохранить</button>
+          <button class="btn btn--ghost" data-cell-delete hidden>Удалить</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal" data-modal="phone" hidden>
+  <div class="modal" data-modal="personal-cell-edit" hidden>
     <div class="modal__backdrop" data-modal-close></div>
-    <div class="modal__panel" style="max-width: 380px;">
+    <div class="modal__panel">
       <div class="pay">
-        <div class="pay__title" style="text-align:center;">Телефон репетитора</div>
-        <div class="phone-display" data-phone-number>—</div>
-        <div class="modal-actions" style="justify-content:center;">
-          <button type="button" class="btn btn--primary" data-phone-copy>Скопировать</button>
-          <button type="button" class="btn btn--ghost" data-modal-close>Закрыть</button>
+        <div class="pay__title" data-personal-cell-title>Новая ячейка</div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>День недели</label>
+          <select data-personal-cell-day>
+            <option value="" disabled selected>Не выбрано</option>
+            <option value="1">Понедельник</option>
+            <option value="2">Вторник</option>
+            <option value="3">Среда</option>
+            <option value="4">Четверг</option>
+            <option value="5">Пятница</option>
+            <option value="6">Суббота</option>
+            <option value="0">Воскресенье</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Время</label>
+          <input type="time" data-personal-cell-time>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Имя ученика (до 30 символов)</label>
+          <input type="text" maxlength="30" data-personal-cell-student-name placeholder="Иванов Иван">
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Текст (до 50 символов)</label>
+          <input type="text" maxlength="50" data-personal-cell-text placeholder="Заметка">
+        </div>
+        <div class="auth-form__error" data-personal-cell-error></div>
+        <div class="modal-actions">
+          <button class="btn btn--primary" style="flex:1;" data-personal-cell-save>Сохранить</button>
+          <button class="btn btn--ghost" data-personal-cell-delete hidden>Удалить</button>
         </div>
       </div>
     </div>
@@ -206,6 +474,6 @@
   <script src="js/libs/supabase.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/teacher-page.js"></script>
+  <script src="js/cabinet-teacher.js"></script>
 </body>
 </html>
