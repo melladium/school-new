@@ -42,7 +42,6 @@
       currentUser = window.authAPI ? await window.authAPI.getCurrentUser() : null;
     } catch (e) { currentUser = null; }
 
-    // УБИРАЕМ проверку is_active! Просто ищем по ID.
     const { data, error } = await window.supabaseClient
       .from('teachers')
       .select('*')
@@ -50,7 +49,6 @@
       .single();
 
     if (error || !data) {
-      console.error('Ошибка загрузки учителя:', error);
       setText('[data-hero-name]', 'Репетитор не найден');
       return;
     }
@@ -282,21 +280,58 @@
 
   async function sendRequest() {
     if (!selectedCell || !currentUser) return;
+    
     const errEl = document.querySelector('[data-request-error]');
     const btn = document.querySelector('[data-request-send]');
-    btn.disabled = true; btn.textContent = 'Отправляем…';
+    
+    // Блокируем кнопку сразу
+    errEl.textContent = '';
+    btn.disabled = true; 
+    btn.textContent = 'Отправляем…';
 
-    const { error } = await window.supabaseClient.from('booking_requests').insert({
-      student_id: currentUser.user.id, teacher_id: teacher.id,
-      weekday: selectedCell.day, time: selectedCell.time, status: 'pending'
-    });
+    try {
+      // ЖЕСТКАЯ ПРОВЕРКА НА СУЩЕСТВУЮЩУЮ ЗАЯВКУ
+      const { data: existing } = await window.supabaseClient
+        .from('booking_requests')
+        .select('id')
+        .eq('student_id', currentUser.user.id)
+        .eq('teacher_id', teacher.id)
+        .eq('weekday', selectedCell.day)
+        .eq('time', selectedCell.time)
+        .in('status', ['pending', 'approved'])
+        .maybeSingle();
 
-    btn.disabled = false; btn.textContent = 'Отправить заявку';
-    if (error) { errEl.textContent = 'Ошибка: ' + error.message; return; }
+      if (existing) {
+        errEl.textContent = 'У вас уже есть заявка на это время.';
+        return;
+      }
 
-    closeAllModals();
-    document.querySelector('[data-modal="success"]').hidden = false;
-    document.body.style.overflow = 'hidden';
+      // ОТПРАВЛЯЕМ
+      const { error } = await window.supabaseClient.from('booking_requests').insert({
+        student_id: currentUser.user.id, 
+        teacher_id: teacher.id,
+        weekday: selectedCell.day, 
+        time: selectedCell.time, 
+        status: 'pending'
+      });
+
+      if (error) throw error;
+
+      closeAllModals();
+      document.querySelector('[data-modal="success"]').hidden = false;
+      document.body.style.overflow = 'hidden';
+
+    } catch (e) {
+      // Если база выкинула ошибку (например, из-за индекса unique_active_booking)
+      if (e.message.includes('unique_active_booking') || e.code === '23505') {
+        errEl.textContent = 'У вас уже есть заявка на это время.';
+      } else {
+        errEl.textContent = 'Ошибка: ' + e.message;
+      }
+    } finally {
+      btn.disabled = false; 
+      btn.textContent = 'Отправить заявку';
+    }
   }
 
   function initLightboxes() {
